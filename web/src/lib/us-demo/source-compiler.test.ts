@@ -192,11 +192,33 @@ describe('US-DEMO P2 — source-only English compiler', () => {
       ));
     assert.ok(renderedFactualText.every((text) => sourceTexts.has(text)));
     const sections = first.config.pages[0]?.sections ?? [];
-    assert.equal(sections.find((section) => section.id === 'clinic-rating-aggregate')?.type, 'custom');
+    /**
+     * These two used to be asserted as PRESENT here — a `custom` rating-aggregate section and a
+     * before-and-after placeholder carrying no image. Both are now omitted on outreach-safe (this
+     * compile's default mode), so the assertion is inverted rather than dropped.
+     *
+     * What the original was defending survives intact and is what the inverted form defends
+     * better: the demo must never fabricate patient evidence. A placeholder that contained no
+     * image was one way to satisfy that; not emitting the section at all is a stricter way. The
+     * `testimonials` assertion below is untouched and still carries the same guarantee for
+     * reviews.
+     *
+     * Note this is deliberately NOT a claim about new-build, which reaches the compiler through
+     * `demo` mode and still emits both sections — `newbuild.test.ts` continues to pin that, and
+     * removes the slots through `omitRoles` instead.
+     */
+    assert.equal(sections.some((section) => section.id === 'clinic-rating-aggregate'), false);
+    assert.equal(
+      sections.some((section) => section.id === 'clinic-before-after-placeholder'),
+      false,
+    );
     assert.equal(sections.some((section) => section.type === 'testimonials'), false);
     assert.equal(
-      sections.find((section) => section.id === 'clinic-before-after-placeholder')
-        ?.elements.some((element) => element.kind === 'image'),
+      sections.some((section) => (
+        section.elements.some((element) => (
+          element.kind === 'text' && /Consented cases can be added/u.test(element.text)
+        ))
+      )),
       false,
     );
     const providerImage = sections

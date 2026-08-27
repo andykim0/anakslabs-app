@@ -119,7 +119,24 @@ function ratingAggregateSection(input: {
     ? input.experience.ratingAggregate
     : undefined;
   if (!aggregate) {
-    if (input.experience.mode === 'preview-full') return null;
+    /**
+     * Omitted on outreach-safe for the same reason it is omitted on preview-full: there is no
+     * rating to show, and a note explaining that to the prospect is our copy occupying a slot the
+     * practice's own content could have had.
+     *
+     * The omission is made HERE rather than filtered at render, because the section list is what
+     * `applyClinicSurfaceCadence` assigns tones over. A placeholder removed after that runs leaves
+     * the cadence solved against a section nobody sees — which is exactly what went wrong: this
+     * section was `us-demo-services`'s tint partner, so suppressing it at render left a lone tint
+     * followed by the dark gallery. Removing it from the list makes the cadence correct by
+     * construction instead of correct by coincidence.
+     *
+     * `demo` and `live` are deliberately untouched. New-build reaches this through `demo` and
+     * removes the slot with `omitRoles`, which is a different mechanism with its own contract.
+     */
+    if (input.experience.mode === 'preview-full' || input.experience.mode === 'outreach-safe') {
+      return null;
+    }
     return disclosureSection({
       id: 'clinic-rating-aggregate',
       name: 'Patient Reviews',
@@ -280,7 +297,9 @@ export function compilePremiumDentalMaster(input: {
         candidates: ['gallery.uniform-grid'],
       }));
     }
-  } else {
+  } else if (experience.mode !== 'outreach-safe') {
+    // Same reasoning as the rating aggregate above: the placeholder leaves the section list, so
+    // the cadence is assigned over the sections that actually render. `demo` and `live` keep it.
     result.push(disclosureSection({
       id: 'clinic-before-after-placeholder',
       name: 'Before & After',

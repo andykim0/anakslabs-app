@@ -284,9 +284,24 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
           .map((node) => node['@type'])
       )),
     );
-    assert.match(JSON.stringify(implicit.config), /Consented cases can be added/u);
-    assert.match(JSON.stringify(implicit.config), /rating and review count can appear/u);
+    /**
+     * The provider placeholder is still an outreach-safe-only artefact and still asserted.
+     *
+     * The other two moved on purpose. The rating-aggregate and before-and-after notes are no
+     * longer compiled on outreach-safe at all — they were our copy occupying a slot, and leaving
+     * them in the section list made `applyClinicSurfaceCadence` solve the tone rhythm against
+     * sections the renderer then suppressed, which split a tint pair and left a lone tint against
+     * the dark gallery. So the expectation is inverted rather than deleted: they must now be
+     * absent from BOTH modes, which is a stronger claim than the one it replaces.
+     *
+     * What this test defends is unchanged — outreach-safe and preview-full share one multipage,
+     * nav and JSON-LD schema, and sales copy never reaches preview-full.
+     */
     assert.match(JSON.stringify(implicit.config), /provider-placeholder\.svg/u);
+    assert.doesNotMatch(
+      JSON.stringify(implicit.config),
+      /Consented cases can be added|rating and review count can appear/u,
+    );
     assert.doesNotMatch(
       JSON.stringify(full.config),
       /Consented cases can be added|rating and review count can appear|provider-placeholder\.svg/iu,
