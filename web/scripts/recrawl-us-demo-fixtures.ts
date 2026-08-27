@@ -7,6 +7,10 @@
  * the palette candidate list was the first.
  *
  * Usage: tsx scripts/recrawl-us-demo-fixtures.ts [--prefix t0] [--dir scripts/fixtures/us-demo-artifacts]
+ *        tsx scripts/recrawl-us-demo-fixtures.ts --only enamel
+ *
+ * `--only` exists so capturing one new fixture does not re-crawl three practices that did not ask
+ * to be crawled again. It filters which seed runs; it changes no policy.
  */
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -19,6 +23,8 @@ const SEEDS = {
   dental360: 'https://dental360grp.com/',
   cameods: 'https://cameods.com/oral-surgeon-chicago-il-locations/west-loop-location/',
   iddental: 'https://iddentalimplant.com',
+  /** The MARQUEE board's source practice — a ten-studio neighborhood group with a real palette. */
+  enamel: 'https://enameldentistry.com',
 } as const;
 
 function arg(flag: string, fallback: string): string {
@@ -30,7 +36,9 @@ const dir = resolve(arg('--dir', 'scripts/fixtures/us-demo-artifacts'));
 const prefix = arg('--prefix', 't0');
 
 async function main(): Promise<void> {
+  const only = arg('--only', '');
   for (const [name, url] of Object.entries(SEEDS)) {
+    if (only && name !== only) continue;
     // The production wrapper in crawler.ts is `server-only`; it supplies exactly this validator
     // on top of the same core, so passing it here runs the designated crawl unchanged.
     const artifact = await crawlDesignatedSite({

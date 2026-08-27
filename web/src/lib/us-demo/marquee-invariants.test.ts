@@ -132,6 +132,73 @@ describe('MARQUEE — the language-keyed palette gate', () => {
   });
 });
 
+/**
+ * THE BOARD'S OWN SOURCE PRACTICE, through the real gate.
+ *
+ * This is the test that caught the separation rule's absence. enameldentistry.com publishes eight
+ * CTA colours and the ladder reaches this language's own plum before it reaches the orange the
+ * practice actually leads with — so without a separation rule the gate adopted #231942, `--brand`
+ * collapsed onto `--ink`, and the demo repainted MARQUEE in itself while reporting a clean
+ * extraction. Nothing failed. It just produced the wrong page.
+ */
+describe('MARQUEE — enameldentistry.com, the board practice', () => {
+  const enamel = () => artifact('enamel');
+
+  test('the ladder rejects the language\'s own colours and lands on the practice\'s orange', () => {
+    const prepared = prepareUsMedicalPreview({
+      artifact: enamel(),
+      renderMode: 'preview-full',
+      designLanguage: 'marquee',
+    });
+    const palette = prepared.config.clinicMaster!.resolvedPalette!;
+    assert.equal(palette.slots['--brand'], '#E56B10');
+    assert.equal(palette.slots['--brand-ink'], MARQUEE_TOKENS.ink);
+    assert.equal(palette.fallbackUsed, false);
+    assert.equal(palette.refinement, 'none');
+    assert.equal(palette.origin, 'cta');
+    // The pair the page is actually drawn with, measured.
+    assert.equal(
+      contrastRatio(palette.slots['--brand-ink'], palette.slots['--brand']).toFixed(3),
+      '4.997',
+    );
+  });
+
+  test('each rejection on the ladder is rejected for a stated reason', () => {
+    const reasonsFor = (hex: string) => buildClinicPalette({
+      candidates: [{ origin: 'cta', hex }],
+      specialty: 'dental',
+      imageDense: true,
+      designLanguage: 'marquee',
+    }).meta.gateFailures;
+    // No ink the language owns reaches AA on it.
+    assert.deepEqual(reasonsFor('#C95D0C'), ['marquee ink/brand 4.5:1']);
+    // It IS the language's ink.
+    assert.ok(reasonsFor('#231942').some((r) => r.startsWith('marquee brand/ink separation')));
+    // Near enough to the ink to read as it.
+    assert.ok(reasonsFor('#4F327C').some((r) => r.startsWith('marquee brand/ink separation')));
+    // It IS the language's accent.
+    assert.ok(reasonsFor('#7D55C7').some((r) => r.startsWith('marquee brand/accent separation')));
+    // And the one the practice leads with passes clean.
+    assert.deepEqual(reasonsFor('#E56B10'), []);
+  });
+
+  test('the separation rule does not reject a legitimately distant hue', () => {
+    // All four are hues the ink gate already clears, so any failure here is the separation rule.
+    for (const hex of ['#E56B10', '#CC3366', '#0359EB', '#0E7A80']) {
+      assert.deepEqual(
+        buildClinicPalette({
+          candidates: [{ origin: 'cta', hex }],
+          specialty: 'dental',
+          imageDense: false,
+          designLanguage: 'marquee',
+        }).meta.gateFailures,
+        [],
+        hex,
+      );
+    }
+  });
+});
+
 describe('MARQUEE — the stored field', () => {
   test('absence is the default language, and the pin does not carry the key', () => {
     const prepared = prepareUsMedicalPreview({

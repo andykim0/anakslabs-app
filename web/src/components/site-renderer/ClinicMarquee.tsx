@@ -109,6 +109,13 @@ ${S} [data-clinic-flow-section] {
 ${S} [data-clinic-flow-section]:nth-of-type(even) {
   background: var(--mq-lilac-tint);
 }
+${S} [data-section-type="cta"] {
+  background: var(--mq-brand);
+  color: var(--mq-brand-ink);
+}
+${S} [data-section-type="cta"] :is([data-clinic-flow-heading],[data-clinic-flow-intro],[data-clinic-flow-copy]) {
+  color: var(--mq-brand-ink);
+}
 
 /* ---- type -------------------------------------------------------------- */
 /* Display leading is the calibrated number: the consumer-health tier never sets below 1.1, and
@@ -122,7 +129,7 @@ ${S} [data-clinic-flow-heading] {
   color: var(--mq-ink);
   max-width: 20ch;
 }
-${S} [data-clinic-flow-section="hero"] [data-clinic-flow-heading],
+${S} [data-section-type="hero"] [data-clinic-flow-heading],
 ${S} [data-clinic-flow-hero-copy] :is(h1,[data-clinic-flow-heading]) {
   font-size: clamp(44px,5.3vw,74px);
   line-height: 1.08;
@@ -163,6 +170,35 @@ ${S} [data-clinic-flow-marker] {
   line-height: 1;
   letter-spacing: .09em;
   text-transform: uppercase;
+}
+
+/*
+  The hero eyebrow is a separate hook from [data-clinic-flow-marker] and was inheriting the brand
+  colour as 14px text on white — #E56B10 on #FFFFFF is 3.26:1, which is the exact thing the
+  language forbids: the extracted colour is a surface, and it never carries small text on light.
+  It becomes a pill, like every other kicker in the language.
+*/
+${S} [data-clinic-hero-kicker] {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--mq-r-pill);
+  background-color: var(--mq-accent);
+  /*
+    THE BOARD'S OWN INVERSION RULE, and it is encoded here rather than left to an author: where a
+    violet surface would otherwise carry the extracted orange, the text inverts to white, because
+    orange on violet measures 1.612:1. The eyebrow's colour is written inline by the renderer, so
+    !important is what actually carries the rule — without it the pill landed and the label stayed
+    orange at exactly that ratio, which is the second thing the AA sweep caught.
+  */
+  color: #fff !important;
+  font-family: var(--clinic-control-family);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+  width: fit-content;
 }
 
 /* ---- cards: 2px ink border on every card, constant media slot ---------- */
@@ -230,8 +266,7 @@ ${S} [data-clinic-flow-item]:nth-child(4n+4) [data-clinic-flow-media] { border-r
 ${S} [data-clinic-flow-item] [data-clinic-flow-media] { border-radius: 0; border: 0; }
 
 /* ---- hero: lilac surface, plated art over a solid brand block ---------- */
-${S} [data-clinic-flow-section="hero"],
-${S} [data-clinic-flow-section^="hero."] {
+${S} [data-section-type="hero"] {
   background: var(--mq-lilac);
 }
 ${S} [data-clinic-flow-hero-media] {
@@ -256,40 +291,51 @@ ${S} [data-clinic-flow-hero-media] > :is(img,picture,div) {
 }
 
 /* ---- buttons: full pill, flat offset shadow, 3px lift ------------------ */
-${S} .anaks-btn,
-${S} [data-clinic-flow-control] {
+/*
+  !important, and the reason is measured rather than defensive. The renderer writes each button's
+  colour and background INLINE, keyed on data-variant — background-color:transparent with
+  color:#7D55C7 for ghost. Inline beats an author rule, so MARQUEE's fill landed while the label
+  kept the old colour and every "View treatment" rendered violet-on-violet at a contrast ratio of
+  1.00: six invisible buttons per page, on both viewports. Caught by the AA sweep and confirmed in
+  the 1440 services screenshot. The language owns its controls, so it says so.
+*/
+/*
+  .anaks-btn ONLY. [data-clinic-flow-control] is the WRAPPER around the button, not the button:
+  styling both painted a violet pill around a white rectangle, visible in the 1440 services shot.
+  border-radius is !important for the same reason the colours are — the renderer writes
+  border-radius:0 inline, so without it every "pill" rendered square.
+*/
+${S} .anaks-btn {
   height: 56px;
   padding: 0 30px;
-  border-radius: var(--mq-r-pill);
+  border-radius: var(--mq-r-pill) !important;
   border: var(--mq-border) solid transparent;
   font-family: var(--clinic-control-family);
   font-weight: 700;
   font-size: 15px;
   line-height: 1;
   letter-spacing: -.005em;
-  background: var(--mq-accent);
-  color: #fff;
+  background-color: var(--mq-accent) !important;
+  color: #fff !important;
   box-shadow: 0 5px 0 var(--mq-accent-deep);
   transition: transform .16s var(--mq-spring), box-shadow .16s var(--mq-ease);
 }
-${S} .anaks-btn:hover,
-${S} [data-clinic-flow-control]:hover {
+/* The board's third variant: white fill, ink label, ink border — 16.29:1. */
+${S} .anaks-btn[data-variant="ghost"],
+${S} .anaks-btn[data-variant="outline"] {
+  background-color: #fff !important;
+  color: var(--mq-ink) !important;
+  border: var(--mq-border) solid var(--mq-ink) !important;
+  box-shadow: 0 5px 0 var(--mq-ink);
+}
+${S} .anaks-btn[data-variant="ghost"]:hover,
+${S} .anaks-btn[data-variant="outline"]:hover {
+  box-shadow: 0 8px 0 var(--mq-ink);
+}
+${S} .anaks-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 0 var(--mq-accent-deep);
 }
-/* The secondary action is the outline variant: white fill, ink border, ink shadow. */
-${S} .anaks-btn + .anaks-btn,
-${S} [data-clinic-flow-control] + [data-clinic-flow-control] {
-  background: #fff;
-  color: var(--mq-ink);
-  border-color: var(--mq-ink);
-  box-shadow: 0 5px 0 var(--mq-ink);
-}
-${S} .anaks-btn + .anaks-btn:hover,
-${S} [data-clinic-flow-control] + [data-clinic-flow-control]:hover {
-  box-shadow: 0 8px 0 var(--mq-ink);
-}
-
 /* ---- utility strip: the brand colour as a SURFACE, from the first pixel - */
 [data-marquee-utility-strip] {
   background: var(--mq-brand);
@@ -380,8 +426,7 @@ ${S} [data-clinic-motion-signature="marquee-spring"] [data-clinic-variant-reveal
 @media (prefers-reduced-motion: reduce) {
   ${S} [data-clinic-motion-signature] [data-clinic-variant-reveal],
   ${S} [data-clinic-flow-item],
-  ${S} .anaks-btn,
-  ${S} [data-clinic-flow-control] {
+  ${S} .anaks-btn {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;

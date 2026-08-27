@@ -90,12 +90,63 @@ export function marqueeInkFor(brand: string): string | null {
   return Math.max(dark, light) >= MARQUEE_AA.normalText ? best : null;
 }
 
+function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
+  const value = hex.trim().replace(/^#/u, '');
+  const full = value.length === 3 ? value.split('').map((c) => c + c).join('') : value;
+  if (!/^[0-9a-fA-F]{6}$/u.test(full)) return null;
+  const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(full.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  if (d === 0) return { h: 0, s: 0, l };
+  const s = d / (1 - Math.abs(2 * l - 1));
+  const h = max === r
+    ? 60 * (((g - b) / d) % 6)
+    : max === g
+      ? 60 * ((b - r) / d + 2)
+      : 60 * ((r - g) / d + 4);
+  return { h: (h + 360) % 360, s, l };
+}
+
+/**
+ * Is this candidate too close to a colour the LANGUAGE already owns?
+ *
+ * Same shape as §2-5's existing accent-separation rule (ΔH 15° or ΔL 0.2), turned on the
+ * language's own constants instead of on the specialty accent.
+ *
+ * MEASURED, and the reason this rule exists at all. Run against the real enameldentistry.com
+ * artifact, the ordered candidate ladder is #C95D0C, #231942, #4F327C, #7D55C7, #E56B10, ... —
+ * and without this rule the gate adopts #231942, which IS this language's plum. The practice
+ * genuinely publishes that colour, so nothing was wrong upstream; the result was still wrong.
+ * `--brand` collapsed onto `--ink`, the utility strip and the CTA band went plum, and the demo
+ * repainted the language in itself while reporting a successful extraction. A brand surface
+ * indistinguishable from the ink it carries is not a surface.
+ *
+ * With the rule the ladder rejects #C95D0C (no ink reaches AA), #231942 (is the ink), #4F327C
+ * (ΔH 7° and ΔL 0.16 from the ink) and #7D55C7 (is the accent), and adopts #E56B10 — the board's
+ * own orange, which is the colour the source practice actually leads with.
+ */
+function tooCloseToLanguageColour(brand: string, owned: string): boolean {
+  const a = hexToHsl(brand);
+  const b = hexToHsl(owned);
+  if (!a || !b) return false;
+  const deltaH = Math.min(Math.abs(a.h - b.h), 360 - Math.abs(a.h - b.h));
+  return deltaH < 15 && Math.abs(a.l - b.l) < 0.2;
+}
+
 /** §2-5 for MARQUEE. The brand slot gates on ink-on-brand, not brand-on-surface. */
 export function marqueeBrandGateFailures(brand: string): string[] {
   const failures: string[] = [];
   if (marqueeInkFor(brand) === null) failures.push('marquee ink/brand 4.5:1');
   if (contrastRatio(brand, MARQUEE_TOKENS.surface) < MARQUEE_AA.brandSurfaceAgainstPage) {
     failures.push('marquee brand/page 1.5:1');
+  }
+  if (tooCloseToLanguageColour(brand, MARQUEE_TOKENS.ink)) {
+    failures.push('marquee brand/ink separation ΔH 15° or ΔL 0.2');
+  }
+  if (tooCloseToLanguageColour(brand, MARQUEE_TOKENS.accent)) {
+    failures.push('marquee brand/accent separation ΔH 15° or ΔL 0.2');
   }
   return failures;
 }
