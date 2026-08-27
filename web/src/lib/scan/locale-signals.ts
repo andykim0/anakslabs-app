@@ -30,7 +30,11 @@ function claimPattern(locale?: ScanLocaleContext): RegExp {
 function hasClaimSourceInSameBlock(block: HTMLElement): boolean {
   if (block.querySelector(LOCAL_SOURCE_SELECTOR)) return true;
   let parent = block.parentNode;
-  while (parent && 'tagName' in parent) {
+  // The walk stops at the document root, and node-html-parser's root carries `tagName` with the
+  // value null — so `'tagName' in parent` let the root through and the next line threw on a real
+  // clinic site whose claim paragraph sits outside any section/article/main/body. That crash
+  // surfaced only after the polite crawl had finished, discarding the whole completed crawl.
+  while (parent && typeof (parent as HTMLElement).tagName === 'string') {
     const element = parent as HTMLElement;
     const tagName = element.tagName.toLowerCase();
     if (tagName === 'section' || tagName === 'article') {
