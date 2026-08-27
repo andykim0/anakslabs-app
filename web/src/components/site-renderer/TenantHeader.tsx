@@ -11,9 +11,10 @@
 import type { SiteConfig, SitePage } from '@/lib/types/site';
 import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
 
+/** Link slots the 1200px bar seats before it stops being a bar. */
 const NAV_MAX_INLINE = 6;
-/** Above this many treatment pages the bar stops being readable. */
-const NAV_GROUP_THRESHOLD = 3;
+/** A disclosure that hides one link is not a menu; below this the treatment stays in the bar. */
+const NAV_GROUP_MIN_COLLAPSED = 2;
 
 export interface TenantNavigationItem {
   id: string;
@@ -64,20 +65,28 @@ export function TenantHeader({
 
   /**
    * A rebuild of a real practice produces one page per treatment, and a flat bar of twelve is not
-   * navigation. Past three, treatments collapse under the services index they already belong to.
-   * The parent stays a real anchor: a toggle that only toggles is a dead end for anyone who
-   * expected the index page.
+   * navigation — but collapsing all twelve was worse. Every demo we sent showed a practice
+   * "Home | Contact | Treatments ▾": the pages the rebuild exists to show off were, without
+   * exception, behind a toggle nobody opens. Treatments now hold their place in the bar in source
+   * order and only the ones the bar has no room for collapse. The parent stays a real anchor: a
+   * toggle that only toggles is a dead end for anyone who expected the index page.
+   *
+   * The budget is spent on treatments because the rest of the bar is the site's spine — Home,
+   * Contact, a services index — and dropping those into a disclosure is never the right trade.
+   * One slot is reserved for the disclosure itself.
    */
   const procedurePages = navPages.filter((page) => (
     'sections' in page && page.id.startsWith('clinic-procedure-')
   ));
   const servicesIndex = navPages.find((page) => page.slug === 'services');
-  const grouped = procedurePages.length > NAV_GROUP_THRESHOLD;
-  const groupedIds = new Set(
-    grouped
-      ? procedurePages.filter((page) => page !== servicesIndex).map((page) => page.id)
-      : [],
+  const collapsible = procedurePages.filter((page) => page !== servicesIndex);
+  const inlineProcedureBudget = Math.max(
+    0,
+    NAV_MAX_INLINE - (navPages.length - collapsible.length) - 1,
   );
+  const collapsed = collapsible.slice(inlineProcedureBudget);
+  const grouped = collapsed.length >= NAV_GROUP_MIN_COLLAPSED;
+  const groupedIds = new Set(grouped ? collapsed.map((page) => page.id) : []);
   const topLevel = navPages.filter((page) => !groupedIds.has(page.id));
   const groupItems = navPages.filter((page) => groupedIds.has(page.id));
   const inline = topLevel.slice(0, NAV_MAX_INLINE);

@@ -3,9 +3,6 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { TenantPageContent } from '@/components/site-renderer/TenantPageContent';
 import {
-  US_MEDICAL_PREVIEW_RETENTION_DAYS,
-} from '@/lib/crawl/contracts';
-import {
   IMPORT_PREVIEW_BEARER_WARNING,
   IMPORT_PREVIEW_NOTICE,
   isPreviewBearerToken,
@@ -57,6 +54,7 @@ export default async function SharedImportPreviewPage({
     : null;
   if (isUsMedicalDemo && !artifact) notFound();
   const previewFull = isUsMedicalDemo && preview.renderMode === 'preview-full';
+  const outreachSafe = isUsMedicalDemo && !previewFull;
   /**
    * The reveal runtime is the renderer's, not the preview's: it ships MOTION_CSS, the
    * IntersectionObserver pass and the reduced-motion guard whenever a page is animated. Both US
@@ -91,6 +89,29 @@ export default async function SharedImportPreviewPage({
           blocks: prospectPublicSourceBlocks(artifact.artifact),
         })
     : undefined;
+  /**
+   * Outreach-safe carries two sections that exist only to hold a slot open: the rating aggregate
+   * with nothing to aggregate, and the before/after slot with no consented cases. Both say, in
+   * the practice's own demo, that the practice has nothing there — which is the opposite of what
+   * the link is for. preview-full already omits both at compile time; this suppresses them at
+   * render only, so the stored config, the compiler and the structure comparison are untouched.
+   *
+   * Matched on the stored section id and nothing else. clinicSectionHasPlaceholder() also scans
+   * body copy for "placeholder"/"can be added", which a practice's own sentence can contain, so
+   * it is the wrong instrument here.
+   */
+  const isProspectFillerSection = (sectionId: string) => (
+    sectionId === 'clinic-rating-aggregate' || sectionId.endsWith('-placeholder')
+  );
+  const renderConfig = outreachSafe
+    ? {
+        ...preview.siteConfig,
+        pages: preview.siteConfig.pages.map((page) => ({
+          ...page,
+          sections: page.sections.filter((section) => !isProspectFillerSection(section.id)),
+        })),
+      }
+    : preview.siteConfig;
   const lcpImage = pageLcpImageSrc(preview.siteConfig, pageSlug);
   const previewJsonLd = isUsMedicalDemo || isKoClinicImport
     ? jsonLdScriptContent(preview.siteConfig, 'https://preview-hypothesis.invalid', pageSlug)
@@ -116,32 +137,44 @@ export default async function SharedImportPreviewPage({
         role="status"
         className="sticky top-0 z-[1000] border-b border-[#DFE1E6] border-l-4 border-l-[#2D63F0] bg-white px-4 py-3 text-[#141A3A]"
       >
-        <div className="mx-auto flex min-w-0 max-w-6xl flex-col gap-1 break-all text-sm leading-relaxed">
-          <strong className="font-bold">
-            {isUsMedicalDemo
-              ? previewFull
+        {/*
+          The outreach surface gets one line. The three-part notice was written for whoever issued
+          the link — retention window, what the compiler did to the source text, the URL it came
+          from, when to revoke — and a practice owner opening this from an email reads none of it
+          before their own site starts. What they do need is that this is private and temporary,
+          which is what the two sentences below say. The issuing operator is told the rest at
+          issuance time: the create-preview response carries IMPORT_PREVIEW_BEARER_WARNING.
+        */}
+        {outreachSafe ? (
+          <p className="mx-auto min-w-0 max-w-6xl text-sm leading-relaxed">
+            <strong className="font-bold">Private outreach preview · Not published</strong>
+            {' · '}
+            Anyone with this link can view the draft until it expires.
+          </p>
+        ) : (
+          <div className="mx-auto flex min-w-0 max-w-6xl flex-col gap-1 break-all text-sm leading-relaxed">
+            <strong className="font-bold">
+              {isUsMedicalDemo
                 ? 'Internal full preview · Not published'
-                : 'Private outreach preview · Not published'
-              : 'Private preview · not published'}
-          </strong>
-          <span>
-            {isUsMedicalDemo
-              ? previewFull
+                : 'Private preview · not published'}
+            </strong>
+            <span>
+              {isUsMedicalDemo
                 ? 'This internal evaluation preview restructures the practice’s public English source text and public images across multiple pages. Search indexing and publication are disabled.'
-                : `This ${US_MEDICAL_PREVIEW_RETENTION_DAYS}-day private demo restructures only the practice’s public English source text. Search indexing and publication are disabled.`
-              : IMPORT_PREVIEW_NOTICE}
-          </span>
-          <span className="text-xs text-[#545C70]">
-            {isUsMedicalDemo ? (
-              <>
-                Source: {preview.sourceUrl} · Anyone with this link can view the draft until it
-                expires. Share it only with intended recipients and revoke it when sharing ends.
-              </>
-            ) : (
-              <>Source: {preview.sourceUrl} · {IMPORT_PREVIEW_BEARER_WARNING}</>
-            )}
-          </span>
-        </div>
+                : IMPORT_PREVIEW_NOTICE}
+            </span>
+            <span className="text-xs text-[#545C70]">
+              {isUsMedicalDemo ? (
+                <>
+                  Source: {preview.sourceUrl} · Anyone with this link can view the draft until it
+                  expires. Share it only with intended recipients and revoke it when sharing ends.
+                </>
+              ) : (
+                <>Source: {preview.sourceUrl} · {IMPORT_PREVIEW_BEARER_WARNING}</>
+              )}
+            </span>
+          </div>
+        )}
       </aside>
       {/*
         The notice above is sticky, so the site header would otherwise stop behind it and read as
@@ -187,7 +220,7 @@ export default async function SharedImportPreviewPage({
         */}
         {previewFull ? (
           <TenantPageContent
-            config={preview.siteConfig}
+            config={renderConfig}
             pageSlug={pageSlug}
             interactive
             animate={usMedicalMotion}
@@ -196,7 +229,7 @@ export default async function SharedImportPreviewPage({
           />
         ) : (
           <TenantPageContent
-            config={preview.siteConfig}
+            config={renderConfig}
             pageSlug={pageSlug}
             interactive={false}
             animate={koClinicMotion || usMedicalMotion}
@@ -205,7 +238,13 @@ export default async function SharedImportPreviewPage({
           />
         )}
       </div>
-      {structure && (previewFull || pageSlug === '')
+      {/*
+        The audit panel is operator material: sixteen rows comparing the source site's structure
+        against the rebuild's. A practice owner opening a link from an email does not read it, and
+        on the outreach surface it was the last thing under their own site. It stays on the
+        internal full preview, which is the surface built for the person doing the evaluating.
+      */}
+      {structure && previewFull
         ? <AiStructureDiff comparison={structure} pageLabel={currentPage.title} />
         : null}
       {isUsMedicalDemo && !internalQa ? (
