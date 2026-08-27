@@ -128,13 +128,58 @@ ${S} {
   background: #fff;
   color: var(--mq-ink);
 }
+/*
+  EVERY SURFACE COMES FROM THIS LANGUAGE, NOT FROM THE ENGINE'S CADENCE.
+  MEASURED on the served page before this rule: the six bands read
+    hero rgb(237,233,255) · gallery oklch(0.92 0.015 296.54) · services oklch(0.92 ...) ·
+    gallery oklch(0.16 0.04 296.54) · contact #fff · faq #fff · cta rgb(204,51,102)
+  — three different colour systems on one page. The engine writes its tone INLINE
+  (data-section-surface-tone + background-color), so an author rule for alternation never
+  applied and only the two bands carrying !important were ever MARQUEE's.
+
+  So the language adopts the engine's CADENCE (which band is base/tint/dark/brand — a decision
+  made once at compile from real content) and supplies its own COLOUR for each step. The rhythm
+  stays the engine's; the palette becomes wholly this language's.
+*/
 ${S} [data-clinic-flow-section] {
-  background: #fff;
-  color: var(--mq-ink);
+  background-color: #fff !important;
+  color: var(--mq-ink) !important;
+  --clinic-section-text: var(--mq-ink);
+  --clinic-section-muted: var(--mq-ink-soft);
+  --clinic-section-accent: var(--mq-brand);
+  --clinic-section-border: var(--mq-ink);
 }
-/* Alternating surfaces. The language never runs two white bands together. */
-${S} [data-clinic-flow-section]:nth-of-type(even) {
-  background: var(--mq-lilac-tint);
+${S} [data-section-surface-tone="tint"] {
+  background-color: var(--mq-lilac-tint) !important;
+}
+${S} [data-section-surface-tone="dark"] {
+  background-color: var(--mq-ink) !important;
+  color: #fff !important;
+  --clinic-section-text: #fff;
+  --clinic-section-muted: var(--mq-on-plum-lede);
+  --clinic-section-accent: var(--mq-brand);
+  --clinic-section-border: var(--mq-on-plum-link);
+}
+${S} [data-section-surface-tone="dark"] :is(h1,h2,h3,p,[data-clinic-flow-heading],[data-clinic-flow-item-heading]) {
+  color: #fff !important;
+}
+${S} [data-section-surface-tone="dark"] [data-clinic-flow-copy],
+${S} [data-section-surface-tone="dark"] [data-clinic-flow-intro] {
+  color: var(--mq-on-plum-lede) !important;
+}
+/* A card on the dark band keeps its border but takes a surface that belongs to the band. */
+${S} [data-section-surface-tone="dark"] [data-clinic-flow-item] {
+  background: rgba(255,255,255,.06);
+  border-color: var(--mq-on-plum-link);
+}
+
+/*
+  ONE BLOCK RHYTHM. The hero was measured at padding 0/0 against every other band's 88/88, which
+  is why the page opened with a 1467px band and then changed cadence.
+*/
+${S} [data-clinic-flow-section],
+${S} [data-section-type="hero"] {
+  padding-block: var(--clinic-section-block-desktop);
 }
 /*
   !important on a SECTION background, and the reason is the same inline-wins trap the buttons hit.
@@ -258,8 +303,76 @@ ${S} [data-clinic-hero-kicker] {
 }
 
 /* ---- cards: 2px ink border on every card, constant media slot ---------- */
+/*
+  EQUAL SLOT STRUCTURE, which is the board's own fix and the one thing that stops ragged card
+  bottoms. MEASURED before this rule: us-demo-services ran ten cards from 149px to 439px, a 290px
+  spread, because none of them carries media and the body copy lengths differ wildly. The board
+  states the rule directly — every card in a row carries the same slot structure so heights settle
+  without stretching — and the mechanism is that the copy column grows and the action sits on the
+  floor of the card rather than immediately under the last sentence.
+*/
 ${S} [data-clinic-flow-items] {
   gap: 26px;
+  align-items: stretch;
+}
+${S} [data-clinic-flow-item] {
+  height: 100%;
+  align-content: stretch;
+  grid-template-rows: auto 1fr;
+}
+${S} [data-clinic-flow-item-copy] {
+  display: flex;
+  flex-direction: column;
+  align-content: start;
+}
+${S} [data-clinic-flow-item] [data-clinic-flow-control] {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+/*
+  NO ORPHAN ROWS.
+  MEASURED on the served page: services runs 10 cards in 3 columns (3+3+3+1), contact runs 3 in
+  2 columns (2+1), and the CTA band is a 2-column grid holding a single action. Each of those
+  leaves a final row that is mostly empty surface, which is what reads as "unbalanced" far more
+  than any individual component does. A trailing item that starts its own row is given the rest
+  of the row instead of a third of it.
+
+  Written per column count rather than generically because CSS cannot ask how many tracks a grid
+  resolved to; the layouts below are the ones the compile actually emits.
+*/
+${S} [data-clinic-flow-section="features.icon-grid"] [data-clinic-flow-item]:last-child:nth-child(3n+1),
+${S} [data-clinic-flow-section="features.featured-first"] [data-clinic-flow-item]:last-child:nth-child(3n+1) {
+  grid-column: 1 / -1;
+}
+${S} [data-clinic-flow-section="directions.info-card-stack"] [data-clinic-flow-item]:last-child:nth-child(2n+1),
+${S} [data-section-type="cta"] [data-clinic-flow-item]:last-child:nth-child(2n+1) {
+  grid-column: 1 / -1;
+}
+
+/*
+  The closing band is the one centred composition in the language, which is the board's own
+  arrangement: kicker, head at 22ch, lede at 64ch, actions — all on the centre line. Left-aligned
+  in a two-column grid it was a column of text against an empty half-band.
+*/
+${S} [data-section-type="cta"] [data-clinic-flow-inner] {
+  text-align: center;
+}
+${S} [data-section-type="cta"] [data-clinic-flow-heading] {
+  max-width: 22ch;
+  margin-inline: auto;
+}
+${S} [data-section-type="cta"] :is([data-clinic-flow-intro],[data-clinic-flow-copy]) {
+  max-width: 64ch;
+  margin-inline: auto;
+}
+${S} [data-section-type="cta"] [data-clinic-flow-item],
+${S} [data-section-type="cta"] [data-clinic-flow-item-copy] {
+  align-items: center;
+  justify-items: center;
+}
+${S} [data-section-type="cta"] [data-clinic-flow-control] {
+  margin-inline: auto;
 }
 ${S} [data-clinic-flow-item] {
   border: var(--mq-border) solid var(--mq-ink);
@@ -334,6 +447,25 @@ ${S} [data-section-type="hero"] {
 */
 ${S} [data-clinic-hero-mode] [data-clinic-hero-plate] {
   background: transparent;
+}
+
+/*
+  THE HERO PHOTOGRAPH HAD TO FILL ITS OWN COLUMN.
+  MEASURED: [data-clinic-hero-photo] stretched to 691x1467 as intended, but the <img> inside it
+  rendered 691x383 anchored to the bottom — so the right half of the hero was 1084px of empty
+  lilac beside a twenty-line paragraph. That is the single worst balance problem on the page and
+  it is a fill bug, not a layout opinion.
+*/
+${S} [data-clinic-hero-photo] {
+  align-content: stretch;
+  align-items: stretch;
+}
+${S} [data-clinic-hero-photo] > img {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100%;
+  object-fit: cover;
+  align-self: stretch;
 }
 
 /*
