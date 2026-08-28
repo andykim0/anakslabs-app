@@ -199,20 +199,79 @@ export function sourceImageIsInsuranceLogo(image: ProjectedUsDemoSourceImage): b
 }
 
 /**
- * The membership-mark counterpart of `sourceImageIsInsuranceLogo`, and applied the same way: at
- * the gallery assembly points, NOT inside `clinicPhotoGate`.
+ * What the "Accepted Insurance" strip is FOR: evidence that a named carrier is accepted here.
  *
- * Putting it in the gate was tried first and measured, because the gate is where it philosophically
- * belongs — a badge is not a photograph in any slot. It costs too much. The gate feeds one ordered
- * pool that every downstream section indexes into, so removing two dental360 badges reshuffled the
- * allocation and dental360's compiled output fell from 43 images to 36: one badge gone and SIX real
- * photographs gone with it, dropped out of procedure detail sections that had been showing them.
- * Trading six of a practice's own photographs for two badges is a worse demo, so the narrow
- * application is the correct one until that allocator is understood.
+ * `sourceImageIsInsuranceLogo` is a page-scoped sweep — anything with an unclassified role on
+ * `/insurance/`, `/financing/`, `/payment/` or `/membership/` — and that is the right shape for the
+ * PHOTO GATE, whose only question is "may this occupy a photograph slot". It is the wrong shape for
+ * the strip, and the first outreach preview showed what it costs: Ora's strip rendered twelve tiles
+ * of which exactly ONE was carrier evidence. The other eleven were the practice's own wordmark, two
+ * accrediting-body marks, six "Elk Grove Dentist / Top Patient Rated" directory badges, two
+ * patient-lending marks, and the 1920x435 page-header banner off `/insurance/` letterboxed into a
+ * 148px logo tile — the "broken crop" in the screenshot. The banner is not corrupt: it fetches as a
+ * valid 26KB progressive JPEG at its stated size. It is a page header being asked to be a logo.
  *
- * Known and deliberately not fixed here: dental360 still carries `ABO-3.png` in a procedure detail
- * section, which this scoping cannot reach. That is a real defect, recorded rather than papered
- * over, and it wants the allocation bug diagnosed rather than a filter widened on top of it.
+ * So the strip takes positive evidence instead of page membership. A tile qualifies when it names
+ * a payer or carries plan vocabulary, and is disqualified when it is a page banner (the crawler's
+ * own `atmosphere` role is the evidence, and is what removes the Ora header), an accrediting mark,
+ * a directory rating badge, or a patient-financing mark. Lending is deliberately excluded rather
+ * than merely reordered: a Sunbit tile under the heading "Accepted Insurance" tells a patient
+ * something untrue about their coverage.
+ *
+ * Measured: Ora 15 -> 1 (its own composite carrier sheet, alt "Insurance companies logos"),
+ * iddental 10 -> 10 (every tile a named payer), and no other corpus has a strip either way. When
+ * nothing qualifies the strip is not rendered at all and the caller falls through to the text
+ * `clinic-insurance-pricing` section, which is the honest reduction.
+ */
+const INSURANCE_CARRIER_RE =
+  /\b(?:insurance|insurers?|dental[-_ ]plans?|accepted[-_ ]plans?|payers?|ppo|hmo|delta[-_ ]?dental|cigna|aetna|metlife|guardian|humana|anthem|blue[-_ ]?(?:cross|shield)|united[-_ ]?(?:concordia|healthcare)|principal|assurant|ameritas|careington|dentemax|geha|tricare|medicaid|medicare|denti[-_ ]?cal)\b/iu;
+
+/** A directory's rating or award badge. Not a payer, whatever page it sits on. */
+const RATING_BADGE_RE =
+  /\b(?:badge|top[-_ ]patient[-_ ]rated|top[-_ ]rated|best[-_ ]of|winner|award)\b/iu;
+
+/** Patient lending. A financing partner is not an insurer and must not read as one. */
+const PATIENT_FINANCING_RE =
+  /\b(?:carecredit|sunbit|cherry|proceed[-_ ]?finance|healthcare[-_ ]finance|lending\w*|greensky|alphaeon|affirm|klarna|afterpay|financ(?:e|es|ing|ial)|loans?|bank)\b/iu;
+
+export function sourceImageIsInsuranceCarrierMark(
+  image: ProjectedUsDemoSourceImage,
+): boolean {
+  if (!sourceImageIsInsuranceLogo(image)) return false;
+  // A page banner is not a mark, and the crawl already classified it as one.
+  if (image.candidate.role === 'atmosphere') return false;
+  if (sourceImageIsAssociationMark(image)) return false;
+  const context = `${image.source.url} ${image.candidate.alt}`;
+  if (RATING_BADGE_RE.test(context)) return false;
+  if (PATIENT_FINANCING_RE.test(context)) return false;
+  return INSURANCE_CARRIER_RE.test(context);
+}
+
+/**
+ * The membership-mark counterpart of `sourceImageIsInsuranceLogo`, applied at every SELECTION site
+ * that can reach a rendered slot, and never inside `clinicPhotoGate` or `clinicPhotoSlotPool`.
+ *
+ * The pool-level application was tried, measured, reverted, and has now been re-measured on this
+ * branch rather than taken on trust — because the gate is where the rule philosophically belongs,
+ * and "we tried it once" is not a reason. It reproduces exactly, and the cause is now known.
+ *
+ *   dental360, `procedureBodyImageBudget(photoSlotPool.length, procedurePages)`:
+ *     pool 29, 7 procedure pages -> floor(29/7) = 4 body images per page
+ *     pool 27 (the two marks removed) -> floor(27/7) = 3
+ *
+ * An integer-division cliff. Removing 2 marks from the pool costs one body slot on each of 7
+ * procedure pages: dental360's compiled output falls from 43 image elements to 36 — 1 mark gone
+ * (the other was never placed) and SIX of the practice's own photographs gone with it. Measured
+ * again on this branch, both render modes, same numbers as the original finding.
+ *
+ * So the pool keeps its size and the selection sites do the filtering. Every site that can put an
+ * image in front of a reader carries the predicate: the home hero pool, the services-grid card
+ * pool, `topicPhotoPool` (which feeds every procedure hero, detail body and page gallery), the
+ * provider-photo and before/after selections in `previewExperience`, and the two gallery assembly
+ * points that already had it. `clinicPhotoSlotPool` is unchanged, so no budget moves.
+ *
+ * This closes the defect the earlier scoping recorded as unreachable: dental360's `ABO-3.png` was
+ * placed in a procedure detail section, and `topicPhotoPool` is the path that put it there.
  */
 export function sourceImageIsAssociationMark(image: ProjectedUsDemoSourceImage): boolean {
   const alt = image.candidate.alt.trim();

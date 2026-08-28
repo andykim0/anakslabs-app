@@ -46,6 +46,7 @@ import {
   prospectPublicSourceImages,
   sourceImageIsBeforeAfter,
   sourceImageIsAssociationMark,
+  sourceImageIsInsuranceCarrierMark,
   sourceImageIsInsuranceLogo,
   sourceImageIsProvider,
   type ClinicImagePageTopic,
@@ -1239,6 +1240,7 @@ function previewExperience(input: {
     const exactPageImages = input.images.filter((image) => (
       image.page.url === bio.sourceUrl
       && !sourceImageIsBeforeAfter(image)
+      && !sourceImageIsAssociationMark(image)
       && clinicPhotoGate(image).eligibleForPhotoSlot
     ));
     const providerImages = exactPageImages.filter(sourceImageIsProvider);
@@ -1255,7 +1257,7 @@ function previewExperience(input: {
       : [];
   });
   const beforeAfterImages = input.images
-    .filter(sourceImageIsBeforeAfter)
+    .filter((image) => sourceImageIsBeforeAfter(image) && !sourceImageIsAssociationMark(image))
     .slice(0, 8)
     .map((image) => ({
       sourceImageId: image.source.id,
@@ -1414,7 +1416,9 @@ export function compileUsMedicalFullPreview(input: {
   const articleAuthor = blocks.find((block) => block.kind === 'provider_name');
   const articleDateModified = compilationDate(artifact);
   const introduction = blocks.find((block) => block.kind === 'introduction');
-  const heroPool = photoSlotPool.filter(eligibleForClinicHero);
+  const heroPool = photoSlotPool.filter(
+    (image) => eligibleForClinicHero(image) && !sourceImageIsAssociationMark(image),
+  );
   const homeCandidate = firstHomeImage(artifact, heroPool);
   const homeImage = allocateHeroImage(homeCandidate
     ? [
@@ -1477,7 +1481,7 @@ export function compileUsMedicalFullPreview(input: {
       : []),
   ].filter((id): id is string => Boolean(id)));
   const homeServiceImageIds = new Set<string>();
-  const homeServiceUnits = plannedPages.slice(0, 12).flatMap(({ planned, slug }) => {
+  const homeServiceCandidateUnits = plannedPages.slice(0, 12).flatMap(({ planned, slug }) => {
     const orderedServices = orderClinicServices(
       planned.blocks.filter((block) => block.kind === 'service'),
       pin.focus,
@@ -1496,6 +1500,7 @@ export function compileUsMedicalFullPreview(input: {
     const image = pool.find((candidate) => (
       !homeServiceImageIds.has(candidate.source.id)
       && candidate.source.id !== homeImage?.source.id
+      && !sourceImageIsAssociationMark(candidate)
     ));
     if (image) homeServiceImageIds.add(image.source.id);
     return [{
@@ -1506,12 +1511,47 @@ export function compileUsMedicalFullPreview(input: {
       href: `/${slug}`,
     }];
   });
+  /**
+   * The identical-slot rule, decided at compile rather than at render.
+   *
+   * The services grid renders one card per unit and every card is the same object, so a media slot
+   * that some cards fill and others do not is not a grid with some pictures in it — it is a grid
+   * whose cards disagree about what they are. Ora's first outreach preview showed the failure
+   * plainly: 6 of 10 units carried an image, and the four that did not rendered as large empty
+   * colour fields between the photographs.
+   *
+   * The alternative — broadening each card's pool until every slot fills — was rejected. The pool
+   * a card draws from is its own procedure topic, so broadening it means putting a photograph on a
+   * card it is not about, and a grid of confidently mismatched pictures is worse than a grid of
+   * none. So the slot is all-or-nothing across the whole section.
+   *
+   * Decided here and not in `buildClinicFeatureSections`, because the rule belongs to the variant
+   * that renders identical cards. The procedure-detail grids use `zigzag-media` and
+   * `featured-first`, which alternate and single out on purpose; imposing uniformity on those
+   * would break layouts that are deliberately non-uniform.
+   *
+   * Measured across the corpus (units with an image / units): larkfield-derm 6/6 keeps its media,
+   * cameods 0/10 and enamel 0/6 were already uniform and do not move, and the ragged five become
+   * uniform text cards — ora 6/10, iddental 7/10, apa 4/10, northbank-ortho 5/6, dental360 2/7.
+   */
+  const homeServiceMediaIsUniform = homeServiceCandidateUnits.length > 0
+    && homeServiceCandidateUnits.every((unit) => unit.image);
+  const homeServiceUnits = homeServiceMediaIsUniform
+    ? homeServiceCandidateUnits
+    : homeServiceCandidateUnits.map(({ image: _dropped, ...unit }) => unit);
+  /**
+   * Reservations are released with the slot. `homeServiceImageIds` exists to stop the gallery and
+   * the procedure pages from repeating a photograph the services grid already showed; if the grid
+   * is not showing it, holding the reservation would delete the practice's photograph from the
+   * page set instead of moving it.
+   */
+  if (!homeServiceMediaIsUniform) homeServiceImageIds.clear();
   const homeServiceSections = buildClinicFeatureSections({
     id: 'us-demo-services',
     name: 'Services',
     units: homeServiceUnits,
     theme,
-    candidates: homeServiceUnits.some((unit) => unit.image)
+    candidates: homeServiceMediaIsUniform
       ? ['features.three-column-cards', 'features.icon-grid']
       : ['features.icon-grid', 'features.three-column-cards'],
   });
@@ -1569,12 +1609,15 @@ export function compileUsMedicalFullPreview(input: {
     hero: ProjectedUsDemoSourceImage[];
     body: ProjectedUsDemoSourceImage[];
   } => {
-    const matched = topic instanceof RegExp
+    const matched = (topic instanceof RegExp
       ? clinicPhotoPoolForPattern(projectedImages, topic)
-      : clinicPhotoPoolForTopic(projectedImages, topic);
+      : clinicPhotoPoolForTopic(projectedImages, topic))
+      .filter((image) => !sourceImageIsAssociationMark(image));
     const matchedIds = new Set(matched.map((image) => image.source.id));
     const rest = photoSlotPool.filter((image) => (
-      !matchedIds.has(image.source.id) && !sourceImageIsInsuranceLogo(image)
+      !matchedIds.has(image.source.id)
+      && !sourceImageIsInsuranceLogo(image)
+      && !sourceImageIsAssociationMark(image)
     ));
     const broadened = [
       ...matched,
@@ -1586,7 +1629,7 @@ export function compileUsMedicalFullPreview(input: {
       body: broadened,
     };
   };
-  const insuranceLogos = projectedImages.filter(sourceImageIsInsuranceLogo);
+  const insuranceLogos = projectedImages.filter(sourceImageIsInsuranceCarrierMark);
   const homeInsuranceStrip = insuranceStripSection({
     id: 'clinic-accepted-insurance',
     images: insuranceLogos,

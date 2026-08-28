@@ -816,7 +816,23 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
     const homeServices = compiled.config.pages[0].sections.find(
       (section) => section.id === 'us-demo-services',
     );
-    assert.equal(homeServices?.sectionLayout?.resolvedId, 'features.three-column-cards');
+    /**
+     * Was `features.three-column-cards`. The services grid renders one identical card per unit, so
+     * its media slot is now all-or-nothing: this fixture's procedure topics do not match a
+     * photograph for every card, and a grid that fills some slots and leaves the rest as empty
+     * colour fields is the defect that shipped on the first outreach preview. When the slot cannot
+     * be filled for every card it is dropped for the whole grid, and the imageless variant is
+     * chosen deliberately rather than as a consolation.
+     *
+     * The assertion is strengthened rather than merely retargeted: the resolver is still pinned,
+     * and the uniformity that made it the right resolver is now pinned with it.
+     */
+    assert.equal(homeServices?.sectionLayout?.resolvedId, 'features.icon-grid');
+    assert.equal(
+      homeServices?.elements.some((element) => element.kind === 'image'),
+      false,
+      'a services card grid must not mix filled and empty media slots',
+    );
     const strip = compiled.config.pages[0].sections.find(
       (section) => section.id === 'clinic-accepted-insurance',
     );

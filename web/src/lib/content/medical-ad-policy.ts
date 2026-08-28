@@ -132,8 +132,27 @@ export const MEDICAL_AD_RULES = [
     statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
     matchers: [
       { kind: 'regex', source: '\\b(?:best|number\\s+one|top[- ]rated)\\b' },
-      // Normalization strips punctuation, so "#1 clinic" reaches this matcher as "1 clinic".
-      { kind: 'regex', source: '\\b1\\s+(?:clinic|practice|provider)\\b' },
+      /**
+       * Normalization strips punctuation, so "#1 clinic" reaches this matcher as "1 clinic".
+       *
+       * The adjacency this originally required is not how the claim is written. "#1 Dental
+       * Emergency provider in Sacramento Region" — a real sentence, off a real practice's home
+       * page — normalizes to "1 dental emergency provider" and slipped past, because the noun is
+       * two words away from the numeral. It takes the same bounded word gap the `leading` matcher
+       * below uses, for the same reason: the superiority token and the self-referential noun are
+       * separated by the practice's own qualifiers. The noun list is the `leading` matcher's list
+       * as well, so the two tokens in this rule cannot disagree about what counts as a
+       * self-reference — "Voted #1 Dentist" was caught upstream and missed here purely because
+       * this list stopped at three nouns.
+       *
+       * Guarded on the left against ordinal designators. Punctuation is already gone by this
+       * point, so "Suite #1, Ora Dental Practice" arrives as "suite 1 ora dental practice" and
+       * would otherwise read an address as a ranking claim.
+       */
+      {
+        kind: 'regex',
+        source: '(?<!\\b(?:suite|ste|apt|apartment|unit|room|rm|bldg|building|floor|no|implant|tooth|teeth|molar|site|case|quadrant|photo|image|figure|fig|chapter|step|question|option|item) )\\b1\\b(?:\\s+\\w+){0,3}\\s+(?:clinics?|practices?|providers?|dentists?|doctors?|centers?|teams?)\\b',
+      },
       /**
        * "leading" is only a superiority claim when it leads back to the practice. Epidemiological
        * usage ("plaque is the leading cause of tooth decay") is a factual statement about a
