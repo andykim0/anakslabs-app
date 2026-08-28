@@ -4,8 +4,13 @@ export interface ClinicLatinFontPreset {
   heading: string;
   body: string;
   control: string;
-  headingWeight: 600 | 700;
-  displayWeight: 600 | 700 | 800;
+  /**
+   * 400 is here for ATELIER, and it is the pairing's discipline rather than a loosened bound:
+   * Instrument Serif has ONE weight and an italic, so hierarchy comes from size and whitespace
+   * instead of from bolding. A serif display language that could reach for 600 would stop being one.
+   */
+  headingWeight: 400 | 600 | 700;
+  displayWeight: 400 | 600 | 700 | 800;
   bodyWeight: 400;
   controlWeight: 500 | 600 | 700;
   faceIds: readonly string[];
@@ -108,6 +113,30 @@ export const CLINIC_LATIN_FONT_PRESETS = Object.freeze({
       'public-sans-400-600',
       'ibm-plex-mono-400',
       'ibm-plex-mono-500',
+    ],
+    familyCount: 2,
+  },
+  /**
+   * ATELIER. Instrument Serif has one weight and an italic — that constraint IS the discipline:
+   * section heads and display share a single voice, and hierarchy comes from size and whitespace
+   * rather than from bolding. Jost carries all UI, eyebrows and captions at wide tracking, as one
+   * variable face over 300..500 so its three weights are real instances.
+   *
+   * The board names Playfair Display 400 as the closest OFL substitute if Instrument Serif is ever
+   * unavailable; the fallback stack below is the no-network one, which is Georgia.
+   */
+  'clinic-atelier': {
+    heading: "'Instrument Serif', Georgia, 'Times New Roman', serif",
+    body: "Jost, 'Helvetica Neue', Arial, sans-serif",
+    control: "Jost, 'Helvetica Neue', Arial, sans-serif",
+    headingWeight: 400,
+    displayWeight: 400,
+    bodyWeight: 400,
+    controlWeight: 500,
+    faceIds: [
+      'instrument-serif-400',
+      'instrument-serif-400-italic',
+      'jost-300-500',
     ],
     familyCount: 2,
   },

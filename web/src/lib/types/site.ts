@@ -812,7 +812,9 @@ export type ClinicTypographyPreset =
   /** MARQUEE 전용 — Bricolage Grotesque 700/800 + DM Sans. designLanguage 없이는 발급되지 않는다. */
   | 'clinic-marquee'
   /** LEDGER 전용 — Public Sans 400/600 + IBM Plex Mono 400/500(모든 수량은 mono). */
-  | 'clinic-ledger';
+  | 'clinic-ledger'
+  /** ATELIER 전용 — Instrument Serif 400+italic + Jost 300/400/500. */
+  | 'clinic-atelier';
 
 /**
  * 렌더 디자인 언어. 부재 = 이 필드가 생기기 전부터 엔진이 그려 온 그 언어이며,
@@ -821,7 +823,7 @@ export type ClinicTypographyPreset =
  * 이 값은 **컴파일의 입력**이다. 팔레트 게이트와 typography 선택이 컴파일에서 이 값을 보고
  * 갈라지며, 렌더러는 저장된 필드만 읽고 원문에서 다시 유도하지 않는다.
  */
-export type ClinicDesignLanguage = 'marquee' | 'ledger';
+export type ClinicDesignLanguage = 'marquee' | 'ledger' | 'atelier';
 
 /**
  * TEMPLATE-SYSTEM §2 팔레트 — 클리닉 자기 사이트에서 뽑아 게이트를 통과한 7슬롯.

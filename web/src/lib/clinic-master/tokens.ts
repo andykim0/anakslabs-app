@@ -83,6 +83,18 @@ export const CLINIC_TYPOGRAPHY_TOKENS = Object.freeze({
     familyCount: 2,
     faceCount: 3,
   },
+  'clinic-atelier': {
+    headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-atelier'].heading,
+    headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-atelier'].headingWeight,
+    displayWeight: CLINIC_LATIN_FONT_PRESETS['clinic-atelier'].displayWeight,
+    bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-atelier'].body,
+    bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-atelier'].bodyWeight,
+    controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-atelier'].control,
+    controlWeight: CLINIC_LATIN_FONT_PRESETS['clinic-atelier'].controlWeight,
+    /** The italic is a third FACE of the same family, so two families still. */
+    familyCount: 2,
+    faceCount: 3,
+  },
 } as const satisfies Record<ClinicTypographyPreset, {
   headingFamily: string;
   headingWeight: number;
@@ -181,6 +193,46 @@ export function clinicLedgerRenderTokens() {
     hairGap: `${geometry.hairGap}px`,
     rowThumbWidth: `${geometry.rowThumbWidth}px`,
     microBarHeight: `${geometry.microBarHeight}px`,
+  } as const;
+}
+
+/**
+ * ATELIER's geometry — the third parallel table, and the most austere of the three.
+ *
+ * There are no radii at all: the board's own component note is `radius 0 · borders 1px · gaps 1px`,
+ * and a language whose entire component vocabulary is hairline rows and a printed contact sheet has
+ * nothing to round. The only numbers here are widths, and two heights the board states directly.
+ */
+export const CLINIC_ATELIER_RADIUS_TOKENS = Object.freeze({
+  /** Everything. Buttons, tiles, plates, the booking bar. */
+  square: 0,
+  /** Every rule, border and grid line in the language. */
+  borderWidth: 1,
+  /** The one heavier stroke: the plate's left rule and the quote's rule, in the brand colour. */
+  ruleWidth: 2,
+  /** The contact sheet's grid line. */
+  hairGap: 1,
+  /** The row's arrow target, and a 46px interactive minimum on its short axis. */
+  rowArrow: 46,
+  /** The caption band's CONSTANT height, so the grid reads as one printed sheet. */
+  captionBand: 52,
+  /** The header over the ink hero. */
+  headerTall: 96,
+  /** The header once it has resolved to cream. */
+  headerShort: 74,
+} as const);
+
+export function clinicAtelierRenderTokens() {
+  const geometry = CLINIC_ATELIER_RADIUS_TOKENS;
+  return {
+    radiusSquare: `${geometry.square}px`,
+    borderWidth: `${geometry.borderWidth}px`,
+    ruleWidth: `${geometry.ruleWidth}px`,
+    hairGap: `${geometry.hairGap}px`,
+    rowArrow: `${geometry.rowArrow}px`,
+    captionBand: `${geometry.captionBand}px`,
+    headerTall: `${geometry.headerTall}px`,
+    headerShort: `${geometry.headerShort}px`,
   } as const;
 }
 

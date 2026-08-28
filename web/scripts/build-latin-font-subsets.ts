@@ -41,7 +41,15 @@ interface FaceSpec {
   id: string;
   source: SourceSpec;
   family: string;
-  weight: 400 | 500 | 600 | 700 | 800 | '400 600' | '400 700';
+  weight: 400 | 500 | 600 | 700 | 800 | '300 500' | '400 600' | '400 700';
+  /**
+   * ATELIER is the first pairing with a real italic. Instrument Serif has ONE weight and an
+   * italic, and that constraint is the discipline: hierarchy comes from size and whitespace rather
+   * than from bolding, and the italic is the only other voice the display face has. So the face
+   * needs a style, and the @font-face rule needs to say so or the browser synthesises an oblique
+   * from the roman and the pairing's one deliberate contrast becomes a slant filter.
+   */
+  style?: 'normal' | 'italic';
   variationAxes?: Readonly<Record<
     string,
     number | { min: number; max: number; default: number }
@@ -138,6 +146,25 @@ const SOURCES = {
     sha256: '0bede3debdea8488bbb927f8f0650d915073209734a67fe8cd5a3320b572511c',
     variable: false,
   },
+  /** ATELIER. Instrument Serif ships as two static instances — a roman and an italic, no axes. */
+  instrumentSerif: GOOGLE_SOURCE(
+    'instrument-serif-google-fonts',
+    'instrumentserif',
+    'InstrumentSerif-Regular.ttf',
+    '498efd461f6ddfcb7a111bf9a565709d2085d48201d501ead960d93e84ffbb88',
+  ),
+  instrumentSerifItalic: GOOGLE_SOURCE(
+    'instrument-serif-italic-google-fonts',
+    'instrumentserif',
+    'InstrumentSerif-Italic.ttf',
+    '08939b8bdf534afec24ae0ef5e03f948940cd9a8fe08e7fecbad040e62327385',
+  ),
+  jost: GOOGLE_SOURCE(
+    'jost-google-fonts',
+    'jost',
+    'Jost%5Bwght%5D.ttf',
+    '6343b70971000b04c5d401c96ae08ce371086135e999d5e1e1413039c0213076',
+  ),
 } as const satisfies Record<string, SourceSpec>;
 
 const FACES: readonly FaceSpec[] = [
@@ -192,6 +219,31 @@ const FACES: readonly FaceSpec[] = [
    */
   { id: 'ibm-plex-mono-400', source: SOURCES.ibmMonoRegular, family: 'IBM Plex Mono', weight: 400 },
   { id: 'ibm-plex-mono-500', source: SOURCES.ibmMonoMedium, family: 'IBM Plex Mono', weight: 500 },
+  /**
+   * ATELIER's two families in three faces. Neither Instrument Serif file carries an axis, so
+   * neither is pinned — there is nothing for the determinism check to disagree with between runs.
+   * Jost stays one variable face over 300..500 so all three UI weights are real instances.
+   */
+  {
+    id: 'instrument-serif-400',
+    source: SOURCES.instrumentSerif,
+    family: 'Instrument Serif',
+    weight: 400,
+  },
+  {
+    id: 'instrument-serif-400-italic',
+    source: SOURCES.instrumentSerifItalic,
+    family: 'Instrument Serif',
+    weight: 400,
+    style: 'italic',
+  },
+  {
+    id: 'jost-300-500',
+    source: SOURCES.jost,
+    family: 'Jost',
+    weight: '300 500',
+    variationAxes: { wght: { min: 300, max: 500, default: 400 } },
+  },
 ] as const;
 
 function sha256(bytes: Uint8Array): string {
@@ -288,7 +340,7 @@ async function main() {
       chunkId: chunk.id,
       family: face.family,
       weight: face.weight,
-      style: 'normal',
+      style: face.style ?? 'normal',
       path: `/fonts/latin/${filename}`,
       bytes: first.byteLength,
       sha256: sha256(first),
@@ -308,6 +360,8 @@ async function main() {
     ['Public Sans', 'publicsans'],
     ['Bricolage Grotesque', 'bricolagegrotesque'],
     ['DM Sans', 'dmsans'],
+    ['Instrument Serif', 'instrumentserif'],
+    ['Jost', 'jost'],
   ].map(([name, directory]) => ({
     name,
     sourceUrl: `https://github.com/google/fonts/tree/${GOOGLE_FONTS_COMMIT}/ofl/${directory}`,
@@ -364,7 +418,7 @@ async function main() {
 These checked-in WOFF2 files are deterministic Latin subsets of checksum-pinned official sources.
 No runtime request is made to Google Fonts, IBM, or another font CDN.
 
-- Schibsted Grotesk, Hanken Grotesk, Albert Sans, Public Sans, Bricolage Grotesque, and DM Sans — SIL Open Font License 1.1; pinned source: https://github.com/google/fonts/tree/${GOOGLE_FONTS_COMMIT}/ofl
+- Schibsted Grotesk, Hanken Grotesk, Albert Sans, Public Sans, Bricolage Grotesque, DM Sans, Instrument Serif, and Jost — SIL Open Font License 1.1; pinned source: https://github.com/google/fonts/tree/${GOOGLE_FONTS_COMMIT}/ofl
 - IBM Plex Sans and IBM Plex Mono — SIL Open Font License 1.1; pinned source and license: https://github.com/IBM/plex/tree/${IBM_PLEX_COMMIT}
 
 The original family names are retained to identify and load the licensed fonts.

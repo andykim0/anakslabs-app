@@ -311,6 +311,64 @@
         "url": "https://raw.githubusercontent.com/IBM/plex/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Mono/fonts/complete/ttf/IBMPlexMono-Medium.ttf",
         "sha256": "0bede3debdea8488bbb927f8f0650d915073209734a67fe8cd5a3320b572511c"
       }
+    },
+    {
+      "id": "instrument-serif-400:latin-core",
+      "faceId": "instrument-serif-400",
+      "chunkId": "latin-core",
+      "family": "Instrument Serif",
+      "weight": 400,
+      "style": "normal",
+      "path": "/fonts/latin/instrument-serif-400-latin-core.woff2",
+      "bytes": 20760,
+      "sha256": "318f6a840c93a5a8f0b9450946c7f272bc55a73b4777a1577c30273f5f22bbf2",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "instrument-serif-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/instrumentserif/InstrumentSerif-Regular.ttf",
+        "sha256": "498efd461f6ddfcb7a111bf9a565709d2085d48201d501ead960d93e84ffbb88"
+      }
+    },
+    {
+      "id": "instrument-serif-400-italic:latin-core",
+      "faceId": "instrument-serif-400-italic",
+      "chunkId": "latin-core",
+      "family": "Instrument Serif",
+      "weight": 400,
+      "style": "italic",
+      "path": "/fonts/latin/instrument-serif-400-italic-latin-core.woff2",
+      "bytes": 21420,
+      "sha256": "a64b38f011d237089be28ac1d2f9a78ef8bc980d1d124ec71f3db4ba0c3c51c5",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "instrument-serif-italic-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/instrumentserif/InstrumentSerif-Italic.ttf",
+        "sha256": "08939b8bdf534afec24ae0ef5e03f948940cd9a8fe08e7fecbad040e62327385"
+      }
+    },
+    {
+      "id": "jost-300-500:latin-core",
+      "faceId": "jost-300-500",
+      "chunkId": "latin-core",
+      "family": "Jost",
+      "weight": "300 500",
+      "style": "normal",
+      "path": "/fonts/latin/jost-300-500-latin-core.woff2",
+      "bytes": 22364,
+      "sha256": "139cdfa8a259015b7df21eea6cbdf96f1cb2db5e5a2c844cfa5e666b6ad78316",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "jost-google-fonts",
+        "url": "https://raw.githubusercontent.com/google/fonts/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/jost/Jost%5Bwght%5D.ttf",
+        "sha256": "6343b70971000b04c5d401c96ae08ce371086135e999d5e1e1413039c0213076",
+        "variationAxes": {
+          "wght": {
+            "min": 300,
+            "max": 500,
+            "default": 400
+          }
+        }
+      }
     }
   ],
   "licenseNotices": [
@@ -347,6 +405,18 @@
     {
       "name": "DM Sans",
       "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/dmsans",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "Instrument Serif",
+      "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/instrumentserif",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "Jost",
+      "sourceUrl": "https://github.com/google/fonts/tree/9fab8b6cc7b2f20376914fd765d918c698c66d75/ofl/jost",
       "licenseId": "OFL-1.1",
       "noticePath": "/fonts/latin/FONT-LICENSES.md"
     },

@@ -31,15 +31,25 @@ const EXPECTED_PRESET_BYTES = Object.freeze({
   'clinic-marquee': 72_444,
   /** Public Sans 400..600 (reused from clinic-geometric) + IBM Plex Mono 400/500. */
   'clinic-ledger': 52_900,
+  /** Instrument Serif roman + italic + Jost 300..500. */
+  'clinic-atelier': 64_544,
 } as const satisfies Record<ClinicTypographyPreset, number>);
 
 describe('CLINIC$ P2 — local fonts, palette routing, focus recipe', () => {
   test('모든 preset은 local WOFF2만 사용하며 실전송·export 예산과 family/face 상한을 지킨다', () => {
     const manifest = latinFontManifest();
     // 9 default-language faces + MARQUEE's 3 (Bricolage 700/800, DM Sans 400..700)
-    // + LEDGER's 2 (IBM Plex Mono 400/500 — its text face is the shared Public Sans).
-    assert.equal(manifest.assets.length, 14);
-    assert.equal(new Set(manifest.assets.map((asset) => asset.faceId)).size, 14);
+    // + LEDGER's 2 (IBM Plex Mono 400/500 — its text face is the shared Public Sans)
+    // + ATELIER's 3 (Instrument Serif roman AND italic, Jost 300..500).
+    assert.equal(manifest.assets.length, 17);
+    assert.equal(new Set(manifest.assets.map((asset) => asset.faceId)).size, 17);
+    // The first real italic in the catalogue. Without a style the browser synthesises an oblique
+    // and the pairing's one deliberate contrast becomes a slant filter.
+    assert.equal(
+      manifest.assets.filter((asset) => asset.style === 'italic').map((asset) => asset.faceId)
+        .join(),
+      'instrument-serif-400-italic',
+    );
     assert.ok(manifest.licenseNotices.every((notice) => notice.licenseId === 'OFL-1.1'));
 
     for (const typographyPreset of Object.keys(

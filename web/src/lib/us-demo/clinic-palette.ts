@@ -1,8 +1,12 @@
 import { contrastRatio, relLuminance } from '@/lib/design/quality-standards';
 import type { ClinicDesignLanguage } from '@/lib/types/site';
 import {
+  ATELIER_TOKENS,
   LEDGER_TOKENS,
   MARQUEE_TOKENS,
+  atelierBrandGateFailures,
+  atelierInkFor,
+  atelierTextToneMate,
   ledgerBrandGateFailures,
   ledgerInkFor,
   ledgerTextToneMate,
@@ -415,9 +419,46 @@ function buildLedgerPalette(input: ClinicPaletteInput): ClinicPalette {
   };
 }
 
+/**
+ * ATELIER's seven slots.
+ *
+ * FROM THE PRACTICE: `--brand`, at full saturation and never darkened, because in this language the
+ * colour is a LINE — the plate's left rule, the quote's rule, the eyebrow on dark, the active nav
+ * underline, the ink button's hover fill, the outlined CTA's border. And `--accent`, its dark
+ * tone-mate, which does every coloured text job on cream. Same two-lightness pair as LEDGER's, over
+ * a cream page instead of a white one.
+ *
+ * FROM THE LANGUAGE: `--surface` cream, `--surface-2` paper, `--ink`, `--ink-muted`. The board's
+ * cream is listed as an "extracted brand neutral", and it is a language constant here for the same
+ * reason the ink field is: the header behaviour and every hairline value are cut against these two,
+ * and a per-practice cream would make both of them a guess.
+ */
+function buildAtelierPalette(input: ClinicPaletteInput): ClinicPalette {
+  const { adopted, gateFailures } = adoptBrand(input, atelierBrandGateFailures);
+  const brand = adopted ? adopted.hex.toUpperCase() : ATELIER_TOKENS.defaultBrand;
+  return {
+    slots: Object.freeze({
+      '--brand': brand,
+      '--brand-ink': atelierInkFor(brand) ?? ATELIER_TOKENS.ink,
+      '--accent': atelierTextToneMate(brand) ?? ATELIER_TOKENS.ink,
+      '--surface': ATELIER_TOKENS.cream,
+      '--surface-2': ATELIER_TOKENS.paper,
+      '--ink': ATELIER_TOKENS.ink,
+      '--ink-muted': ATELIER_TOKENS.inkSoft,
+    }),
+    meta: {
+      origin: adopted ? adopted.origin : 'specialty-fallback',
+      fallbackUsed: !adopted,
+      refinement: 'none',
+      gateFailures,
+    },
+  };
+}
+
 export function buildClinicPalette(input: ClinicPaletteInput): ClinicPalette {
   if (input.designLanguage === 'marquee') return buildMarqueePalette(input);
   if (input.designLanguage === 'ledger') return buildLedgerPalette(input);
+  if (input.designLanguage === 'atelier') return buildAtelierPalette(input);
   const fallback = CLINIC_PALETTE_FALLBACKS[input.specialty];
   const rawSurface = input.surface && parseHex(input.surface) ? input.surface : '#FFFFFF';
   // §2-2: anything darker than 0.92 is not a page background we keep.

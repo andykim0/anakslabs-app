@@ -8,7 +8,7 @@ import { contrastRatio } from '@/lib/design/quality-standards';
  * field existed already meant it, so writing the default down would move stored bytes without
  * meaning anything the omission does not. Same contract as `specialty`.
  */
-export const CLINIC_DESIGN_LANGUAGES = ['marquee', 'ledger'] as const satisfies
+export const CLINIC_DESIGN_LANGUAGES = ['marquee', 'ledger', 'atelier'] as const satisfies
   readonly ClinicDesignLanguage[];
 
 /**
@@ -19,6 +19,7 @@ export const CLINIC_DESIGN_LANGUAGES = ['marquee', 'ledger'] as const satisfies
 export const CLINIC_DESIGN_LANGUAGE_TYPOGRAPHY = Object.freeze({
   marquee: 'clinic-marquee',
   ledger: 'clinic-ledger',
+  atelier: 'clinic-atelier',
 } as const satisfies Readonly<Record<ClinicDesignLanguage, ClinicTypographyPreset>>);
 
 /**
@@ -433,6 +434,134 @@ export function ledgerBrandGateFailures(brand: string): string[] {
    */
   if (tooCloseToLanguageColour(brand, LEDGER_TOKENS.ink)) {
     failures.push('ledger brand/ink separation ΔH 15° or ΔL 0.2');
+  }
+  return failures;
+}
+
+/* ========================================================================== *
+ * ATELIER — Editorial Luxury.
+ * ========================================================================== */
+
+/**
+ * ATELIER's constants. The same split MARQUEE and LEDGER make, with a third answer to the same
+ * question: an ATELIER demo of any practice is cream and ink and hairlines, and what the practice
+ * supplies is the one saturated colour that rules, borders and hovers.
+ *
+ * THE INK FIELD IS A LANGUAGE CONSTANT rather than a derived surface, and that is load-bearing: the
+ * header's whole behaviour depends on the hero being dark. A transparent header over a cream hero is
+ * cream on cream, which is not a behaviour, it is a defect the board avoided by choosing #14120F. So
+ * the field is ours, on every practice.
+ *
+ * Values are the board's, measured with this repo's own `contrastRatio` — the board prints
+ * 15.9 / 7.0 / 6.9 for the first, second and fourth, and this instrument reads them a little higher:
+ *   ink        #14120F  17.847:1 on cream   body, headings, the hero and closing fields
+ *   ink-soft   #5A554C   7.062:1 on cream   ledes, captions, secondary
+ *   mist       #A2D1DC   1.580:1 on cream   the extracted colour — a LINE, never text on light
+ *   mist-deep  #1F5B69   7.266:1 on cream   the board's own hand-picked tone-mate
+ *
+ * And the on-ink partners, which is the half a cream language usually gets wrong. All measured
+ * against #14120F: cream 17.847, mist 11.298, #C6C1B7 (hero lede) 10.428, #BDB8AE (band lede)
+ * 9.465, #9E9992 (caption) 6.611.
+ */
+export const ATELIER_TOKENS = Object.freeze({
+  ink: '#14120F',
+  inkSoft: '#5A554C',
+  /** The page. ATELIER is a cream language; `paper` is the lift, not the base. */
+  cream: '#FAFAF4',
+  paper: '#FFFFFF',
+  /** Every hairline. */
+  rule: '#DCD9CF',
+  /** The heavier hairline: link underlines at rest, the row arrow's box on hover. */
+  ruleStrong: '#B8B3A6',
+  /** Rules ON the ink field. Stated as rgba because a solid would read as a second surface. */
+  onInkRule: 'rgba(250,250,244,.22)',
+  onInkRuleStrong: 'rgba(250,250,244,.42)',
+  onInkLede: '#BDB8AE',
+  onInkHeroLede: '#C6C1B7',
+  onInkCaption: '#9E9992',
+  /** The board's own mist, and the default brand when a practice cannot supply one. */
+  defaultBrand: '#A2D1DC',
+  easeOut: 'cubic-bezier(.16,1,.3,1)',
+} as const);
+
+/**
+ * ATELIER's floors.
+ *
+ * `textToneMate` is 6.9 rather than LEDGER's 7.0, and the difference is not a rounding: it is the
+ * board's own printed floor for `--mist-deep`, and this language derives against CREAM rather than
+ * against white. Deriving at the board's floor on the board's surface is what puts the derived tone
+ * where the hand-picked one is.
+ */
+export const ATELIER_AA = Object.freeze({
+  normalText: CLINIC_LANGUAGE_AA.normalText,
+  largeText: CLINIC_LANGUAGE_AA.largeText,
+  textToneMate: 6.9,
+  toneMateFloorLightness: 0.1,
+  /**
+   * A colour that cannot be seen against the page is not a rule. Same judgement and same number as
+   * MARQUEE's `brandSurfaceAgainstPage` and LEDGER's `brandAgainstPage` — and it matters more here
+   * than in either: the board's own mist measures 1.580 on cream, so a floor of 2.0 would reject
+   * the colour this language was cut from. It is a hairline carrying no text.
+   */
+  brandAgainstPage: 1.5,
+  /**
+   * The accent must be CHROMATIC, for LEDGER's reason and with LEDGER's number. This language's own
+   * neutrals report S 0.084 (inkSoft), 0.112 (ruleStrong), 0.143 (ink), 0.157 (rule) — all below
+   * 0.20 — while the board's mist is 0.453. Without this a practice publishing a warm beige is
+   * adopted as "the extracted brand colour, never flattened", and the page has no colour in it.
+   */
+  brandMinimumSaturation: 0.2,
+} as const);
+
+/** The derivation, bound to ATELIER's page surface and text floor. */
+export function atelierTextToneMate(brand: string): string | null {
+  return brandToneMate(brand, {
+    surface: ATELIER_TOKENS.cream,
+    minimumRatio: ATELIER_AA.textToneMate,
+    floorLightness: ATELIER_AA.toneMateFloorLightness,
+  });
+}
+
+/**
+ * Which ink sits ON the practice's colour. The board fills with it in exactly one place — the
+ * ink-band button, which inverts to a mist fill on hover — and ink on the board's mist measures
+ * 11.298, so this is rarely a close call. It is still asked, because `--brand-ink` feeds
+ * `--clinic-accent-contrast` and a slot that is legible by luck stops being legible for the next
+ * practice.
+ */
+export function atelierInkFor(brand: string): string | null {
+  const dark = contrastRatio(ATELIER_TOKENS.ink, brand);
+  const light = contrastRatio(ATELIER_TOKENS.cream, brand);
+  const best = dark >= light ? ATELIER_TOKENS.ink : ATELIER_TOKENS.cream;
+  return Math.max(dark, light) >= CLINIC_LANGUAGE_AA.normalText ? best : null;
+}
+
+/**
+ * §2-5 for ATELIER. The brand gates on being a legible LINE and on having a usable tone-mate, never
+ * on being legible as text — which, at 1.580 on cream, the board's own colour is not and is never
+ * asked to be.
+ */
+export function atelierBrandGateFailures(brand: string): string[] {
+  const failures: string[] = [];
+  if (atelierTextToneMate(brand) === null) {
+    failures.push(`atelier tone-mate ${ATELIER_AA.textToneMate.toFixed(1)}:1 on cream`);
+  }
+  if (atelierInkFor(brand) === null) failures.push('atelier ink/brand 4.5:1');
+  if (contrastRatio(brand, ATELIER_TOKENS.cream) < ATELIER_AA.brandAgainstPage) {
+    failures.push('atelier brand/page 1.5:1');
+  }
+  const hsl = hexToHsl(brand);
+  if (hsl && hsl.s < ATELIER_AA.brandMinimumSaturation) {
+    failures.push('atelier brand chroma S 0.20');
+  }
+  /**
+   * Against the INK, because the ink is also the hero field and the closing band. A brand that read
+   * as the ink would put the practice's one colour into the two surfaces it is supposed to rule,
+   * and the language would lose its accent while reporting a successful extraction — MARQUEE's
+   * failure, in a different palette.
+   */
+  if (tooCloseToLanguageColour(brand, ATELIER_TOKENS.ink)) {
+    failures.push('atelier brand/ink separation ΔH 15° or ΔL 0.2');
   }
   return failures;
 }
