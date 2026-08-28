@@ -534,14 +534,17 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
       '8dd5b55790a829f426fdddd1e2a3d5f516725bf32674069a28064a508409e38d',
     );
     /**
-     * Moved once, additively, for MARQUEE's three faces. Stated before the regen and matched
-     * exactly: 81 insertions, 0 deletions, and every pre-existing WOFF2 byte-identical. The
-     * Korean manifest SHA above did NOT move, which is the evidence the change stayed in the
+     * Moved twice, additively both times — once for MARQUEE's three faces (81 insertions, 0
+     * deletions) and once for LEDGER's two (40 insertions, 0 deletions: IBM Plex Mono 400/500 plus
+     * its licence notice; LEDGER's text face is the Public Sans clinic-geometric already ships).
+     * Stated before each regen and matched exactly, with every pre-existing WOFF2 byte-identical —
+     * the subset build is deterministic, so re-running it moves no existing asset. The Korean
+     * manifest SHA above did NOT move either time, which is the evidence each change stayed in the
      * Latin lane it claimed to touch.
      */
     assert.equal(
       fileSha('public/fonts/latin/font-assets.json'),
-      '952b5e1be34e8a2c46bfb076d366ea1f96475c7f0156ce7890bdd9d5433db6aa',
+      '0c4bbdd036419b97d0ac1826c51f24bb767e0d472c912ce498693ac98f0f4a1c',
     );
     assert.equal(
       fileSha('src/lib/clinic-master/dental-stock-manifest.generated.ts'),

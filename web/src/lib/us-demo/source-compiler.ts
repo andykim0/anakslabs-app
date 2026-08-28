@@ -19,6 +19,7 @@ import {
   US_DEMO_FALLBACK_CLINIC_SPECIALTY,
   type ClinicSpecialty,
 } from './clinic-palette';
+import { CLINIC_DESIGN_LANGUAGE_TYPOGRAPHY } from './design-language';
 import { resolveClinicSpecialty } from './specialty';
 import {
   clinicPhotoGate,
@@ -181,7 +182,9 @@ function clinicMasterPinForArtifact(
      * The language decides the typography, because that is what a design language IS — the pairing
      * is not a separate axis an operator tunes on top of it.
      */
-    typographyPreset: designLanguage === 'marquee' ? 'clinic-marquee' : 'clinic-editorial',
+    typographyPreset: designLanguage
+      ? CLINIC_DESIGN_LANGUAGE_TYPOGRAPHY[designLanguage]
+      : 'clinic-editorial',
     density: 'airy',
     focus: resolveClinicFocus(blocks.filter((block) => block.kind === 'service')),
     demoPitchLocale: 'en',

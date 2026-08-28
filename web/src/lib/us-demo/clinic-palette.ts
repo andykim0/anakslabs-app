@@ -1,7 +1,11 @@
 import { contrastRatio, relLuminance } from '@/lib/design/quality-standards';
 import type { ClinicDesignLanguage } from '@/lib/types/site';
 import {
+  LEDGER_TOKENS,
   MARQUEE_TOKENS,
+  ledgerBrandGateFailures,
+  ledgerInkFor,
+  ledgerTextToneMate,
   marqueeBrandGateFailures,
   marqueeInkFor,
 } from './design-language';
@@ -343,8 +347,77 @@ function buildMarqueePalette(input: ClinicPaletteInput): ClinicPalette {
   };
 }
 
+/**
+ * The candidate walk both language builders share: take the first candidate that clears every gate,
+ * and otherwise report the FIRST candidate's failures rather than the last one's, so the reason a
+ * practice fell back names the colour it actually leads with.
+ */
+function adoptBrand(
+  input: ClinicPaletteInput,
+  gatesFor: (brand: string) => string[],
+): { adopted: { origin: ClinicPaletteOrigin; hex: string } | null; gateFailures: string[] } {
+  let reportedFailures: string[] = [];
+  for (const candidate of input.candidates) {
+    if (!parseHex(candidate.hex)) continue;
+    const failures = gatesFor(candidate.hex);
+    if (reportedFailures.length === 0) reportedFailures = failures;
+    if (failures.length === 0) return { adopted: candidate, gateFailures: [] };
+  }
+  return { adopted: null, gateFailures: reportedFailures };
+}
+
+/**
+ * LEDGER's seven slots.
+ *
+ * FROM THE PRACTICE: `--brand`, at full saturation and never darkened, because in this language the
+ * colour is a MARK — the 26px logo square, the 2px keyline over the closing band, the active nav
+ * underline, the hero caption rule, the booking bar's top border. And `--accent`, which is its
+ * DARK TONE-MATE: the same hue and saturation walked down until it is legible as text on white.
+ * Those two are the same colour at two lightnesses, which is the whole language in one sentence —
+ * the accent leads the page and the accent rules the page, and neither of those jobs is done by a
+ * gray.
+ *
+ * FROM THE LANGUAGE: `--surface` white, `--surface-2` panel, `--ink`, `--ink-muted`.
+ *
+ * `--ink-muted` is the board's `--text` (#333B44, body) rather than its `--meta` (#5B6672), because
+ * this slot lands in `theme.palette.muted` and from there in `--clinic-section-muted`, which the
+ * flow renderer reads for LEDE and BODY copy — not for captions. The board's meta gray is a
+ * language constant instead, named on the roles that are actually meta.
+ *
+ * Nothing here calls `refineBrandColor`, for MARQUEE's reason: re-imagining the chroma would be
+ * re-deciding the one thing the language exists to carry.
+ */
+function buildLedgerPalette(input: ClinicPaletteInput): ClinicPalette {
+  const { adopted, gateFailures } = adoptBrand(input, ledgerBrandGateFailures);
+  /**
+   * The honest failure, and no darkening rescue. A rescue here would walk the brand down until it
+   * passed as TEXT, which is precisely the colour the tone-mate already is — so the rescue would
+   * hand the language a "brand" that is its own accent, and the mark and the text would collapse
+   * onto one value. The two-lightness pair is the language; one lightness is a default template.
+   */
+  const brand = adopted ? adopted.hex.toUpperCase() : LEDGER_TOKENS.defaultBrand;
+  return {
+    slots: Object.freeze({
+      '--brand': brand,
+      '--brand-ink': ledgerInkFor(brand) ?? LEDGER_TOKENS.inkLight,
+      '--accent': ledgerTextToneMate(brand) ?? LEDGER_TOKENS.ink,
+      '--surface': LEDGER_TOKENS.surface,
+      '--surface-2': LEDGER_TOKENS.panel,
+      '--ink': LEDGER_TOKENS.ink,
+      '--ink-muted': LEDGER_TOKENS.text,
+    }),
+    meta: {
+      origin: adopted ? adopted.origin : 'specialty-fallback',
+      fallbackUsed: !adopted,
+      refinement: 'none',
+      gateFailures,
+    },
+  };
+}
+
 export function buildClinicPalette(input: ClinicPaletteInput): ClinicPalette {
   if (input.designLanguage === 'marquee') return buildMarqueePalette(input);
+  if (input.designLanguage === 'ledger') return buildLedgerPalette(input);
   const fallback = CLINIC_PALETTE_FALLBACKS[input.specialty];
   const rawSurface = input.surface && parseHex(input.surface) ? input.surface : '#FFFFFF';
   // §2-2: anything darker than 0.92 is not a page background we keep.

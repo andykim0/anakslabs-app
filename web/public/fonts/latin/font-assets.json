@@ -277,6 +277,40 @@
           }
         }
       }
+    },
+    {
+      "id": "ibm-plex-mono-400:latin-core",
+      "faceId": "ibm-plex-mono-400",
+      "chunkId": "latin-core",
+      "family": "IBM Plex Mono",
+      "weight": 400,
+      "style": "normal",
+      "path": "/fonts/latin/ibm-plex-mono-400-latin-core.woff2",
+      "bytes": 15240,
+      "sha256": "e7cad021d1fc9073f2fc2c5128dbad29c94f5a52d942c9d8c0976a07ff13106d",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "ibm-plex-mono-official-400",
+        "url": "https://raw.githubusercontent.com/IBM/plex/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Mono/fonts/complete/ttf/IBMPlexMono-Regular.ttf",
+        "sha256": "fe11304a5fe956d5744e9b6a246cc83d90425245e75a62230044966ca96a7f50"
+      }
+    },
+    {
+      "id": "ibm-plex-mono-500:latin-core",
+      "faceId": "ibm-plex-mono-500",
+      "chunkId": "latin-core",
+      "family": "IBM Plex Mono",
+      "weight": 500,
+      "style": "normal",
+      "path": "/fonts/latin/ibm-plex-mono-500-latin-core.woff2",
+      "bytes": 15632,
+      "sha256": "8180096af6c07303c692240a4c1deae2d2a000b604737ef5f0d081140ba4944f",
+      "unicodeRange": "U+20-7e, U+a0-ff, U+2010-2014, U+2018-2019, U+201c-201d, U+2022, U+2026, U+2032-2033, U+2039-203a, U+2044, U+20ac, U+2122, U+2190-2193",
+      "source": {
+        "id": "ibm-plex-mono-official-500",
+        "url": "https://raw.githubusercontent.com/IBM/plex/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Mono/fonts/complete/ttf/IBMPlexMono-Medium.ttf",
+        "sha256": "0bede3debdea8488bbb927f8f0650d915073209734a67fe8cd5a3320b572511c"
+      }
     }
   ],
   "licenseNotices": [
@@ -319,6 +353,12 @@
     {
       "name": "IBM Plex Sans",
       "sourceUrl": "https://github.com/IBM/plex/tree/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Sans",
+      "licenseId": "OFL-1.1",
+      "noticePath": "/fonts/latin/FONT-LICENSES.md"
+    },
+    {
+      "name": "IBM Plex Mono",
+      "sourceUrl": "https://github.com/IBM/plex/tree/242c4cccd37e87985a5337815c99b960ef13c65c/IBM-Plex-Mono",
       "licenseId": "OFL-1.1",
       "noticePath": "/fonts/latin/FONT-LICENSES.md"
     }

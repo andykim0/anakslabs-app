@@ -67,6 +67,22 @@ export const CLINIC_TYPOGRAPHY_TOKENS = Object.freeze({
     familyCount: 2,
     faceCount: 3,
   },
+  'clinic-ledger': {
+    headingFamily: CLINIC_LATIN_FONT_PRESETS['clinic-ledger'].heading,
+    headingWeight: CLINIC_LATIN_FONT_PRESETS['clinic-ledger'].headingWeight,
+    displayWeight: CLINIC_LATIN_FONT_PRESETS['clinic-ledger'].displayWeight,
+    bodyFamily: CLINIC_LATIN_FONT_PRESETS['clinic-ledger'].body,
+    bodyWeight: CLINIC_LATIN_FONT_PRESETS['clinic-ledger'].bodyWeight,
+    controlFamily: CLINIC_LATIN_FONT_PRESETS['clinic-ledger'].control,
+    controlWeight: CLINIC_LATIN_FONT_PRESETS['clinic-ledger'].controlWeight,
+    /**
+     * TWO families, ONE of which is the text face for all three roles. `familyCount` counts the
+     * pairing's families — Public Sans and IBM Plex Mono — while the three role families above are
+     * all Public Sans, because the mono is bound to figures by rule rather than to a role by name.
+     */
+    familyCount: 2,
+    faceCount: 3,
+  },
 } as const satisfies Record<ClinicTypographyPreset, {
   headingFamily: string;
   headingWeight: number;
@@ -124,6 +140,47 @@ export function clinicMarqueeRenderTokens() {
     tileD: radius.tileD,
     borderWidth: `${radius.borderWidth}px`,
     ruleWidth: `${radius.ruleWidth}px`,
+  } as const;
+}
+
+/**
+ * LEDGER's geometry, as its own parallel table for the reason `CLINIC_MARQUEE_RADIUS_TOKENS` is
+ * one: a language-conditional key on `CLINIC_RADIUS_TOKENS` would make the DEFAULT path's shape
+ * depend on a field the default path does not have.
+ *
+ * The vocabulary is the inverse of MARQUEE's. Where that language has full pills, 22px cards and
+ * 2px borders, this one has a single 3px softening on controls, square corners everywhere else,
+ * and 1px hairlines — because every division in this language is a RULE, and a rule with a radius
+ * stops reading as a rule. The 2px `rule` is the one heavier stroke: the steel keyline above the
+ * closing band and on the booking bar, which is where the extracted colour is allowed to be seen.
+ */
+export const CLINIC_LEDGER_RADIUS_TOKENS = Object.freeze({
+  /** Buttons only. Nothing else in this language is rounded. */
+  control: 3,
+  /** Tag chips, table cells, thumbnails, panels, gallery tiles — all square. */
+  square: 0,
+  /** Every division. The language has no 2px borders except the one below. */
+  borderWidth: 1,
+  /** The steel keyline: above the closing band, on top of the booking bar. */
+  ruleWidth: 2,
+  /** The grid line a contact-sheet gallery is assembled from. */
+  hairGap: 1,
+  /** The board's row thumbnail. 108x76 was measured as unreadable; Arc runs ~185px. */
+  rowThumbWidth: 180,
+  /** The micro-bar's open height. Its closed height is 0 — see the header runtime. */
+  microBarHeight: 38,
+} as const);
+
+export function clinicLedgerRenderTokens() {
+  const geometry = CLINIC_LEDGER_RADIUS_TOKENS;
+  return {
+    radiusControl: `${geometry.control}px`,
+    radiusSquare: `${geometry.square}px`,
+    borderWidth: `${geometry.borderWidth}px`,
+    ruleWidth: `${geometry.ruleWidth}px`,
+    hairGap: `${geometry.hairGap}px`,
+    rowThumbWidth: `${geometry.rowThumbWidth}px`,
+    microBarHeight: `${geometry.microBarHeight}px`,
   } as const;
 }
 

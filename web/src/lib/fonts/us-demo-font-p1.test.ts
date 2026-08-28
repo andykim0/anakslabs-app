@@ -182,14 +182,18 @@ describe('US-DEMO P1 — additive Latin font seam', () => {
     assert.equal(manifest.status, 'production-ready');
     assert.equal(manifest.assetVersion, 1);
     /**
-     * 9 -> 12, and the arithmetic before the number: MARQUEE adds exactly three faces
-     * (bricolage-grotesque-700, bricolage-grotesque-800, dm-sans-400-700). The manifest diff that
-     * produced this is 81 insertions and 0 deletions, and all nine pre-existing WOFF2 files are
-     * byte-identical — the subset build is deterministic, so re-running it moved no existing asset.
-     * The budgets below are UNCHANGED: MARQUEE fits inside them at 2 families / 3 faces / 72,444 B
-     * rather than being let through by raising a ceiling.
+     * 9 -> 12 -> 14, and the arithmetic before each number: MARQUEE adds exactly three faces
+     * (bricolage-grotesque-700, bricolage-grotesque-800, dm-sans-400-700) and LEDGER exactly two
+     * (ibm-plex-mono-400, ibm-plex-mono-500 — its text face is the public-sans-400-600 that
+     * clinic-geometric already ships, so the language that reads least like the default one costs
+     * the fewest new bytes). The manifest diffs are 81 and 40 insertions with 0 deletions, and
+     * every pre-existing WOFF2 file is byte-identical — the subset build is deterministic, so
+     * re-running it moved no existing asset.
+     *
+     * The budgets below are UNCHANGED for both: MARQUEE fits at 2 families / 3 faces / 72,444 B and
+     * LEDGER at 2 / 3 / 52,900 B, rather than either being let through by raising a ceiling.
      */
-    assert.equal(manifest.assets.length, 12);
+    assert.equal(manifest.assets.length, 14);
     assert.deepEqual(manifest.budgets, LATIN_FONT_PERFORMANCE_BUDGETS);
     assert.deepEqual(LATIN_FONT_PERFORMANCE_BUDGETS, {
       firstScreenTargetBytes: 122880,

@@ -83,4 +83,32 @@ export const CLINIC_LATIN_FONT_PRESETS = Object.freeze({
     ],
     familyCount: 2,
   },
+  /**
+   * LEDGER. One neutral humanist family does everything textual — display is Public Sans 600, not a
+   * second face — and IBM Plex Mono carries every QUANTITY. That split is the language: a page
+   * whose numerals, hours, telephone, section indices and captions are all monospaced reads as a
+   * record rather than as a brochure, and no amount of colour does that on its own.
+   *
+   * The mono is deliberately NOT the heading/body/control family, so it does not appear here as
+   * one: it is named by `CLINIC_LEDGER_CSS` on the specific roles that carry figures. `faceIds`
+   * still lists it, because that is what the asset gate loads and what the byte budget counts.
+   *
+   * `public-sans-400-600` is reused from `clinic-geometric` rather than rebuilt — one variable face
+   * over 400..600 covers every weight this language sets, so LEDGER costs two new faces, not three.
+   */
+  'clinic-ledger': {
+    heading: "'Public Sans', 'Helvetica Neue', Arial, sans-serif",
+    body: "'Public Sans', 'Helvetica Neue', Arial, sans-serif",
+    control: "'Public Sans', 'Helvetica Neue', Arial, sans-serif",
+    headingWeight: 600,
+    displayWeight: 600,
+    bodyWeight: 400,
+    controlWeight: 600,
+    faceIds: [
+      'public-sans-400-600',
+      'ibm-plex-mono-400',
+      'ibm-plex-mono-500',
+    ],
+    familyCount: 2,
+  },
 } as const satisfies Readonly<Record<ClinicTypographyPreset, ClinicLatinFontPreset>>);

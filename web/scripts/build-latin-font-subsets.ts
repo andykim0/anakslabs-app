@@ -120,6 +120,24 @@ const SOURCES = {
     sha256: 'a20caf8286023a6a7a85e40b1d2a4ae9fc3e3b1f9eda8f4c542dd4986af67bb1',
     variable: false,
   },
+  /**
+   * LEDGER's data face. Plex Mono ships as static instances rather than a variable font, which is
+   * why it takes two sources for two weights where DM Sans took one — and it is also why neither
+   * carries `variationAxes`: there is no axis to pin, so the determinism check has nothing to
+   * disagree with between runs.
+   */
+  ibmMonoRegular: {
+    id: 'ibm-plex-mono-official-400',
+    url: `https://raw.githubusercontent.com/IBM/plex/${IBM_PLEX_COMMIT}/IBM-Plex-Mono/fonts/complete/ttf/IBMPlexMono-Regular.ttf`,
+    sha256: 'fe11304a5fe956d5744e9b6a246cc83d90425245e75a62230044966ca96a7f50',
+    variable: false,
+  },
+  ibmMonoMedium: {
+    id: 'ibm-plex-mono-official-500',
+    url: `https://raw.githubusercontent.com/IBM/plex/${IBM_PLEX_COMMIT}/IBM-Plex-Mono/fonts/complete/ttf/IBMPlexMono-Medium.ttf`,
+    sha256: '0bede3debdea8488bbb927f8f0650d915073209734a67fe8cd5a3320b572511c',
+    variable: false,
+  },
 } as const satisfies Record<string, SourceSpec>;
 
 const FACES: readonly FaceSpec[] = [
@@ -166,6 +184,14 @@ const FACES: readonly FaceSpec[] = [
     weight: '400 700',
     variationAxes: { opsz: 14, wght: { min: 400, max: 700, default: 400 } },
   },
+  /**
+   * LEDGER adds exactly two faces, because its text family is already here: `public-sans-400-600`
+   * was built for `clinic-geometric` and covers 400..600 as real instances, which is the whole of
+   * what this language asks of Public Sans. So the pairing that reads as the most different from
+   * the default one costs the smallest number of new bytes of the three languages.
+   */
+  { id: 'ibm-plex-mono-400', source: SOURCES.ibmMonoRegular, family: 'IBM Plex Mono', weight: 400 },
+  { id: 'ibm-plex-mono-500', source: SOURCES.ibmMonoMedium, family: 'IBM Plex Mono', weight: 500 },
 ] as const;
 
 function sha256(bytes: Uint8Array): string {
@@ -294,6 +320,12 @@ async function main() {
     licenseId: 'OFL-1.1',
     noticePath: '/fonts/latin/FONT-LICENSES.md',
   });
+  licenseNotices.push({
+    name: 'IBM Plex Mono',
+    sourceUrl: `https://github.com/IBM/plex/tree/${IBM_PLEX_COMMIT}/IBM-Plex-Mono`,
+    licenseId: 'OFL-1.1',
+    noticePath: '/fonts/latin/FONT-LICENSES.md',
+  });
   const manifest = {
     version: 1,
     catalogVersion: 1,
@@ -333,7 +365,7 @@ These checked-in WOFF2 files are deterministic Latin subsets of checksum-pinned 
 No runtime request is made to Google Fonts, IBM, or another font CDN.
 
 - Schibsted Grotesk, Hanken Grotesk, Albert Sans, Public Sans, Bricolage Grotesque, and DM Sans — SIL Open Font License 1.1; pinned source: https://github.com/google/fonts/tree/${GOOGLE_FONTS_COMMIT}/ofl
-- IBM Plex Sans — SIL Open Font License 1.1; pinned source and license: https://github.com/IBM/plex/tree/${IBM_PLEX_COMMIT}
+- IBM Plex Sans and IBM Plex Mono — SIL Open Font License 1.1; pinned source and license: https://github.com/IBM/plex/tree/${IBM_PLEX_COMMIT}
 
 The original family names are retained to identify and load the licensed fonts.
 `,
