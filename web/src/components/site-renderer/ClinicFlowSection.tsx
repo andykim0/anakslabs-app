@@ -1009,16 +1009,50 @@ export function resolveBalancedClinicCardColumns(itemCount: number): number {
 }
 
 /**
- * `marquee-spring` is the fifth, and unlike the other four it is not parsed out of a section id:
- * the clinic-engine variant path names its signature in the id, while a design language IS the
- * signature for every section it draws. So it is resolved from the stored field instead.
+ * `marquee-spring` is the fifth and `ledger-quiet` the sixth, and unlike the first four they are not
+ * parsed out of a section id: the clinic-engine variant path names its signature in the id, while a
+ * design language IS the signature for every section it draws. So they are resolved from the stored
+ * field instead.
  */
 type ClinicVariantMotionSignature =
   | 'static'
   | 'calm-fade'
   | 'rise-stagger'
   | 'cinematic'
-  | 'marquee-spring';
+  | 'marquee-spring'
+  | 'ledger-quiet';
+
+/**
+ * The two numbers a design-language signature owns, as a table rather than as a chain of ternaries
+ * — a sixth arm on that chain was where the stagger for one language would have been read for
+ * another. `itemCap` is the highest item index that still earns a step.
+ */
+const CLINIC_LANGUAGE_MOTION = Object.freeze({
+  'marquee-spring': { groupDelay: 140, staggerStep: 70, itemCap: 5 },
+  /**
+   * The board's own cap, and it is TIGHTER than the engine's. 40ms x 4 walks a row out to 160ms and
+   * then holds, which is what "deliberately the quietest of the three" means when a services grid
+   * has ten rows in it. The engine's cap of 5 still bounds it; this language simply does not use
+   * the last step.
+   */
+  'ledger-quiet': { groupDelay: 80, staggerStep: 40, itemCap: 4 },
+} as const);
+
+/**
+ * Which signature a design language draws with. Exhaustive over `ClinicDesignLanguage`, so adding a
+ * language cannot compile until it has decided how it moves.
+ */
+const CLINIC_DESIGN_LANGUAGE_MOTION_SIGNATURE = Object.freeze({
+  marquee: 'marquee-spring',
+  ledger: 'ledger-quiet',
+} as const satisfies Readonly<Record<ClinicDesignLanguage, ClinicVariantMotionSignature>>);
+
+/** Only the two clinic-engine signatures that are not a design language keep the old chain. */
+const CLINIC_ENGINE_MOTION = Object.freeze({
+  'calm-fade': { groupDelay: 80, staggerStep: 40 },
+  'rise-stagger': { groupDelay: 160, staggerStep: 60 },
+  cinematic: { groupDelay: 220, staggerStep: 80 },
+} as const);
 
 function clinicVariantMotionSignature(sectionId: string): ClinicVariantMotionSignature | undefined {
   const match = /-clinic-variant-motion-(static|calm-fade|rise-stagger|cinematic)$/u.exec(sectionId);
@@ -1033,30 +1067,24 @@ function clinicRevealAttributes(input: {
 }): Record<string, string> {
   if (input.signature) {
     if (input.signature === 'static') return {};
-    const baseDelay = input.group === 0
-      ? 0
-      : input.signature === 'calm-fade'
-        ? 80
-        : input.signature === 'rise-stagger'
-          ? 160
-          : input.signature === 'marquee-spring'
-            ? 140
-            : 220;
-    const staggerStep = input.signature === 'calm-fade'
-      ? 40
-      : input.signature === 'rise-stagger'
-        ? 60
-        : input.signature === 'marquee-spring'
-          ? 70
-          : 80;
+    const language = input.signature in CLINIC_LANGUAGE_MOTION
+      ? CLINIC_LANGUAGE_MOTION[input.signature as keyof typeof CLINIC_LANGUAGE_MOTION]
+      : null;
+    const timing = language
+      ?? CLINIC_ENGINE_MOTION[input.signature as keyof typeof CLINIC_ENGINE_MOTION];
+    const baseDelay = input.group === 0 ? 0 : timing.groupDelay;
     /**
-     * CONFORMANCE DEVIATION, deliberate and kept. The board staggers uncapped; the engine bounds
-     * the index at 5, so a MARQUEE row of nine items runs 0..350ms and then holds at 350ms rather
+     * CONFORMANCE DEVIATION, deliberate and kept. MARQUEE's board staggers uncapped; the engine
+     * bounds the index at 5, so a row of nine items runs 0..350ms and then holds at 350ms rather
      * than walking out to 560ms. The cap wins: it is the engine's existing guarantee that a long
-     * grid cannot leave its last card invisible for most of a second, and it applies to all five
-     * signatures rather than being special-cased away for this one.
+     * grid cannot leave its last card invisible for most of a second, and it applies to every
+     * signature rather than being special-cased away for one.
+     *
+     * A language may cap TIGHTER than the engine, and LEDGER does at 4 — its board says so, and a
+     * bound below the engine's bound is still inside it.
      */
-    const delay = baseDelay + Math.min(input.itemIndex ?? 0, 5) * staggerStep;
+    const cap = Math.min(language?.itemCap ?? 5, 5);
+    const delay = baseDelay + Math.min(input.itemIndex ?? 0, cap) * timing.staggerStep;
     return {
       'data-m': 'reveal',
       'data-m-delay': String(delay),
@@ -1107,7 +1135,7 @@ export function ClinicFlowSection({
    * is explicit. Otherwise a design language supplies its own.
    */
   const variantMotionSignature = clinicVariantMotionSignature(section.id)
-    ?? (designLanguage === 'marquee' ? ('marquee-spring' as const) : undefined);
+    ?? (designLanguage ? CLINIC_DESIGN_LANGUAGE_MOTION_SIGNATURE[designLanguage] : undefined);
   /**
    * The reveal these attributes drive is locale-neutral: runtime.ts styles
    * [data-m="reveal"] for any .anaks-site, and only the extra translate distance is scoped to

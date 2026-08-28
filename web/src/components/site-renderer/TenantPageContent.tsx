@@ -8,6 +8,7 @@
 import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { TenantHeader } from './TenantHeader';
 import { MarqueeUtilityStrip } from './ClinicMarquee';
+import { LedgerHeaderRuntime, LedgerMicroBar } from './ClinicLedger';
 import { SemanticOutline } from './SemanticOutline';
 import { SiteRenderer } from './SiteRenderer';
 import { LegalFooter } from './LegalFooter';
@@ -87,6 +88,12 @@ export function TenantPageContent({
         stickiness a property of the strip. Renders null on every other language.
       */}
       <MarqueeUtilityStrip config={renderedConfig} />
+      {/*
+        LEDGER's header is two elements for the same reason and with the opposite motion: a --panel
+        micro-bar in document flow above the sticky white bar, which COLLAPSES to zero height on
+        scroll rather than merely scrolling away. Renders null on every other language.
+      */}
+      <LedgerMicroBar config={renderedConfig} />
       {/* 페이지 ≥2 & nav 활성 시 자동 헤더 내비 (단일 페이지 사이트는 컴포넌트가 null) */}
       <TenantHeader
         config={renderedConfig}
@@ -130,6 +137,11 @@ export function TenantPageContent({
           termsHref={termsHref}
         />
       ) : null}
+      {/*
+        The collapse's observer, emitted after the document it observes and only for the one
+        language that has a scroll state. Every other language ships zero bytes here.
+      */}
+      <LedgerHeaderRuntime config={renderedConfig} />
       {analyticsRuntime ? (
         <script
           type="module"

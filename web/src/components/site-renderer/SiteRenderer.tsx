@@ -45,6 +45,11 @@ import {
   marqueeIsActive,
   marqueeRootStyle,
 } from './ClinicMarquee';
+import {
+  CLINIC_LEDGER_CSS,
+  ledgerIsActive,
+  ledgerRootStyle,
+} from './ClinicLedger';
 import type { ClinicMasterExperience } from '@/lib/clinic-master/live-contract';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
@@ -526,6 +531,8 @@ export function SiteRenderer({
      * the two constants it always did — down to the byte.
      */
     (marqueeIsActive(config) ? CLINIC_MARQUEE_CSS : '') +
+    /** The fourth. Same gate, same reason, same byte contract on the default path. */
+    (ledgerIsActive(config) ? CLINIC_LEDGER_CSS : '') +
     /**
      * [D2] Gated on the same stored field as the DOM path, and for the same reason: a config
      * compiled before this existed must render byte-identically, and stylesheet bytes count.
@@ -605,6 +612,17 @@ export function SiteRenderer({
       clinicStyle['--clinic-accent-contrast'] = config.clinicMaster.resolvedPalette
         ?.slots['--brand-ink'] ?? clinicStyle['--clinic-accent-contrast'];
       Object.assign(clinicStyle, marqueeRootStyle(config.clinicMaster));
+    }
+    /**
+     * LEDGER overrules it for the same reason and with a different answer: the default gate's
+     * justification is a brand admitted only at 4.5:1 on white, and this language admits a brand at
+     * 1.5:1 because it uses it as a keyline rather than as text. #6698C9 measures 3.04 on white and
+     * carries the language's INK at 5.92, not white at 3.04 — so the stored ink partner decides.
+     */
+    if (ledgerIsActive(config)) {
+      clinicStyle['--clinic-accent-contrast'] = config.clinicMaster.resolvedPalette
+        ?.slots['--brand-ink'] ?? clinicStyle['--clinic-accent-contrast'];
+      Object.assign(clinicStyle, ledgerRootStyle(config.clinicMaster));
     }
   }
   if (motionCssNeeded) {
