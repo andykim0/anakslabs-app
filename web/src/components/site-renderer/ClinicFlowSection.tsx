@@ -1020,7 +1020,8 @@ type ClinicVariantMotionSignature =
   | 'rise-stagger'
   | 'cinematic'
   | 'marquee-spring'
-  | 'ledger-quiet';
+  | 'ledger-quiet'
+  | 'atelier-settle';
 
 /**
  * The two numbers a design-language signature owns, as a table rather than as a chain of ternaries
@@ -1036,6 +1037,12 @@ const CLINIC_LANGUAGE_MOTION = Object.freeze({
    * the last step.
    */
   'ledger-quiet': { groupDelay: 80, staggerStep: 40, itemCap: 4 },
+  /**
+   * The slowest of the three, and the one that meets the engine's cap head-on. The board staggers
+   * uncapped at 90ms, so an eleven-tile contact sheet would walk out to 900ms of delay on top of a
+   * 900ms transition; the cap holds it at 450ms. Declared, not silently absorbed.
+   */
+  'atelier-settle': { groupDelay: 180, staggerStep: 90, itemCap: 5 },
 } as const);
 
 /**
@@ -1045,6 +1052,7 @@ const CLINIC_LANGUAGE_MOTION = Object.freeze({
 const CLINIC_DESIGN_LANGUAGE_MOTION_SIGNATURE = Object.freeze({
   marquee: 'marquee-spring',
   ledger: 'ledger-quiet',
+  atelier: 'atelier-settle',
 } as const satisfies Readonly<Record<ClinicDesignLanguage, ClinicVariantMotionSignature>>);
 
 /** Only the two clinic-engine signatures that are not a design language keep the old chain. */

@@ -12,6 +12,7 @@ import type { SiteConfig, SitePage } from '@/lib/types/site';
 import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
 import { marqueeIsActive, marqueeRootStyle } from './ClinicMarquee';
 import { ledgerIsActive, ledgerRootStyle } from './ClinicLedger';
+import { atelierIsActive, atelierRootStyle } from './ClinicAtelier';
 
 /** Link slots the 1200px bar seats before it stops being a bar. */
 const NAV_MAX_INLINE = 6;
@@ -244,6 +245,9 @@ export function TenantHeader({
           : {}),
         ...(ledgerIsActive(config) && config.clinicMaster
           ? ledgerRootStyle(config.clinicMaster)
+          : {}),
+        ...(atelierIsActive(config) && config.clinicMaster
+          ? atelierRootStyle(config.clinicMaster)
           : {}),
         position: 'sticky',
         // Zero on a published site; the preview surface reports the height of its own sticky

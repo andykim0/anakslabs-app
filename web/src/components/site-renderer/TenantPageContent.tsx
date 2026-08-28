@@ -9,6 +9,7 @@ import type { MotionTier, SiteConfig } from '@/lib/types/site';
 import { TenantHeader } from './TenantHeader';
 import { MarqueeUtilityStrip } from './ClinicMarquee';
 import { LedgerHeaderRuntime, LedgerMicroBar } from './ClinicLedger';
+import { AtelierHeaderRuntime } from './ClinicAtelier';
 import { SemanticOutline } from './SemanticOutline';
 import { SiteRenderer } from './SiteRenderer';
 import { LegalFooter } from './LegalFooter';
@@ -142,6 +143,11 @@ export function TenantPageContent({
         language that has a scroll state. Every other language ships zero bytes here.
       */}
       <LedgerHeaderRuntime config={renderedConfig} />
+      {/*
+        ATELIER's runtime decides whether the transparent header state is allowed to exist at all,
+        so it must run after the document it inspects. Zero bytes on every other language.
+      */}
+      <AtelierHeaderRuntime config={renderedConfig} />
       {analyticsRuntime ? (
         <script
           type="module"

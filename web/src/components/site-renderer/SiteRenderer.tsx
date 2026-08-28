@@ -50,6 +50,11 @@ import {
   ledgerIsActive,
   ledgerRootStyle,
 } from './ClinicLedger';
+import {
+  CLINIC_ATELIER_CSS,
+  atelierIsActive,
+  atelierRootStyle,
+} from './ClinicAtelier';
 import type { ClinicMasterExperience } from '@/lib/clinic-master/live-contract';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
@@ -533,6 +538,8 @@ export function SiteRenderer({
     (marqueeIsActive(config) ? CLINIC_MARQUEE_CSS : '') +
     /** The fourth. Same gate, same reason, same byte contract on the default path. */
     (ledgerIsActive(config) ? CLINIC_LEDGER_CSS : '') +
+    /** And the fifth. Three languages, three constants, one gate each. */
+    (atelierIsActive(config) ? CLINIC_ATELIER_CSS : '') +
     /**
      * [D2] Gated on the same stored field as the DOM path, and for the same reason: a config
      * compiled before this existed must render byte-identically, and stylesheet bytes count.
@@ -623,6 +630,15 @@ export function SiteRenderer({
       clinicStyle['--clinic-accent-contrast'] = config.clinicMaster.resolvedPalette
         ?.slots['--brand-ink'] ?? clinicStyle['--clinic-accent-contrast'];
       Object.assign(clinicStyle, ledgerRootStyle(config.clinicMaster));
+    }
+    /**
+     * And ATELIER, for the same reason with the starkest example: its brand is a pale mist at 1.580
+     * on cream, so white is never the ink that sits on it — the compile stored #14120F, at 11.298.
+     */
+    if (atelierIsActive(config)) {
+      clinicStyle['--clinic-accent-contrast'] = config.clinicMaster.resolvedPalette
+        ?.slots['--brand-ink'] ?? clinicStyle['--clinic-accent-contrast'];
+      Object.assign(clinicStyle, atelierRootStyle(config.clinicMaster));
     }
   }
   if (motionCssNeeded) {
