@@ -20,11 +20,14 @@ import {
   type DirectionsLayoutContent,
   type DirectionsLayoutVariantId,
   type FeatureLayoutContent,
+  type FeatureLayoutItemBinding,
   type FeatureLayoutVariantId,
   type GalleryLayoutContent,
   type GalleryLayoutVariantId,
   type HeroLayoutVariantId,
+  type SectionLayoutProjection,
 } from '@/lib/layout';
+import { UsDemoCompileError } from '@/lib/us-demo/contracts';
 import { sourceTextIsOperationalBlob } from './source-text-gates';
 import { CLINIC_RADIUS_TOKENS } from '@/lib/clinic-master/tokens';
 import type { ClinicMasterSourceBlock } from '@/lib/clinic-master/compiler';
@@ -407,6 +410,65 @@ function resolveFeature(
   return null;
 }
 
+/**
+ * The catalog's only uncapped feature variant. Every capped variant can refuse a section (too many
+ * items, or a group split the variant will not accept), so a compile needs one variant that always
+ * says yes — otherwise a legitimate crawl takes the whole preview down.
+ */
+const FEATURE_OVERFLOW_FALLBACK = 'features.prose-article' as const;
+const FEATURE_OVERFLOW_FALLBACK_MAXIMUM = 100;
+
+function featureGroupBindings(
+  sectionId: string,
+  items: readonly FeatureLayoutItemBinding[],
+  maximumItems: number,
+): FeatureLayoutContent['groups'] {
+  const groups = clinicFeatureGroups(items, maximumItems);
+  if (groups.length < 2) return undefined;
+  return groups.map((group, index) => ({
+    id: `${sectionId}-${index + 1}`,
+    itemIds: group.map((item) => item.id),
+  }));
+}
+
+/**
+ * Resolution ladder. The first rung reproduces the historical call exactly, so every section that
+ * already resolved keeps its layout byte for byte; the later rungs only run where the compile used
+ * to throw.
+ */
+function resolveFeatureWithOverflow(input: {
+  id: string;
+  candidates: readonly FeatureLayoutVariantId[];
+  section: Section;
+  theme: SiteTheme;
+  intro: FeatureLayoutContent['intro'];
+  items: readonly FeatureLayoutItemBinding[];
+  maximumItems: number;
+}): SectionLayoutProjection {
+  const { section, theme, intro, items } = input;
+  const attempts: { candidates: readonly FeatureLayoutVariantId[]; maximumItems?: number }[] = [
+    { candidates: input.candidates, maximumItems: input.maximumItems },
+    { candidates: input.candidates },
+    { candidates: [FEATURE_OVERFLOW_FALLBACK], maximumItems: FEATURE_OVERFLOW_FALLBACK_MAXIMUM },
+    { candidates: [FEATURE_OVERFLOW_FALLBACK] },
+  ];
+  for (const attempt of attempts) {
+    const groups = attempt.maximumItems === undefined
+      ? undefined
+      : featureGroupBindings(input.id, items, attempt.maximumItems);
+    const projection = resolveFeature(attempt.candidates, section, theme, {
+      intro,
+      items,
+      ...(groups ? { groups } : {}),
+    });
+    if (projection) return projection;
+  }
+  throw new UsDemoCompileError(
+    'LAYOUT_UNRESOLVED',
+    `No feature layout accepted section ${input.id} (${items.length} items).`,
+  );
+}
+
 export function buildClinicFeatureSections(input: {
   id: string;
   name: string;
@@ -420,9 +482,21 @@ export function buildClinicFeatureSections(input: {
   maximumItems?: number;
   allowSingleFeature?: boolean;
 }): Section[] {
-  if (input.units.length === 0) return [];
-  if (input.units.length < FEATURE_MINIMUM_ITEMS && !input.allowSingleFeature) {
-    const unit = input.units[0];
+  /**
+   * Two sources can cite the same heading block — a "recent posts" list republished across several
+   * crawled pages hands the same block to several callers. A repeated unit id renders the same card
+   * twice and leaves the projection with ambiguous item bindings, so one card per cited block,
+   * first mention wins.
+   */
+  const seenUnitIds = new Set<string>();
+  const units = input.units.filter((unit) => {
+    if (seenUnitIds.has(unit.id)) return false;
+    seenUnitIds.add(unit.id);
+    return true;
+  });
+  if (units.length === 0) return [];
+  if (units.length < FEATURE_MINIMUM_ITEMS && !input.allowSingleFeature) {
+    const unit = units[0];
     return [buildClinicAboutSection({
       id: `${input.id}-single`,
       name: input.name,
@@ -436,7 +510,7 @@ export function buildClinicFeatureSections(input: {
     })];
   }
   const maximumItems = input.maximumItems ?? FEATURE_MAXIMUM_ITEMS;
-  const groups = clinicFeatureGroups(input.units, maximumItems);
+  const groups = clinicFeatureGroups(units, maximumItems);
   const title = layoutText(
     `${input.id}-layout-title`,
     input.name,
@@ -530,21 +604,15 @@ export function buildClinicFeatureSections(input: {
     elements,
     surface: input.surface,
   });
-  const projection = resolveFeature(input.candidates, section, input.theme, {
+  const projection = resolveFeatureWithOverflow({
+    id: input.id,
+    candidates: input.candidates,
+    section,
+    theme: input.theme,
     intro: { titleId: title.id },
     items,
-    ...(groups.length > 1
-      ? {
-          groups: groups.map((units, groupIndex) => ({
-            id: `${input.id}-${groupIndex + 1}`,
-            itemIds: units.map((unit) => unit.id),
-          })),
-        }
-      : {}),
+    maximumItems,
   });
-  if (!projection) {
-    throw new Error(`CLINIC_FEATURE_LAYOUT_UNRESOLVED:${input.id}:${input.units.length}`);
-  }
   section.sectionLayout = detailIdsByItem.size > 0
     ? {
         ...projection,
@@ -651,6 +719,38 @@ export function buildClinicAboutSection(input: {
   throw new Error(`CLINIC_ABOUT_LAYOUT_UNRESOLVED:${input.id}`);
 }
 
+/**
+ * Two URLs, one asset.
+ *
+ * A CMS hands the same upload out under several paths — a Squarespace practice can publish one
+ * photograph as `/static/<a>/<t1>/name.jpg`, `/content/v1/<b>/<t2>-KEY/name.jpg` and a third
+ * `?format=` variant of either — so URL equality does not answer "is this the same picture". The
+ * filename does, and Forefront is the measurement: `20140301_Trade-151_0124-copy.jpg` reached the
+ * home gallery under eight distinct URLs across two Squarespace accounts, and the reader saw the
+ * same lake five times in one band.
+ *
+ * EXCEPT where the filename is the CMS's, not the uploader's. Squarespace names an unnamed upload
+ * `image-asset.jpeg`, and Forefront's gallery holds three of them that are three different rooms.
+ * Collapsing those would delete two of the practice's own photographs to fix a repeat of a third,
+ * so a non-distinctive filename falls back to the URL and nothing is merged on it.
+ */
+const CMS_DEFAULT_FILENAME_RE =
+  /^(?:image[-_]?asset|image|img|photo|picture|unnamed|untitled|download|default|placeholder)(?:[-_]?\d+)?\.[a-z0-9]+$/iu;
+
+function galleryAssetIdentity(image: ClinicLayoutImage): string {
+  let filename: string;
+  try {
+    filename = decodeURIComponent(
+      new URL(image.src, 'https://placeholder.invalid').pathname.split('/').filter(Boolean).at(-1)
+        ?? '',
+    );
+  } catch {
+    return image.src;
+  }
+  if (!filename || CMS_DEFAULT_FILENAME_RE.test(filename)) return image.src;
+  return filename.toLocaleLowerCase('en-US');
+}
+
 export function buildClinicGallerySections(input: {
   id: string;
   name: string;
@@ -661,9 +761,16 @@ export function buildClinicGallerySections(input: {
   /** Optional deterministic compiler chrome for split groups; source media remains unchanged. */
   groupName?: (groupIndex: number) => string;
 }): Section[] {
-  if (input.images.length < GALLERY_MINIMUM_ITEMS) return [];
+  const seenAssets = new Set<string>();
+  const images = input.images.filter((image) => {
+    const identity = galleryAssetIdentity(image);
+    if (seenAssets.has(identity)) return false;
+    seenAssets.add(identity);
+    return true;
+  });
+  if (images.length < GALLERY_MINIMUM_ITEMS) return [];
   const result: Section[] = [];
-  const imageGroups = clinicFeatureGroups(input.images, GALLERY_MAXIMUM_ITEMS);
+  const imageGroups = clinicFeatureGroups(images, GALLERY_MAXIMUM_ITEMS);
   for (const [groupIndex, images] of imageGroups.entries()) {
     const suffix = groupIndex === 0 ? '' : `-${groupIndex + 1}`;
     const groupName = input.groupName?.(groupIndex) ?? input.name;

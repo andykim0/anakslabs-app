@@ -329,8 +329,15 @@ function buildMarqueePalette(input: ClinicPaletteInput): ClinicPalette {
    * lightness is what produces #BF590D, where the language's ink stops passing and white starts —
    * the exact inversion of the rule this language is built on. If the practice cannot supply a
    * surface the language can write on, the language supplies its own and says so.
+   *
+   * AND IT SUPPLIES A NEUTRAL ONE. The substitute used to be `defaultBrand`, the board's orange —
+   * so Forefront, whose extraction found no colour at all, was issued a demo painting #E56B10
+   * boldly across the utility strip, the CTA band and the hero plate, a hue that appears nowhere
+   * on their site. `fallbackUsed: true` in the audit was already saying so, but the page was not.
+   * A colour-forward language with no colour to carry now says that in the only place a prospect
+   * looks — on the page — by falling back to `neutralBrand` rather than to a vivid invented hue.
    */
-  const brand = adopted ? adopted.hex.toUpperCase() : MARQUEE_TOKENS.defaultBrand;
+  const brand = adopted ? adopted.hex.toUpperCase() : MARQUEE_TOKENS.neutralBrand;
   const brandInk = marqueeInkFor(brand) ?? MARQUEE_TOKENS.ink;
   return {
     slots: Object.freeze({

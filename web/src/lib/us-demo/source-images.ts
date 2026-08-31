@@ -427,6 +427,15 @@ const FOREIGN_LOGO_RE =
   /\b(?:google|yelp|facebook|instagram|twitter|review|insurance|payer|delta|cigna|aetna|metlife|humana|carecredit|visa|mastercard|paypal|powered)\b/iu;
 /** A greyscale or inverted duplicate belongs to a footer, so the primary mark is preferred. */
 const SECONDARY_LOGO_RE = /(?:gray|grey|scale|white|light|dark|invert|footer|mono)/iu;
+/**
+ * Words that name brand ARTWORK and nothing else, so a designer's export is recognised even when
+ * the word "logo" is absent: Forefront ships `forefront+dentistry+submark_color.jpg` beside its
+ * logo, and a submark is the mark. Kept OUT of `BRAND_LOGO_HINT_RE` on purpose — widening that
+ * regex would widen `prospectBrandLogo`'s candidate set and could move which mark a practice's
+ * header shows, and this rule has no business re-deciding that.
+ */
+const BRAND_ARTWORK_NOUN_RE =
+  /(?:^|[-_+/ ])(?:sub|word|brand|logo)[-_+ ]?mark(?:[-_+. ]|$)|(?:^|[-_+/ ])lock[-_+ ]?up(?:[-_+. ]|$)/iu;
 
 export interface ProspectBrandLogo {
   src: string;
@@ -477,6 +486,28 @@ export function prospectBrandLogo(
   });
   const chosen = ranked[0];
   return { src: chosen.url, alt: chosen.alt || businessName || '', sourcePageUrl: home.url };
+}
+
+/**
+ * THE PRACTICE'S OWN MARK, WHICH IS THE ONE THING A GALLERY MUST NOT SHOW.
+ *
+ * `sourceImageIsAssociationMark` catches marks belonging to somebody else — an academy, a board, a
+ * payer — and by construction cannot catch this one: a practice's wordmark names the practice, not
+ * an institution. Forefront's `forefront-dentistry-tulsa-ok-dental-implants-logo_color.png` came
+ * through the photo gate as an ordinary photograph and rendered as gallery tiles, cropped to the
+ * grid's aspect, reading "REFRO ENTISTRY" — the practice's own logo, clipped, twice.
+ *
+ * The signal is deliberately the SAME one `prospectBrandLogo` selects the header mark with, not a
+ * new one: the header shows this asset already, so a second appearance in a photo grid is the
+ * same picture twice, and any rule that disagreed with the header's rule would be a second
+ * opinion about what the mark is. The three filters are lifted verbatim from the ranking above;
+ * only the ranking itself is not, because this asks "is it a brand mark", not "which one".
+ */
+export function sourceImageIsOwnBrandMark(image: ProjectedUsDemoSourceImage): boolean {
+  const context = `${image.source.url} ${image.candidate.alt}`;
+  return (BRAND_LOGO_HINT_RE.test(context) || BRAND_ARTWORK_NOUN_RE.test(context))
+    && !FOREIGN_LOGO_RE.test(context)
+    && !ASSOCIATION_MARK_RE.test(context);
 }
 
 /**

@@ -134,7 +134,11 @@ export const INSUFFICIENT_ENGLISH_SOURCE = 'INSUFFICIENT_ENGLISH_SOURCE' as cons
 
 export class UsDemoCompileError extends Error {
   constructor(
-    public readonly code: typeof INSUFFICIENT_ENGLISH_SOURCE | 'INVALID_MANUAL_FINISH',
+    public readonly code:
+      | typeof INSUFFICIENT_ENGLISH_SOURCE
+      | 'INVALID_MANUAL_FINISH'
+      /** No layout variant accepted a section's content shape — an operator fix, not a crash. */
+      | 'LAYOUT_UNRESOLVED',
     message: string,
   ) {
     super(message);

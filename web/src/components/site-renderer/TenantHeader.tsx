@@ -9,6 +9,7 @@
  * 링크: navLabel ?? title, href '/'+slug (홈은 '/'), 현재 페이지 강조. theme 폰트/팔레트 적용.
  */
 import type { SiteConfig, SitePage } from '@/lib/types/site';
+import { clinicBrandDisplayName } from '@/lib/us-demo/clinic-geo-name';
 import { themeColor, themeRadius } from '@/lib/design/site-theme-tokens';
 import { marqueeIsActive, marqueeRootStyle } from './ClinicMarquee';
 import { ledgerIsActive, ledgerRootStyle } from './ClinicLedger';
@@ -29,10 +30,19 @@ export interface TenantNavigationItem {
 /**
  * [T1] 브랜드 라벨 = 상호만 — meta.title의 '— 업종 · 지역' 부제는 제거(모바일 잘림 원인).
  * 헤더 외에 블로그 고지 문구도 같은 이름을 불러야 하므로 규칙을 한 곳에 둔다.
+ *
+ * The structured name first, exactly as before. What follows it is the same idea generalised past
+ * the one separator this rule used to know about: a US <title> puts the geo qualifier in front of
+ * the name as often as behind it, and appends it with no separator at all
+ * (`clinicBrandDisplayName`, which strips only on the practice's own published address).
  */
 export function tenantBrandName(config: SiteConfig): string {
   const rawName = config.businessInfo?.businessName?.trim() || config.meta.title || '';
-  return rawName.split('—')[0].trim() || rawName;
+  const addresses = [
+    config.businessInfo?.address,
+    config.publicContact?.address,
+  ].filter((value): value is string => Boolean(value));
+  return clinicBrandDisplayName(rawName, addresses) || rawName;
 }
 
 export function TenantHeader({

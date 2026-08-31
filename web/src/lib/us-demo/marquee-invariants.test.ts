@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import test, { describe } from 'node:test';
 import type { CrawlArtifactPayload } from '@/lib/crawl/contracts';
 import { clinicMasterPinSchema, siteConfigSchema } from '@/app/api/_lib/schemas';
-import { contrastRatio } from '@/lib/design/quality-standards';
+import { contrastRatio, hexToHsl } from '@/lib/design/quality-standards';
 import { CLINIC_LATIN_FONT_PRESETS, fontPairingResources } from '@/lib/fonts';
 import { CLINIC_TYPOGRAPHY_TOKENS } from '@/lib/clinic-master/tokens';
 import { CLINIC_MARQUEE_CSS } from '@/components/site-renderer/ClinicMarquee';
@@ -15,6 +15,7 @@ import {
   MARQUEE_AA,
   MARQUEE_TOKENS,
   marqueeAaFloorFor,
+  marqueeBrandGateFailures,
   marqueeInkFor,
   marqueeTextIsLargeScale,
 } from './design-language';
@@ -88,7 +89,16 @@ describe('MARQUEE — the language-keyed palette gate', () => {
     }
   });
 
-  test('an unusable colour falls back to the language surface and SAYS SO', () => {
+  /**
+   * The fallback used to be `defaultBrand` — the board's orange — and that is what put #E56B10
+   * across forefrontdentistry.com's demo, a hue that appears nowhere on their site, painted at
+   * full strength on the surfaces this language leads with. `fallbackUsed: true` was in the audit
+   * and the page contradicted it. The substitute is now a neutral, and this test asserts BOTH
+   * halves: that the language still draws (its own ink at AA on the surface, which is what made a
+   * light neutral rather than an arbitrary grey the answer), and that the surface is not a colour
+   * anyone could mistake for a brand.
+   */
+  test('an unusable colour falls back to a NEUTRAL language surface and SAYS SO', () => {
     // A mid grey: no ink the language owns reaches 4.5 on it.
     const palette = buildClinicPalette({
       candidates: [{ origin: 'heading', hex: '#7A7A7A' }],
@@ -98,7 +108,15 @@ describe('MARQUEE — the language-keyed palette gate', () => {
     });
     assert.equal(palette.meta.fallbackUsed, true);
     assert.ok(palette.meta.gateFailures.length > 0);
-    assert.equal(palette.slots['--brand'], MARQUEE_TOKENS.defaultBrand);
+    assert.equal(palette.slots['--brand'], MARQUEE_TOKENS.neutralBrand);
+    // The invented vivid hue is exactly what a failed extraction must NOT produce.
+    assert.notEqual(palette.slots['--brand'], MARQUEE_TOKENS.defaultBrand);
+    assert.notEqual(palette.slots['--brand'], BOARD_ORANGE);
+    // Neutral, measured rather than asserted by name.
+    assert.ok(hexToHsl(MARQUEE_TOKENS.neutralBrand)!.s <= 0.15);
+    // And it is a surface the language can still write on, by its own gate.
+    assert.deepEqual(marqueeBrandGateFailures(MARQUEE_TOKENS.neutralBrand), []);
+    assert.equal(palette.slots['--brand-ink'], MARQUEE_TOKENS.ink);
     assert.ok(
       contrastRatio(palette.slots['--brand-ink'], palette.slots['--brand'])
         >= MARQUEE_AA.normalText,

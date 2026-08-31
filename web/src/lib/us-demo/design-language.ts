@@ -49,8 +49,22 @@ export const MARQUEE_TOKENS = Object.freeze({
   lilacTint: '#F8F6FF',
   cream: '#FFF6EE',
   surface: '#FFFFFF',
-  /** The board's own orange, and the default brand surface when a practice cannot supply one. */
+  /** The board's own orange: the reference brand surface, and what the board itself is drawn in. */
   defaultBrand: '#E56B10',
+  /**
+   * THE SURFACE FOR A PRACTICE WHOSE COLOUR WE DO NOT HAVE.
+   *
+   * `defaultBrand` is the board's orange, and it was also what a practice got when extraction
+   * failed — which put #E56B10 across Forefront's utility strip, CTA band and hero plate although
+   * that colour appears nowhere on forefrontdentistry.com. On a demo sent to that practice, a
+   * vivid hue at full strength reads as a claim about their brand, and it was invented.
+   *
+   * This is the honest substitute: a desaturated lilac-gray (HSL 259°, 12% saturation) that clears
+   * every MARQUEE brand gate on its own — plum ink at 9.71:1, 1.68:1 against the white page, and
+   * separated from both the language's ink and its accent — so the language still draws correctly
+   * while looking like what it is, a demo whose colour was not extracted.
+   */
+  neutralBrand: '#CAC6D2',
   onPlumLede: '#CFC6E8',
   onPlumLink: '#D8D0EE',
   onPlumMeta: '#B9AFD6',

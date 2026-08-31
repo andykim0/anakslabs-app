@@ -50,6 +50,7 @@ import {
   sourceImageIsAssociationMark,
   sourceImageIsInsuranceCarrierMark,
   sourceImageIsInsuranceLogo,
+  sourceImageIsOwnBrandMark,
   sourceImageIsProvider,
   type ClinicImagePageTopic,
   type ProjectedUsDemoSourceImage,
@@ -61,6 +62,7 @@ import {
   clinicProcedureTaxonomy,
   type ClinicProcedureTaxonomy,
 } from './procedure-taxonomy';
+import { clinicNavLocalities } from './clinic-geo-name';
 import { US_DEMO_FALLBACK_CLINIC_SPECIALTY } from './clinic-palette';
 import { clinicStockLibraryFor } from './clinic-stock';
 import {
@@ -180,37 +182,12 @@ const NAV_QUALIFIED_MAXIMUM = 38;
 
 const NAV_RESERVED_LABELS = new Set(['home', 'about', 'contact', 'services']);
 
-const US_STATE_CODE_RE = /^(?:A[LKZR]|C[AOT]|DE|FL|GA|HI|I[DLNA]|K[SY]|LA|M[EDAINSOT]|N[EVHJMYCD]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[TA]|W[AVIY]|DC)$/u;
-
 const NAV_TRAILING_FUNCTION_WORD_RE =
   /\s+(?:a|an|and|as|at|by|for|from|in|of|on|or|the|to|with|your|our)$/iu;
 
 const NAV_SMALL_WORDS = new Set([
   'a', 'an', 'and', 'as', 'at', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'with',
 ]);
-
-/**
- * The city and neighbourhood names this practice itself publishes, read off its own address
- * blocks. Nothing is stripped on the strength of a gazetteer we do not have; the evidence that
- * "Elk Grove" is a place is that the practice prints "Elk Grove, CA 95758" as its address.
- *
- * One, two and three word tails are all kept because an address is not reliably comma-separated:
- * "128 South Brook Drive Leander, TX 78641" puts the street and the locality in one run.
- */
-function clinicNavLocalities(addresses: readonly string[]): string[] {
-  const localities = new Set<string>();
-  for (const address of addresses) {
-    const match = /([A-Za-z][A-Za-z.'’\- ]{1,30}?),?\s+([A-Z]{2})\s+\d{5}/u.exec(address);
-    if (!match || !US_STATE_CODE_RE.test(match[2])) continue;
-    const tail = match[1].trim().replace(/^.*,\s*/u, '').trim();
-    const words = tail.split(/\s+/u);
-    for (let take = 1; take <= Math.min(3, words.length); take += 1) {
-      const candidate = words.slice(words.length - take).join(' ');
-      if (candidate.length >= 3) localities.add(candidate.toLocaleLowerCase('en-US'));
-    }
-  }
-  return [...localities];
-}
 
 /** ALL-CAPS is a source stylesheet decision, not a name. Title Case, small words left small. */
 function normaliseAllCaps(value: string): string {
@@ -1268,6 +1245,7 @@ function providerPhotoProjections(input: {
   const eligible = (image: ProjectedUsDemoSourceImage): boolean => (
     !sourceImageIsBeforeAfter(image)
     && !sourceImageIsAssociationMark(image)
+    && !sourceImageIsOwnBrandMark(image)
     && clinicPhotoGate(image).eligibleForPhotoSlot
   );
   const sitePortraits = input.images.filter(
@@ -1325,7 +1303,11 @@ function previewExperience(input: {
   }) ?? undefined;
   const providerPhotos = providerPhotoProjections(input);
   const beforeAfterImages = input.images
-    .filter((image) => sourceImageIsBeforeAfter(image) && !sourceImageIsAssociationMark(image))
+    .filter((image) => (
+      sourceImageIsBeforeAfter(image)
+      && !sourceImageIsAssociationMark(image)
+      && !sourceImageIsOwnBrandMark(image)
+    ))
     .slice(0, 8)
     .map((image) => ({
       sourceImageId: image.source.id,
@@ -1485,7 +1467,9 @@ export function compileUsMedicalFullPreview(input: {
   const articleDateModified = compilationDate(artifact);
   const introduction = blocks.find((block) => block.kind === 'introduction');
   const heroPool = photoSlotPool.filter(
-    (image) => eligibleForClinicHero(image) && !sourceImageIsAssociationMark(image),
+    (image) => eligibleForClinicHero(image)
+      && !sourceImageIsAssociationMark(image)
+      && !sourceImageIsOwnBrandMark(image),
   );
   const homeCandidate = firstHomeImage(artifact, heroPool);
   const homeImage = allocateHeroImage(homeCandidate
@@ -1571,6 +1555,7 @@ export function compileUsMedicalFullPreview(input: {
       !homeServiceImageIds.has(candidate.source.id)
       && candidate.source.id !== homeImage?.source.id
       && !sourceImageIsAssociationMark(candidate)
+      && !sourceImageIsOwnBrandMark(candidate)
     ));
     if (image) homeServiceImageIds.add(image.source.id);
     return [{
@@ -1634,6 +1619,7 @@ export function compileUsMedicalFullPreview(input: {
         && !homeServiceImageIds.has(image.source.id)
         && !sourceImageIsInsuranceLogo(image)
         && !sourceImageIsAssociationMark(image)
+        && !sourceImageIsOwnBrandMark(image)
       ))
       // T6 shows the gallery twice, so it needs enough distinct photographs for two bands
       // rather than the same twelve shown again.
@@ -1682,12 +1668,14 @@ export function compileUsMedicalFullPreview(input: {
     const matched = (topic instanceof RegExp
       ? clinicPhotoPoolForPattern(projectedImages, topic)
       : clinicPhotoPoolForTopic(projectedImages, topic))
-      .filter((image) => !sourceImageIsAssociationMark(image));
+      .filter((image) => !sourceImageIsAssociationMark(image))
+      .filter((image) => !sourceImageIsOwnBrandMark(image));
     const matchedIds = new Set(matched.map((image) => image.source.id));
     const rest = photoSlotPool.filter((image) => (
       !matchedIds.has(image.source.id)
       && !sourceImageIsInsuranceLogo(image)
       && !sourceImageIsAssociationMark(image)
+      && !sourceImageIsOwnBrandMark(image)
     ));
     const broadened = [
       ...matched,
@@ -1856,6 +1844,7 @@ export function compileUsMedicalFullPreview(input: {
     const galleryImages = bodyImages
       .filter((image) => !detail.usedImageIds.has(image.source.id))
       .filter((image) => !sourceImageIsAssociationMark(image))
+      .filter((image) => !sourceImageIsOwnBrandMark(image))
       .slice(0, PROCEDURE_GALLERY_MAXIMUM);
     const gallery = buildClinicGallerySections({
       id: `clinic-procedure-${category}-gallery`,
