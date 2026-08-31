@@ -17,6 +17,7 @@ import {
   type ClinicLayoutImage,
 } from '@/lib/clinic-engine/layout-sections';
 import { selectSingleOpeningHours } from '@/lib/us-demo/opening-hours';
+import { clinicBrandDisplayName } from '@/lib/us-demo/clinic-geo-name';
 import type { ClinicMasterExperience } from './live-contract';
 
 export type ClinicMasterSourceKind =
@@ -92,6 +93,34 @@ function disclosureSection(input: {
   });
   if (!section) throw new Error(`CLINIC_DISCLOSURE_LAYOUT_UNRESOLVED:${input.id}`);
   return section;
+}
+
+/**
+ * THE NAME ON THE DOOR, FOR THE LARGEST TYPE ON THE PAGE.
+ *
+ * The `business_name` block is the practice's SEO <title>, and the home hero prints it whole, so
+ * two demos led with "Dentist Burke VA - King's Park Dental Center" and "Forefront Dentistry Tulsa
+ * OK". The header already solved this — `clinicBrandDisplayName` chooses the segment that is a
+ * name and removes a geo qualifier the practice's OWN published address proves is one — and the
+ * hero simply asks the same question of the same evidence, which is why the two can never
+ * disagree about what this practice is called.
+ *
+ * Returns nothing when the rule finds nothing to remove, so every practice whose <title> is
+ * already its name renders byte for byte as before. Returns nothing, too, when the cleaned name
+ * is not literally contained in the block — the hero shows the practice's own characters or the
+ * whole string, never a reconstruction.
+ */
+export function clinicHeroBrandFragment(
+  businessName: ClinicMasterSourceBlock,
+  blocks: readonly ClinicMasterSourceBlock[],
+): { titleFragment?: string } {
+  const display = clinicBrandDisplayName(
+    businessName.text,
+    blocks.filter((block) => block.kind === 'address').map((block) => block.text),
+  );
+  const trimmed = display.trim();
+  if (!trimmed || trimmed === businessName.text.trim()) return {};
+  return businessName.text.includes(trimmed) ? { titleFragment: trimmed } : {};
 }
 
 function providerLayoutImage(input: {
@@ -262,6 +291,7 @@ export function compilePremiumDentalMaster(input: {
       id: 'us-demo-hero',
       name: 'Introduction',
       title: businessName,
+      ...clinicHeroBrandFragment(businessName, blocks),
       ...(introduction ? { lead: introduction } : {}),
       theme,
       requestedId: 'hero.split-left',
@@ -290,6 +320,12 @@ export function compilePremiumDentalMaster(input: {
     }));
   }
   if (providers.length > 0) {
+    /**
+     * "Meet the Doctor" claims there is one, and Kings Park shipped the claim three times over
+     * three different people. A roster is headed collectively; a single card keeps the singular
+     * heading it has always had, so every practice with one provider section renders unchanged.
+     */
+    const providerHeading = providers.length > 1 ? 'Meet Our Doctors' : 'Meet the Doctor';
     providers.forEach((bio, index) => {
       const occurrence = providers.slice(0, index).filter(
         (candidate) => candidate.sourceUrl === bio.sourceUrl,
@@ -302,7 +338,7 @@ export function compilePremiumDentalMaster(input: {
       ))[occurrence];
       result.push(buildClinicAboutSection({
         id: index === 0 ? 'us-demo-providers' : `us-demo-providers-${index + 1}`,
-        name: 'Meet the Doctor',
+        name: providerHeading,
         theme,
         statement: name ?? bio,
         body: name ? [bio] : [],

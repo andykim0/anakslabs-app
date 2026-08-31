@@ -120,6 +120,8 @@ export type RobustClinicImageDecisionReason =
   | 'brand-logo'
   | 'junk-image'
   | 'insurance-logo'
+  /** Shared with the US demo gate: a lender's advertisement is not a photograph of the practice. */
+  | 'patient-financing-mark'
   | 'composed-layout'
   | 'credential-image'
   | 'patient-result'

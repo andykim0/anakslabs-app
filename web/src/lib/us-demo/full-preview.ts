@@ -18,6 +18,7 @@ import {
   buildClinicHeroSection,
   buildClinicStatStripSection,
   CLINIC_RADIUS_TOKENS,
+  clinicHeroBrandFragment,
   compilePremiumDentalMaster,
   dentalStockCategoryForSource,
   orderClinicServices,
@@ -50,8 +51,11 @@ import {
   sourceImageIsAssociationMark,
   sourceImageIsInsuranceCarrierMark,
   sourceImageIsInsuranceLogo,
+  sourceImageIsNonClinicianStaff,
   sourceImageIsOwnBrandMark,
   sourceImageIsProvider,
+  sourceImagePersonNames,
+  clinicianNameTokens,
   type ClinicImagePageTopic,
   type ProjectedUsDemoSourceImage,
 } from './source-images';
@@ -269,11 +273,51 @@ export interface ClinicNavLabelInput {
   derives: boolean;
 }
 
-/** Page id -> nav label. Only pages with `derives` appear; everything else keeps what it had. */
+/**
+ * A NAV LABEL THAT IS NOT NAVIGATION.
+ *
+ * Three shapes reached the bar from the two weak sites, none of them a treatment:
+ *
+ *   "$59 Exam &"            a coupon, cut mid-phrase by the crawl's heading split
+ *   "4 Facts About Veneers" a blog post, filed under a procedure category by its vocabulary
+ *   "Forefront Dentistry"   the practice's own name, offered as one destination among ten
+ *
+ * The first two are rejected here because a price and a listicle opener are the practice
+ * ADVERTISING a treatment rather than naming one; the third needs the practice's name and is
+ * handled in `resolveClinicNavLabels`, which is where that name is available.
+ */
+const NAV_LABEL_COUPON_RE = /[$£€]\s?\d|\b\d+\s*%\s*off\b|\bfree\s+(?:consult|exam|whitening)\b/iu;
+const NAV_LABEL_LISTICLE_RE =
+  /^\d+\s+(?:facts?|reasons?|things?|ways?|tips?|steps?|myths?|signs?|benefits?|questions?|misconceptions?)\b/iu;
+/** A label the crawl cut in half. A nav item never ends on a conjunction or an open bracket. */
+const NAV_LABEL_TRUNCATED_RE = /(?:\band\b|\bor\b|[&+,;:/(-])\s*$/u;
+
+function navLabelIsNavigable(value: string): boolean {
+  const label = value.trim();
+  if (!label) return false;
+  if (NAV_LABEL_COUPON_RE.test(label)) return false;
+  if (NAV_LABEL_LISTICLE_RE.test(label)) return false;
+  return !NAV_LABEL_TRUNCATED_RE.test(label);
+}
+
+/**
+ * Page id -> nav label. Only pages with `derives` appear; everything else keeps what it had.
+ *
+ * A page that cannot obtain a label of its own is mapped to `undefined`, which the caller reads as
+ * "keep this page, take it out of the bar". Kings Park is why: its blog files five posts under the
+ * implant category, every derivation collapses to the taxonomy's own "Implants", and the old last
+ * resort — `?? page.title` — handed each of them the identical string, so the header printed
+ * "Implants" five times, each pointing somewhere different. Cameo and APA carry the same residue
+ * one and two entries deep. Inventing a distinguisher would mean naming a page something the
+ * practice never called it; collapsing the repeat to the one entry that earned the label is the
+ * answer that keeps every distinct destination and prints no destination twice.
+ */
 export function resolveClinicNavLabels(
   pages: readonly ClinicNavLabelInput[],
   addresses: readonly string[],
-): Map<string, string> {
+  /** Names the practice answers to. A nav item is a destination, never the site you are on. */
+  practiceNames: readonly string[] = [],
+): Map<string, string | undefined> {
   const localities = clinicNavLocalities(addresses);
   const tailCounts = new Map<string, number>();
   for (const page of pages) {
@@ -287,16 +331,22 @@ export function resolveClinicNavLabels(
   );
 
   const taken = new Set<string>(NAV_RESERVED_LABELS);
+  for (const name of practiceNames) {
+    const key = name.trim().toLocaleLowerCase('en-US');
+    if (key) taken.add(key);
+  }
   const claim = (value: string) => {
     taken.add(value.toLocaleLowerCase('en-US'));
     return value;
   };
   const free = (value: string | undefined): value is string => (
-    Boolean(value) && !taken.has(value!.toLocaleLowerCase('en-US'))
+    Boolean(value)
+    && !taken.has(value!.toLocaleLowerCase('en-US'))
+    && navLabelIsNavigable(value!)
   );
   for (const page of pages) if (!page.derives) claim(page.navLabel);
 
-  const resolved = new Map<string, string>();
+  const resolved = new Map<string, string | undefined>();
   for (const page of pages) {
     if (!page.derives) continue;
     const stripped = stripClinicNavGeoTail(page.title, localities, repeatedTails);
@@ -313,7 +363,8 @@ export function resolveClinicNavLabels(
       derived.length > NAV_LABEL_MAXIMUM ? navWordCut(derived, NAV_LABEL_MAXIMUM) : undefined,
       page.title,
     ];
-    resolved.set(page.id, claim(candidates.find(free) ?? page.title));
+    const chosen = candidates.find(free);
+    resolved.set(page.id, chosen ? claim(chosen) : undefined);
   }
   return resolved;
 }
@@ -1246,12 +1297,21 @@ function providerPhotoProjections(input: {
     !sourceImageIsBeforeAfter(image)
     && !sourceImageIsAssociationMark(image)
     && !sourceImageIsOwnBrandMark(image)
+    /**
+     * A member of staff the practice labels as something other than a clinician is not a
+     * candidate for a slot headed "Meet the Doctor". Kings Park's `Stef+Office+Manager` file,
+     * captioned "Dental Assistant Estela Ayala" by the practice itself, was composed as its
+     * third doctor. Scoped to this slot: the same photograph remains an ordinary photograph
+     * everywhere else, because a team photo in a gallery claims nothing about a credential.
+     */
+    && !sourceImageIsNonClinicianStaff(image)
     && clinicPhotoGate(image).eligibleForPhotoSlot
   );
   const sitePortraits = input.images.filter(
     (image) => eligible(image) && heroImageIsProviderPortrait(image),
   );
   const providers = input.blocks.filter((block) => block.kind === 'provider_bio');
+  const providerNames = input.blocks.filter((block) => block.kind === 'provider_name');
   /**
    * Claimed rather than indexed. The old `[occurrence]` worked only because page-scoped pools are
    * disjoint — `prospectPublicSourceImages` projects each URL once, under the first page it
@@ -1260,12 +1320,66 @@ function providerPhotoProjections(input: {
    * still disjoint and the only correct one where they are not.
    */
   const claimed = new Set<string>();
-  return providers.flatMap((bio) => {
+  return providers.flatMap((bio, index) => {
+    /**
+     * WHO THIS SECTION IS ABOUT — the same answer the master compiler reaches, by the same key.
+     *
+     * `compilePremiumDentalMaster` captions a bio with the `provider_name` at the same occurrence
+     * on the same page, so the person this card asserts is that name plus whoever the biography
+     * itself names. Read here so that the photo is chosen for the person the card is about rather
+     * than for the page the bio happens to sit on.
+     */
+    const occurrence = providers.slice(0, index).filter(
+      (candidate) => candidate.sourceUrl === bio.sourceUrl,
+    ).length;
+    const namedBy = providerNames.filter((block) => block.sourceUrl === bio.sourceUrl)[occurrence];
+    /**
+     * THE SUBJECT of a biography, which is not everyone it mentions. A `provider_name` is the
+     * caption the section prints, so it is authoritative; the biography contributes the people it
+     * is ABOUT rather than the colleagues it names in passing (`subjectsOnly`).
+     */
+    const bioNames = new Set([
+      ...clinicianNameTokens(bio.text, { subjectsOnly: true }),
+      ...(namedBy ? clinicianNameTokens(namedBy.text) : []),
+    ]);
+    /**
+     * THE RULE THAT MAKES A CAPTION TRUE.
+     *
+     * A file that names a person may be shown ONLY under that person's biography. Kings Park
+     * captioned `dr-bursich-outside-1920w.jpg` — alt "Thomas Bursich D.D.S" — "Dr. Christopher
+     * Nguyen", and APA put "Dr. Tarek Hafez" and "Dr. Chris Classi" under Michael Apa's bio,
+     * because the only thing the old ladder asked was which page a file sat on. A photograph that
+     * names NOBODY is not rejected: it asserts nothing about its subject, so it contradicts no
+     * biography, and rejecting it would take Forefront's one headshot off its own doctor's card.
+     */
+    const consistent = (image: ProjectedUsDemoSourceImage): boolean => {
+      const names = sourceImagePersonNames(image);
+      if (names.size === 0) return true;
+      return [...names].some((name) => bioNames.has(name));
+    };
+    const named = (image: ProjectedUsDemoSourceImage): boolean => (
+      sourceImagePersonNames(image).size > 0 && consistent(image)
+    );
     const exactPageImages = input.images.filter(
       (image) => image.page.url === bio.sourceUrl && eligible(image),
     );
-    const free = (image: ProjectedUsDemoSourceImage): boolean => !claimed.has(image.source.id);
+    const free = (image: ProjectedUsDemoSourceImage): boolean => (
+      !claimed.has(image.source.id) && consistent(image)
+    );
+    const namedThisPerson = input.images.filter(
+      (image) => eligible(image) && named(image),
+    );
     const photo = [
+      /**
+       * The strongest evidence there is: the file says whose face this is, and it is this bio's.
+       * Ordered within itself by the same two questions the rungs below ask, because a practice
+       * names its doctor in more than one file — APA's own name appears on a portrait
+       * (`Meet-Dr.-Apa-Lower-Image-1.jpg`) and on a magazine cover it was photographed for
+       * (`Buzz-DailyFrontRow`), and the portrait is the one a provider card wants.
+       */
+      namedThisPerson.filter(heroImageIsProviderPortrait),
+      namedThisPerson.filter((image) => image.page.url === bio.sourceUrl),
+      namedThisPerson,
       exactPageImages.filter(heroImageIsProviderPortrait),
       sitePortraits,
       exactPageImages.filter(sourceImageIsProvider),
@@ -1463,6 +1577,7 @@ export function compileUsMedicalFullPreview(input: {
         })
       : outreachSafeExperienceFromArtifact({ artifact, blocks });
   const businessName = blocks.find((block) => block.kind === 'business_name')!;
+  const heroBrandFragment = clinicHeroBrandFragment(businessName, blocks);
   const articleAuthor = blocks.find((block) => block.kind === 'provider_name');
   const articleDateModified = compilationDate(artifact);
   const introduction = blocks.find((block) => block.kind === 'introduction');
@@ -1515,6 +1630,9 @@ export function compileUsMedicalFullPreview(input: {
           id: candidate.id,
           name: candidate.name,
           title: businessName,
+          // The same clean display name the master compiler puts on the image-less hero, so the
+          // photograph does not decide what the practice is called.
+          ...heroBrandFragment,
           ...(introduction ? { lead: introduction } : {}),
           theme,
           image: sourceLayoutImage(homeImage.source),
@@ -1823,7 +1941,7 @@ export function compileUsMedicalFullPreview(input: {
      * Anything it turns down falls back to the category label, which always reads correctly.
      */
     const displayTitle = categoryServices.find((block) => (
-      isUsableProcedurePageTitle(block.text)
+      isUsableProcedurePageTitle(block.text) && navLabelIsNavigable(block.text)
     ))?.text ?? meta.navLabel;
     const pageTopic = procedureImageTopic(planned, slug, taxonomy);
     const categoryImages = topicPhotoPool(pageTopic);
@@ -1922,6 +2040,8 @@ export function compileUsMedicalFullPreview(input: {
         buildClinicHeroSection({
           id: 'clinic-about-hero',
           title: providerTitle,
+          // Only when the fallback fired and this hero is showing the practice name.
+          ...(providerTitle === businessName ? heroBrandFragment : {}),
           ...(blocks.find((block) => block.kind === 'provider_bio')
             ? { lead: blocks.find((block) => block.kind === 'provider_bio') }
             : {}),
@@ -1972,6 +2092,7 @@ export function compileUsMedicalFullPreview(input: {
         buildClinicHeroSection({
           id: 'clinic-contact-hero',
           title: contactTitle,
+          ...(contactTitle === businessName ? heroBrandFragment : {}),
           ...(introduction ? { lead: introduction } : {}),
           theme,
           image: sourceLayoutImage(contactImage?.source),
@@ -2005,10 +2126,21 @@ export function compileUsMedicalFullPreview(input: {
       };
     }),
     blocks.filter((block) => block.kind === 'address').map((block) => block.text),
+    [
+      businessName.text,
+      ...(heroBrandFragment.titleFragment ? [heroBrandFragment.titleFragment] : []),
+    ],
   );
   for (const page of pages) {
+    if (!navLabels.has(page.id)) continue;
     const label = navLabels.get(page.id);
+    /**
+     * A deriving page with no free label of its own leaves the bar rather than repeating one that
+     * is already there. The page itself is untouched — it keeps its slug, its sections and its
+     * place in the sitemap, and every link into it still resolves.
+     */
     if (label) page.navLabel = label;
+    else page.showInNav = false;
   }
 
   let config: SiteConfig = {

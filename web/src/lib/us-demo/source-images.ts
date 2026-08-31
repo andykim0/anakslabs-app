@@ -53,9 +53,101 @@ const CREDENTIAL_IMAGE_RE =
  * — zero images gained, zero lost — so it is a completion of the list, not the fix for anything.
  * `crest` was measured alongside it and is NOT added: it names a device rather than a body, `seal`
  * already occupies that register, and it likewise matched nothing.
+ *
+ * THE EDUCATION VOCABULARY, added after Forefront shipped a school's mark as gallery tile 11. The
+ * practice publishes two files for the same institution: `ou+cOLLEGE+OF+DENTISTRY.jpg`, which
+ * `college` already caught, and `OU+AEGD.jpg` — the same programme under its initials, with the
+ * filename repeated verbatim as the alt. Nothing in "OU AEGD" is a word, and `ACRONYM_ALT_RE`
+ * cannot reach it either: the alt is seven characters with a `+` in it, outside a rule measured
+ * for bare initialisms. So the programme's own name is added in both of its renderings — the
+ * initialism a dental school stamps on a certificate, and the phrase it spells out. `residency`
+ * is included for the same reason and the same register; a residency is a training post, and a
+ * mark naming one is a credential rather than a photograph of this practice.
  */
 const ASSOCIATION_MARK_RE =
-  /\b(?:alumni|association|academy|society|college|university|board|accredit\w*|member(?:ship)?|award|certified|fellow(?:ship)?|institute|federation|council|seal)\b/iu;
+  /\b(?:alumni|association|academy|society|college|university|board|accredit\w*|member(?:ship)?|award|certified|fellow(?:ship)?|institute|federation|council|seal|aegd|advanced\s+education|dental\s+school|school\s+of\s+dentistry|residency)\b/iu;
+
+/**
+ * SOMEBODY ELSE'S PRACTICE, PHOTOGRAPHED AND HOSTED ON THIS ONE'S SERVER.
+ *
+ * Kings Park's home gallery shows `Sterling+Dental+Center+VA-min-429w.jpg`. Sterling Dental Center
+ * is a different practice in a different town; the file sits on burkefamilydentistry.com's CDN
+ * because the two share a marketing supplier, and every rule above passes it — it is not a badge,
+ * not a mark, not a before/after, and its alt ("Dr. Performing Dental Exam") describes an ordinary
+ * clinical photograph. The same crawl carries `LLP-Sterling-Dental-2975-1920w.jpg` and thirty-odd
+ * `…-SDC-…` newsletter graphics from the same source.
+ *
+ * The cheap signal, and the only one the crawl carries: a filename that spells out a PRACTICE NAME
+ * — a proper word in front of "Dental Center", "Dentistry", "Dental Group" and the handful of
+ * other forms a practice actually names itself — whose leading word appears nowhere in the subject
+ * practice's own name or registrable domain. "Sterling" is not in "King's Park Dental Center" and
+ * not in "burkefamilydentistry", so the file names a practice that is not this one.
+ *
+ * Deliberately narrow, in three ways, each of which was a measured false positive before it was
+ * narrowed. It reads the FILENAME ONLY: alt text describes a scene, so Larkfield's own
+ * `larkfield-clinic-reception.jpg` is captioned "Reception area of the Portland dermatology
+ * clinic" and an alt-reading rule threw the practice's own reception away as "Portland's". The
+ * leading word must be a single word that is not one of the descriptive words practices and stock
+ * libraries put in front of the same nouns ("family", "cosmetic", "children's"), because those
+ * name a KIND of practice rather than a practice — dental360's stock `shutterstock_610113029`
+ * was captioned "Children's Dentistry". And anything that does not spell out a practice name in
+ * one of these forms is left alone: the initialism "SDC" on thirty of the same supplier's
+ * newsletters is not readable as a name and is not guessed at.
+ */
+const PRACTICE_NAME_IN_FILE_RE =
+  /(?:^|[\s+_./-])([A-Za-z][A-Za-z'’]{2,})[\s+_-]+(?:dental[\s+_-]+(?:center|centre|group|care|associates|arts|studio|clinic|office|practice|specialists)|dentistry|orthodontics|dermatology)\b/iu;
+/** Words that name a KIND of practice, never a particular one. Compared without possessives. */
+const GENERIC_PRACTICE_QUALIFIER: ReadonlySet<string> = new Set([
+  'family', 'cosmetic', 'general', 'modern', 'advanced', 'complete', 'comprehensive', 'gentle',
+  'bright', 'smile', 'smiles', 'kids', 'children', 'child', 'pediatric', 'paediatric', 'implant',
+  'implants', 'restorative', 'preventive', 'emergency', 'affordable', 'premier', 'quality',
+  'best', 'top', 'the', 'our', 'your', 'and', 'for', 'new', 'this', 'that', 'with', 'about',
+  'sedation', 'laser', 'digital', 'holistic', 'aesthetic', 'aesthetics', 'esthetic', 'boutique',
+  'surgical', 'clinical', 'medical', 'dental', 'about', 'womens', 'mens', 'senior', 'adult',
+]);
+
+/**
+ * Name tokens the subject practice answers to: its own business name and its registrable domain
+ * label, split on the word boundaries a domain does not have.
+ */
+export function clinicOwnNameTokens(input: {
+  businessName?: string;
+  origin?: string;
+}): Set<string> {
+  const tokens = new Set<string>();
+  for (const word of (input.businessName ?? '').split(/[^\p{L}]+/u)) {
+    const lower = word.toLocaleLowerCase('en-US');
+    if (lower.length >= 3) tokens.add(lower);
+  }
+  if (input.origin) {
+    try {
+      const label = new URL(input.origin).hostname.replace(/^www\./iu, '').split('.')[0] ?? '';
+      if (label) tokens.add(label.toLocaleLowerCase('en-US'));
+    } catch {
+      /* an origin we cannot parse contributes nothing */
+    }
+  }
+  return tokens;
+}
+
+/**
+ * Whether an image's filename or alt spells out a practice name that is not the subject's.
+ * `ownTokens` comes from `clinicOwnNameTokens`; an empty set answers false for everything, so a
+ * caller that cannot identify the subject never accuses anyone.
+ */
+export function sourceImageNamesAnotherPractice(
+  image: ProjectedUsDemoSourceImage,
+  ownTokens: ReadonlySet<string>,
+): boolean {
+  if (ownTokens.size === 0) return false;
+  const match = PRACTICE_NAME_IN_FILE_RE.exec(decodeURIComponent(imageFilename(image)));
+  if (!match) return false;
+  const head = match[1].toLocaleLowerCase('en-US').replace(/['’]s$/u, '');
+  if (GENERIC_PRACTICE_QUALIFIER.has(head)) return false;
+  if (ownTokens.has(head)) return false;
+  // A domain label glues the words together: "burkefamilydentistry" contains "burke".
+  return ![...ownTokens].some((token) => token.includes(head) || head.includes(token));
+}
 
 /**
  * An initialism standing alone as the entire alt text. A practice writing "CDA" or "AAO" is
@@ -104,6 +196,7 @@ export type ClinicImageMatchCategory =
 export type ClinicPhotoGateReason =
   | 'eligible-photograph'
   | 'insurance-logo'
+  | 'patient-financing-mark'
   | 'composed-layout'
   | 'credential-image'
   | 'patient-result';
@@ -173,10 +266,29 @@ function imageIsUseful(page: CrawlPageArtifact, candidate: CrawlImageCandidate):
   return true;
 }
 
-/** Exact, deterministic projection of useful public crawl images. No bytes are copied. */
+/**
+ * Exact, deterministic projection of useful public crawl images. No bytes are copied.
+ *
+ * A file that names ANOTHER practice is removed here rather than at the eight places a photograph
+ * can be placed, because it is not a question about which slot the file may occupy: it is not this
+ * practice's material at all, and every slot is the wrong one for it.
+ */
 export function prospectPublicSourceImages(
   artifact: CrawlArtifactPayload,
 ): ProjectedUsDemoSourceImage[] {
+  const home = artifact.pages.find((page) => {
+    try {
+      return new URL(page.url).pathname === '/';
+    } catch {
+      return false;
+    }
+  }) ?? artifact.pages[0];
+  const ownTokens = clinicOwnNameTokens({
+    ...(home?.structured.businessName ?? home?.title
+      ? { businessName: home?.structured.businessName ?? home?.title ?? '' }
+      : {}),
+    origin: artifact.finalOrigin,
+  });
   const seen = new Set<string>();
   const result: ProjectedUsDemoSourceImage[] = [];
   for (const page of artifact.pages) {
@@ -205,7 +317,7 @@ export function prospectPublicSourceImages(
       });
     });
   }
-  return result;
+  return result.filter((image) => !sourceImageNamesAnotherPractice(image, ownTokens));
 }
 
 export function sourceImageIsBeforeAfter(image: ProjectedUsDemoSourceImage): boolean {
@@ -223,6 +335,150 @@ export function sourceImageIsProvider(image: ProjectedUsDemoSourceImage): boolea
 
 export function sourceImageIsInsuranceLogo(image: ProjectedUsDemoSourceImage): boolean {
   return candidateIsInsuranceLogo(image.page, image.candidate);
+}
+
+/* ------------------------------------------------- who a photograph says it is -------------- */
+
+/**
+ * WHO A FILE SAYS IT DEPICTS.
+ *
+ * The provider slot used to choose a face by page membership and slot order, and Kings Park is
+ * what that costs: `dr-bursich-outside-1920w.jpg`, alt "Thomas Bursich D.D.S", was captioned
+ * "Dr. Christopher Nguyen" — a real face under another real person's name. APA does the same
+ * three times over, captioning `Dr.Tarek_-2.png` ("Dr. Tarek Hafez") and `Dr-Chris-New.png`
+ * ("Dr. Chris Classi") with Michael Apa's biography.
+ *
+ * The evidence a crawl actually carries about WHO an image shows is the person-name a practice
+ * writes into the alt or the filename, and it is written in exactly two conventions across the
+ * corpora: a `Dr.` honorific before the name, and a post-nominal after it. Both are read here and
+ * nothing else is — a bare capitalised token in a filename is a room, a treatment or a CMS id far
+ * more often than it is a surname, so guessing from one would put us back where we started.
+ *
+ * Returns an empty set when the file names nobody. That is a real answer, not a failure: an
+ * unnamed photograph asserts nothing about its subject, so it contradicts no biography.
+ */
+const IMAGE_PERSON_HONORIFIC_RE = /\bdrs?\b[.\s+_-]*/giu;
+const IMAGE_PERSON_POSTNOMINAL_RE =
+  /\b(?:DDS|DMD|MD|DO|BDS|MDS|MSD|FAGD|MAGD|PhD|D\.D\.S|D\.M\.D|M\.D)\.?\b/u;
+/**
+ * Tokens that sit in a name position but name a role, a treatment, a file or a layout slot. Kept
+ * deliberately short: it only has to survive the two or three tokens that follow an honorific.
+ */
+const PERSON_NAME_NON_NAME_TOKENS: ReadonlySet<string> = new Set([
+  'of', 'at', 'in', 'on', 'to', 'by', 'is', 'as', 'an', 'or', 'no', 'so', 'we', 'us', 'my',
+  'it', 'he', 'she', 'him', 'was', 'has', 'had', 'who', 'jr', 'sr', 'ii', 'iii', 'ig',
+  'dr', 'drs', 'doctor', 'doctors', 'dds', 'dmd', 'md', 'do', 'bds', 'mds', 'msd', 'fagd',
+  'magd', 'phd', 'ms', 'mph', 'and', 'the', 'our', 'your', 'his', 'her', 'their', 'with',
+  'dental', 'dentist', 'dentists', 'dentistry', 'orthodontist', 'orthodontics', 'dermatology',
+  'dermatologist', 'surgeon', 'surgeons', 'physician', 'physicians', 'team', 'staff', 'office',
+  'manager', 'assistant', 'hygienist', 'receptionist', 'coordinator', 'treatment', 'front',
+  'desk', 'headshot', 'headshots', 'portrait', 'photo', 'photos', 'image', 'images', 'img',
+  'new', 'copy', 'final', 'web', 'site', 'jpg', 'jpeg', 'png', 'webp', 'avif', 'gif', 'scaled',
+  'lower', 'upper', 'left', 'right', 'main', 'home', 'about', 'meet', 'outside', 'inside',
+  'square', 'round', 'crop', 'cropped', 'small', 'large', 'big', 'thumb', 'thumbnail',
+  'center', 'centre', 'clinic', 'group', 'care', 'smile', 'patient', 'patients',
+]);
+
+/**
+ * Two letters, not three. "Dr. Le" is Ora Dentistry's second dentist and "Dr. Nam" is ID Dental's
+ * founder; a three-character floor read the first as nobody and handed her colleague's portrait to
+ * her biography. The short function words that a two-character floor lets in are listed above
+ * instead, which is a closed set, unlike the set of two-letter surnames.
+ */
+function personNameToken(value: string): string | undefined {
+  const token = value.replace(/[^\p{L}'’-]/gu, '').toLocaleLowerCase('en-US');
+  if (token.length < 2) return undefined;
+  if (PERSON_NAME_NON_NAME_TOKENS.has(token)) return undefined;
+  return token;
+}
+
+/**
+ * Words that put the name after them in the OBJECT position: someone the sentence mentions rather
+ * than the someone it is about. APA's third paragraph reads "After graduation, Apa fulfilled his
+ * dream of working ALONGSIDE Dr. Larry Rosenthal as an associate…", and reading that as "this
+ * paragraph is about Dr. Rosenthal" put his portrait over Michael Apa's life story — the same
+ * defect this module exists to remove, arrived at from the other side.
+ *
+ * Compare the two constructions that must keep working: "…West Los Angeles. Dr. Neda Naim and her
+ * team do their utmost…" and "…as a practicing dentist, Dr. Bursich has continued to study…". In
+ * both, the honorific opens a clause; in APA's it closes a prepositional phrase. That is the whole
+ * distinction, and it is available in the text.
+ */
+const NAME_IN_OBJECT_POSITION_RE =
+  /\b(?:alongside|with|under|from|by|for|to|beside|besides|including|include|includes|joined|joining|founded\s+by|mentored\s+by|trained\s+by|assisted\s+by|alongside\s+of)\s*$/iu;
+
+/**
+ * Person-name tokens carried by one string, in the two conventions described above.
+ *
+ * Capitalisation is the boundary that decides where a name stops, and it is only available in
+ * prose: "Dr. Nguyen grew up in Warren" must yield `nguyen` and not `grew`. A filename carries no
+ * capitalisation at all (`dr-bursich-outside-1920w.jpg`), so lower-case tokens are read only when
+ * the WHOLE string is lower case, which is exactly the case where capitalisation says nothing.
+ * That is why alt text and filename are read separately rather than concatenated.
+ *
+ * `subjectsOnly` asks the narrower question a BIOGRAPHY needs — who is this about, not who does it
+ * mention — and is never used to read an image, where every name on the file is a name of the
+ * person in it.
+ */
+export function clinicianNameTokens(
+  value: string,
+  options: { subjectsOnly?: boolean } = {},
+): Set<string> {
+  const names = new Set<string>();
+  const text = value.replace(/[+_]+/gu, ' ').replace(/\s+/gu, ' ');
+  const caseless = text === text.toLocaleLowerCase('en-US');
+  const acceptable = (raw: string) => (caseless ? /^[a-z]/u.test(raw) : /^\p{Lu}/u.test(raw));
+  const honorifics = new RegExp(IMAGE_PERSON_HONORIFIC_RE.source, 'giu');
+  for (let hit = honorifics.exec(text); hit; hit = honorifics.exec(text)) {
+    if (options.subjectsOnly && NAME_IN_OBJECT_POSITION_RE.test(text.slice(0, hit.index))) {
+      continue;
+    }
+    const run = text.slice(hit.index + hit[0].length);
+    /**
+     * At most three tokens after the honorific, stopping at the first token that is not a name.
+     * "Dr. Nguyen grew up in Warren" stops at "grew"; "Dr.-Nick-Headshot" stops at "Headshot".
+     */
+    for (const raw of run.split(/[\s.,;:!?()"'’/\\|-]+/u).slice(0, 3)) {
+      if (!acceptable(raw)) break;
+      const token = personNameToken(raw);
+      if (!token) break;
+      names.add(token);
+    }
+  }
+  const postNominal = IMAGE_PERSON_POSTNOMINAL_RE.exec(text);
+  if (postNominal && postNominal.index > 0) {
+    const before = text.slice(0, postNominal.index).trim().split(/[\s.,;:()"'’/\\|-]+/u);
+    for (const raw of before.slice(-3)) {
+      if (!acceptable(raw)) continue;
+      const token = personNameToken(raw);
+      if (token) names.add(token);
+    }
+  }
+  return names;
+}
+
+/** Person-name tokens a projected image carries, read from its alt and its filename. */
+export function sourceImagePersonNames(image: ProjectedUsDemoSourceImage): Set<string> {
+  return new Set([
+    ...clinicianNameTokens(image.candidate.alt),
+    ...clinicianNameTokens(decodeURIComponent(imageFilename(image))),
+  ]);
+}
+
+/**
+ * A member of staff the practice itself labels as something other than a clinician.
+ *
+ * Kings Park captions `Stef+Office+Manager-1920w.jpg` "Dental Assistant Estela Ayala" and it was
+ * composed into a section headed "Meet the Doctor". The practice wrote the role down; a demo that
+ * promotes its office manager to its dentist is asserting a credential nobody claimed.
+ */
+const NON_CLINICIAN_ROLE_RE =
+  /\b(?:dental\s+assistant|office\s+manager|practice\s+manager|treatment\s+coordinator|patient\s+coordinator|financial\s+coordinator|scheduling\s+coordinator|receptionist|front\s+desk|hygienist|dental\s+hygienist|office\s+administrator|billing|insurance\s+coordinator)\b/iu;
+
+export function sourceImageIsNonClinicianStaff(image: ProjectedUsDemoSourceImage): boolean {
+  return NON_CLINICIAN_ROLE_RE.test(
+    `${image.candidate.alt} ${decodeURIComponent(imageFilename(image)).replace(/[+_-]+/gu, ' ')}`,
+  );
 }
 
 /**
@@ -356,6 +612,21 @@ export function clinicPhotoGate(
   const category = clinicImageMatchCategory(image);
   if (sourceImageIsInsuranceLogo(image)) {
     return { eligibleForPhotoSlot: false, reason: 'insurance-logo', category };
+  }
+  /**
+   * A LENDER'S ADVERTISEMENT IS NOT A PHOTOGRAPH OF THIS PRACTICE.
+   *
+   * `PATIENT_FINANCING_RE` already keeps these off the Accepted Insurance strip, where the harm is
+   * telling a patient a loan is coverage. The photo slot needs the same answer for a different
+   * reason: Kings Park hosts `greensky.com/providerkit/images/finance_buttons/GSPS_ProviderAds…`,
+   * alt "Check Your Rate Today! No impact on your credit score! Click Now to Get Started", and it
+   * reached a procedure body as an ordinary image the moment the pool shifted under it. The
+   * insurance-logo rung above cannot catch it: that rung is keyed on the PAGE path, and this
+   * practice files the asset under `/payment-options`, which the path pattern does not match.
+   */
+  if (PATIENT_FINANCING_RE.test(context)
+    || PATIENT_FINANCING_RE.test(new URL(image.source.url).hostname)) {
+    return { eligibleForPhotoSlot: false, reason: 'patient-financing-mark', category };
   }
   if (COMPOSED_LAYOUT_RE.test(context)) {
     return { eligibleForPhotoSlot: false, reason: 'composed-layout', category };

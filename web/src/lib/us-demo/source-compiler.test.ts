@@ -80,14 +80,20 @@ function englishArtifact(extraService = ''): CrawlArtifactPayload {
       ].filter(Boolean),
       structured: { commercialPhrases: [], contentItems: [] },
     }),
+    /**
+     * The description names a clinician, because a "Meet the Doctor" section now requires one.
+     * The page's meta description used to become a provider biography on PATH alone, which is how
+     * Kings Park's page of assistants and coordinators became its third doctor. This fixture is a
+     * doctor page and now says so; every assertion about the slot below is unchanged.
+     */
     page({
       url: 'https://clinic.example/about/doctor',
       title: 'About the care team',
       description:
-        'Our care team explains each visit in plain language and shares the public professional background listed by the clinic.',
+        'Dr. Alma Reyes explains each visit in plain language and shares the public professional background listed by the clinic.',
       structured: {
         description:
-          'Our care team explains each visit in plain language and shares the public professional background listed by the clinic.',
+          'Dr. Alma Reyes explains each visit in plain language and shares the public professional background listed by the clinic.',
         commercialPhrases: [],
         contentItems: [],
       },

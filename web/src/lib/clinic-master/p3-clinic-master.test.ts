@@ -170,12 +170,18 @@ describe('CLINIC$ P3 — provider card, source-only seams, frozen stock, live bo
     const providerText = providers.flatMap((provider) => (
       provider.elements.flatMap((element) => element.kind === 'text' ? [element.text] : [])
     ));
+    /**
+     * "Meet Our Doctors", not "Meet the Doctor" twice. Two sections introducing two different
+     * people cannot each be THE doctor; Kings Park shipped that claim three times over three
+     * people. A practice with one provider section keeps the singular heading, which is why the
+     * single-provider cases below are unchanged.
+     */
     assert.deepEqual(providerText, [
-      'Meet the Doctor',
+      'Meet Our Doctors',
       'Jane Park, DMD',
       'Dr. Park provides preventive and restorative care.',
       'Doctor of Dental Medicine',
-      'Meet the Doctor',
+      'Meet Our Doctors',
       'Alexandria Katherine Montgomery, DMD',
       'Her public biography remains verbatim.',
       'DMD, FAGD',

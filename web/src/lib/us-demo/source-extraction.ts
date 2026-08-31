@@ -593,6 +593,48 @@ const PROSE_KINDS: ReadonlySet<ProspectPublicSourceKind> = new Set([
  * A street number is not the tail of a phone number. So a match that begins inside a phone token
  * is discarded and the search resumes after that phone — the address itself is untouched.
  */
+/**
+ * A page that prints its address twice in a row hands the match a ZIP to start from.
+ *
+ * Kings Park's footer runs "…Contact 5200A Rolling RoadBurke VA 22015 US 5200A Rolling RoadBurke
+ * VA 22015 US…". `ADDRESS_TOKEN_RE` needs whitespace after the leading number, and "5200A" has a
+ * letter glued to it, so the leftmost match it can make begins at the PREVIOUS copy's ZIP and the
+ * demo's contact bar read "22015 US 5200A Rolling RoadBurke VA 22015" — the zip code twice, once
+ * where the street number belongs.
+ *
+ * A US address does not begin with the ZIP it ends with. Where it does, the head is the tail of a
+ * repetition and comes off, along with a country marker if one follows it. Nothing else is
+ * touched: an address whose leading number happens to be five digits ("22015 Main St") does not
+ * repeat that number at the end, so it never matches.
+ */
+function addressWithoutRepeatedZipHead(value: string): string {
+  const tail = /(\d{5})(?:-\d{4})?$/u.exec(value);
+  if (!tail) return value;
+  const head = new RegExp(
+    `^${tail[1]}(?:-\\d{4})?\\b[\\s,]*(?:U\\.?S\\.?A?\\.?|United States)?[\\s,]*`,
+    'u',
+  ).exec(value);
+  if (!head || head[0].length === 0 || head[0].length === value.length) return value;
+  return value.slice(head[0].length).trim() || value;
+}
+
+/**
+ * A street suffix with the next word glued to it is a missing space, not a word.
+ *
+ * The same footer emits "Rolling RoadBurke VA 22015" because the CMS concatenates two inline
+ * elements without one. The repair is anchored to the closed set of street and unit suffixes a US
+ * address actually uses, followed immediately by a capital letter — so "McDonald", "LaSalle" and
+ * every other legitimate internal capital is untouched, because none of them follows "Road",
+ * "Suite" or "Boulevard". It also restores the locality the geo rules read: "RoadBurke" is not a
+ * town, and "Burke" is.
+ */
+const GLUED_STREET_SUFFIX_RE =
+  /\b(Road|Rd|Street|St|Avenue|Ave|Drive|Dr|Boulevard|Blvd|Lane|Ln|Way|Court|Ct|Place|Pl|Circle|Cir|Highway|Hwy|Parkway|Pkwy|Terrace|Ter|Trail|Trl|Square|Sq|Suite|Ste|Floor|Unit)\.?(?=\p{Lu})/gu;
+
+function addressWithSeparatedTokens(value: string): string {
+  return value.replace(GLUED_STREET_SUFFIX_RE, (suffix) => `${suffix} `);
+}
+
 function addressFromPageText(text: string | undefined): string | undefined {
   if (!text) return undefined;
   const phones = new RegExp(PHONE_TOKEN_RE.source, 'gu');
@@ -605,7 +647,9 @@ function addressFromPageText(text: string | undefined): string | undefined {
     if (!match) return undefined;
     const start = from + match.index;
     const phone = spans.find((span) => span.start <= start && start < span.end);
-    if (!phone) return match[0];
+    if (!phone) {
+      return addressWithSeparatedTokens(addressWithoutRepeatedZipHead(match[0]));
+    }
     from = phone.end;
   }
   return undefined;
@@ -796,9 +840,33 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
           }
         });
     }
+    /**
+     * A META DESCRIPTION IS A BIOGRAPHY ONLY WHERE THERE IS A CLINICIAN TO HAVE ONE.
+     *
+     * The kind used to be decided by the PATH alone, so any page under a provider tree handed its
+     * meta description to a section headed "Meet the Doctor". Kings Park's `/meet-our-staff` reads
+     * "We welcome everyone to meet our professional and lovely staff at Kings Park Dental Center
+     * in Burke VA." — office copy about a page of assistants, hygienists and coordinators — and it
+     * became the practice's third doctor, wearing the office manager's photograph. Dental 360's
+     * `/about-us/` ("Learn about Dental 360 USA & our commitment to providing high-quality dental
+     * care.") is the same shape, and APA's `/team/` and `/about-us/philanthropy-partnerships/`
+     * are two more.
+     *
+     * Two kinds of evidence count, either one alone: the description NAMES a clinician
+     * (`PROVIDER_BIO_SUBJECT_RE`, the same subject test the composed bios above already pass), or
+     * the page itself contributed a `provider_name` heading — which is what keeps Larkfield's and
+     * Northbank's "Meet the dermatologists" one-line descriptions attached to the doctor they
+     * head, and what keeps Forefront's description, which names Dr. Nathan Powell outright.
+     *
+     * With neither, the sentence is not thrown away: it stays the practice's own words as an
+     * `introduction`, which is what it is.
+     */
+    const pageDescription = page.structured.description ?? page.description;
+    const descriptionIsBiography = introducesProviders
+      && Boolean(providerName || (pageDescription && PROVIDER_BIO_SUBJECT_RE.test(pageDescription)));
     add(
-      introducesProviders ? 'provider_bio' : 'introduction',
-      page.structured.description ?? page.description,
+      descriptionIsBiography ? 'provider_bio' : 'introduction',
+      pageDescription,
       page.structured.description ? 'structured.description' : 'description',
     );
   }

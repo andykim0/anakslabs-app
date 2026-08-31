@@ -79,6 +79,18 @@ export function buildClinicHeroSection(input: {
   id: string;
   name?: string;
   title: ClinicMasterSourceBlock;
+  /**
+   * A VERBATIM FRAGMENT of `title` to display in its place.
+   *
+   * The US demo's home hero shows the `business_name` block, and that block is the practice's SEO
+   * <title>: "Dentist Burke VA - King's Park Dental Center" was the largest type on the page. The
+   * header already prints the name on the door (`clinicBrandDisplayName`); this is the same
+   * answer, applied where the reader actually looks first. A FRAGMENT rather than a rewrite —
+   * `sourceFragmentText` refuses anything that is not a substring of the block — so the hero is
+   * still the practice's own characters, pointing at the same source block, and `meta.title`
+   * keeps the whole SEO string for the <title> and the JSON-LD.
+   */
+  titleFragment?: string;
   lead?: ClinicMasterSourceBlock;
   articleEvidence?: {
     author: ClinicMasterSourceBlock;
@@ -99,7 +111,9 @@ export function buildClinicHeroSection(input: {
    */
   clinicHeroLayout?: ClinicHeroLayoutDecision;
 }): Section {
-  const title = sourceText(input.title, 'hero-title', input.theme, 'lead');
+  const title = input.titleFragment && input.title.text.includes(input.titleFragment)
+    ? sourceFragmentText(input.title, input.titleFragment, 'hero-title', input.theme, 'lead')
+    : sourceText(input.title, 'hero-title', input.theme, 'lead');
   const lead = input.lead
     ? sourceText(input.lead, 'hero-sub', input.theme, 'body')
     : undefined;
@@ -325,11 +339,12 @@ function sourceFragmentText(
   fragment: string,
   suffix: string,
   theme: SiteTheme,
+  role: 'lead' | 'body' | 'caption' = 'caption',
 ): TextElement {
   if (!block.text.includes(fragment) || fragment.trim().length === 0) {
     throw new Error(`CLINIC_SOURCE_FRAGMENT_INVALID:${block.id}`);
   }
-  return layoutText(`source-${block.id}-${suffix}`, fragment, theme, 'caption');
+  return layoutText(`source-${block.id}-${suffix}`, fragment, theme, role);
 }
 
 function layoutImage(image: ClinicLayoutImage, suffix: string): ImageElement {

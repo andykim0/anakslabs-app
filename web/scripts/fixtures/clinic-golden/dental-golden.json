@@ -78,7 +78,6 @@
             "Preventive Dentistry",
             "Periodontal (Gum) Disease",
             "Periodontal Maintenance",
-            "Scaling And Root Planing",
             "Tissue Graft",
             "Contact"
           ],
@@ -92,7 +91,6 @@
             "https://golden.invalid/lanap-periodontal-treatment",
             "https://golden.invalid/periodontal-gum-disease",
             "https://golden.invalid/periodontal-maintenance",
-            "https://golden.invalid/scaling-and-root-planing",
             "https://golden.invalid/tissue-graft",
             "https://golden.invalid/contact"
           ]
@@ -18927,6 +18925,7 @@
               "type": "about"
             }
           ],
+          "showInNav": false,
           "slug": "scaling-and-root-planing",
           "title": "Scaling And Root Planing"
         },
@@ -22969,7 +22968,7 @@
       },
       "version": 2
     },
-    "sha256": "cb954290bc65f6eef7ac0cae649ca25a4842ac88ae0f15367727553053fad937"
+    "sha256": "87e01abc6e8b790f08cf17b2f01a823945547d88758affbe1cb0ea3f9ffb9783"
   },
   {
     "fixture": "cameods",
@@ -23050,7 +23049,6 @@
             "Preventive Dentistry",
             "Periodontal (Gum) Disease",
             "Periodontal Maintenance",
-            "Scaling And Root Planing",
             "Tissue Graft",
             "Contact"
           ],
@@ -23064,7 +23062,6 @@
             "https://golden.invalid/lanap-periodontal-treatment",
             "https://golden.invalid/periodontal-gum-disease",
             "https://golden.invalid/periodontal-maintenance",
-            "https://golden.invalid/scaling-and-root-planing",
             "https://golden.invalid/tissue-graft",
             "https://golden.invalid/contact"
           ]
@@ -41940,6 +41937,7 @@
               "type": "about"
             }
           ],
+          "showInNav": false,
           "slug": "scaling-and-root-planing",
           "title": "Scaling And Root Planing"
         },
@@ -46023,7 +46021,7 @@
       },
       "version": 2
     },
-    "sha256": "cfe0a0c623e8be850655279cf13136aa91156b78575dea09a63dee87cc3c2fee"
+    "sha256": "e38c6f35d14e8d214ee1c8738afba2bd705fcd9c7870aca959d06393976e2072"
   },
   {
     "fixture": "dental360",
@@ -46064,11 +46062,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -46110,7 +46108,6 @@
             "Orthodontics",
             "Pediatric Dentistry",
             "Preventive Dentistry",
-            "About",
             "Contact"
           ],
           "url": [
@@ -46122,7 +46119,6 @@
             "https://golden.invalid/orthodontics",
             "https://golden.invalid/pediatric-dentistry",
             "https://golden.invalid/general-dentistry",
-            "https://golden.invalid/about",
             "https://golden.invalid/contact"
           ]
         }
@@ -46147,11 +46143,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -46308,11 +46304,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -46429,11 +46425,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -46580,11 +46576,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -46741,11 +46737,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -46830,11 +46826,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -46981,11 +46977,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -47122,97 +47118,6 @@
           ]
         }
       ],
-      "about": [
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid#identity",
-          "@type": [
-            "Dentist",
-            "MedicalClinic",
-            "LocalBusiness"
-          ],
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "US",
-            "streetAddress": "3435 W. Irving Park Rd, Chicago, IL 60618"
-          },
-          "contactPoint": {
-            "@type": "ContactPoint",
-            "availableLanguage": [
-              "en"
-            ],
-            "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
-          },
-          "description": "Review available services, visit information, material risks, and individual limitations before care.",
-          "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
-          "url": "https://golden.invalid"
-        },
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid#website",
-          "@type": "WebSite",
-          "inLanguage": "en-US",
-          "name": "Dental 360",
-          "publisher": {
-            "@id": "https://golden.invalid#identity"
-          },
-          "url": "https://golden.invalid"
-        },
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid/about#webpage",
-          "@type": [
-            "WebPage",
-            "ProfilePage"
-          ],
-          "about": {
-            "@id": "https://golden.invalid#identity"
-          },
-          "breadcrumb": {
-            "@id": "https://golden.invalid/about#breadcrumb"
-          },
-          "description": "Review available services, visit information, material risks, and individual limitations before care.",
-          "inLanguage": "en-US",
-          "isPartOf": {
-            "@id": "https://golden.invalid#website"
-          },
-          "mainEntity": {
-            "@id": "https://golden.invalid/about#provider"
-          },
-          "name": "About · Dental 360",
-          "url": "https://golden.invalid/about"
-        },
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid/about#provider",
-          "@type": "Person",
-          "description": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
-          "memberOf": {
-            "@id": "https://golden.invalid#identity"
-          }
-        },
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid/about#breadcrumb",
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "item": "https://golden.invalid",
-              "name": "Home",
-              "position": 1
-            },
-            {
-              "@type": "ListItem",
-              "item": "https://golden.invalid/about",
-              "name": "About",
-              "position": 2
-            }
-          ]
-        }
-      ],
       "contact": [
         {
           "@context": "https://schema.org",
@@ -47233,11 +47138,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -47294,29 +47199,6 @@
       ]
     },
     "config": {
-      "assetRefs": [
-        {
-          "assetId": "d2bff3c6-3c16-5caf-8aca-3b1cdfed6b6e",
-          "attribution": {
-            "licenseUrl": "https://www.pexels.com/license/",
-            "photographer": "Cedric Fauntleroy",
-            "photographerUrl": "https://www.pexels.com/@cedric-fauntleroy",
-            "provider": "pexels",
-            "sourceUrl": "https://www.pexels.com/photo/back-view-of-a-dental-chair-in-a-clinic-4269268/"
-          },
-          "height": 1200,
-          "url": "/stock/pexels/dental-atmosphere/4269268.webp",
-          "width": 1600
-        }
-      ],
-      "assetUsages": [
-        {
-          "assetId": "d2bff3c6-3c16-5caf-8aca-3b1cdfed6b6e",
-          "role": "atmospheric",
-          "slotKey": "clinic:about:hero",
-          "subject": "place"
-        }
-      ],
       "clinicMaster": {
         "accentPreset": "clean-blue",
         "demoPitchLocale": "en",
@@ -47424,6 +47306,29 @@
                   "z": 2
                 },
                 {
+                  "entrance": {
+                    "effect": "none"
+                  },
+                  "frame": {
+                    "h": 111,
+                    "w": 604.8,
+                    "x": 86.4,
+                    "y": 259.3328
+                  },
+                  "id": "source-pps-82e82120c659a33a-0-hero-sub",
+                  "kind": "text",
+                  "style": {
+                    "align": "left",
+                    "color": "#111318",
+                    "fontFamily": "body",
+                    "fontSize": 20.4,
+                    "fontWeight": 400,
+                    "lineHeight": 1.7
+                  },
+                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
+                  "z": 2
+                },
+                {
                   "alt": "Dental 360 - Family Dentistry, Implants, Kids, Braces & Emergencies",
                   "entrance": {
                     "effect": "none"
@@ -47450,7 +47355,8 @@
                   "compact": {
                     "align": "start",
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 35.2512
+                      "source-pps-45925aad26d13539-0-hero-title": 35.2512,
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
                     },
                     "frames": {
                       "source-pps-45925aad26d13539-0-hero-title": {
@@ -47458,6 +47364,12 @@
                         "w": 399.36,
                         "x": 46.08,
                         "y": 144
+                      },
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 184,
+                        "w": 399.36,
+                        "x": 46.08,
+                        "y": 205.3328
                       }
                     },
                     "mediaFrame": {
@@ -47472,7 +47384,8 @@
                   "mobile": {
                     "align": "start",
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 24.48
+                      "source-pps-45925aad26d13539-0-hero-title": 24.48,
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
                     },
                     "frames": {
                       "source-pps-45925aad26d13539-0-hero-title": {
@@ -47480,21 +47393,28 @@
                         "w": 343.2,
                         "x": 23.4,
                         "y": 56
+                      },
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 184,
+                        "w": 343.2,
+                        "x": 23.4,
+                        "y": 103.3328
                       }
                     },
                     "mediaFrame": {
                       "h": 257.4,
                       "w": 343.2,
                       "x": 23.4,
-                      "y": 116.6656
+                      "y": 313.9984
                     },
-                    "sectionHeight": 520,
+                    "sectionHeight": 615,
                     "width": 390
                   },
                   "wide": {
                     "align": "start",
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 35.2512
+                      "source-pps-45925aad26d13539-0-hero-title": 35.2512,
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
                     },
                     "frames": {
                       "source-pps-45925aad26d13539-0-hero-title": {
@@ -47502,6 +47422,12 @@
                         "w": 604.8,
                         "x": 86.4,
                         "y": 198
+                      },
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 111,
+                        "w": 604.8,
+                        "x": 86.4,
+                        "y": 259.3328
                       }
                     },
                     "mediaFrame": {
@@ -48645,197 +48571,6 @@
             },
             {
               "background": {
-                "color": "#FFFFFF"
-              },
-              "elements": [
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "us-demo-providers-layout-title",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 48,
-                    "fontWeight": 600,
-                    "lineHeight": 1.2
-                  },
-                  "text": "Meet the Doctor",
-                  "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-pps-82e82120c659a33a-0-provider-bio",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 22,
-                    "fontWeight": 600,
-                    "lineHeight": 1.35
-                  },
-                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
-                  "z": 2
-                },
-                {
-                  "alt": "",
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media",
-                  "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/dr-1-scaled.webp",
-                  "style": {
-                    "borderRadius": 4,
-                    "objectFit": "cover",
-                    "shadow": false
-                  },
-                  "z": 1
-                }
-              ],
-              "height": 781,
-              "id": "us-demo-providers",
-              "layout": "canvas",
-              "name": "Meet the Doctor",
-              "sectionLayout": {
-                "bands": {
-                  "compact": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 35.2512
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 362.88,
-                        "w": 290.304,
-                        "x": 439.296,
-                        "y": 57.6
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 123,
-                        "w": 359.424,
-                        "x": 38.4,
-                        "y": 132.2656
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 48,
-                        "w": 359.424,
-                        "x": 38.4,
-                        "y": 57.6
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 464,
-                    "width": 768
-                  },
-                  "mobile": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 24.48
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 263.25,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 42
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 153,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 392.5812
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 34,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 331.9156
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 589,
-                    "width": 390
-                  },
-                  "wide": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 35.2512
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 665.28,
-                        "w": 532.224,
-                        "x": 821.376,
-                        "y": 72
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 92,
-                        "w": 658.944,
-                        "x": 86.4,
-                        "y": 146.6656
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 48,
-                        "w": 658.944,
-                        "x": 86.4,
-                        "y": 72
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 781,
-                    "width": 1440
-                  }
-                },
-                "catalogVersion": 1,
-                "enhancement": "none",
-                "items": [
-                  {
-                    "elementIds": [
-                      "source-pps-82e82120c659a33a-0-provider-bio",
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media"
-                    ],
-                    "id": "us-demo-providers-about",
-                    "mediaElementId": "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media"
-                  }
-                ],
-                "kind": "about",
-                "mediaRole": "referential-figure",
-                "requestedId": "about.split-left",
-                "resolvedId": "about.split-left"
-              },
-              "surfaceTone": "tint",
-              "type": "about"
-            },
-            {
-              "background": {
                 "color": "#F2F2F2"
               },
               "elements": [
@@ -49103,9 +48838,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11",
+                  "id": "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/Orthodontics.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/dr-1-scaled.webp",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -49173,7 +48908,7 @@
                         "x": 38.4,
                         "y": 399.7986
                       },
-                      "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11": {
+                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11": {
                         "h": 254.2002,
                         "w": 338.9336,
                         "x": 390.6664,
@@ -49274,7 +49009,7 @@
                         "x": 19.5,
                         "y": 284.832
                       },
-                      "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11": {
+                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11": {
                         "h": 168.8336,
                         "w": 168.8336,
                         "x": 201.6664,
@@ -49375,7 +49110,7 @@
                         "x": 940.0885,
                         "y": 146.6656
                       },
-                      "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11": {
+                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11": {
                         "h": 310.1336,
                         "w": 413.5115,
                         "x": 940.0885,
@@ -49561,15 +49296,15 @@
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11"
+                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11"
                     ],
                     "focalPoint": {
                       "x": 0.5,
                       "y": 0.5
                     },
                     "id": "gallery-0-11",
-                    "mediaElementId": "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11",
-                    "orientation": "landscape"
+                    "mediaElementId": "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11",
+                    "orientation": "square"
                   }
                 ],
                 "kind": "gallery",
@@ -49577,7 +49312,7 @@
                 "requestedId": "gallery.uniform-grid",
                 "resolvedId": "gallery.uniform-grid"
               },
-              "surfaceTone": "dark",
+              "surfaceTone": "tint",
               "type": "gallery"
             },
             {
@@ -50159,7 +49894,7 @@
                 "requestedId": "directions.info-card-stack",
                 "resolvedId": "directions.info-card-stack"
               },
-              "surfaceTone": "base",
+              "surfaceTone": "dark",
               "type": "contact"
             },
             {
@@ -50177,7 +49912,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-pps-45925aad26d13539-0-cta-title",
+                  "id": "source-pps-82e82120c659a33a-0-cta-title",
                   "kind": "text",
                   "style": {
                     "color": "#111318",
@@ -50186,7 +49921,7 @@
                     "fontWeight": 600,
                     "lineHeight": 1.35
                   },
-                  "text": "Dental 360",
+                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
                   "z": 2
                 },
                 {
@@ -50213,7 +49948,7 @@
                   "z": 2
                 }
               ],
-              "height": 346,
+              "height": 489,
               "id": "clinic-home-cta",
               "layout": "canvas",
               "name": "Book Appointment",
@@ -50221,17 +49956,17 @@
                 "bands": {
                   "compact": {
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-cta-title": 35.2512
+                      "source-pps-82e82120c659a33a-0-cta-title": 35.2512
                     },
                     "frames": {
                       "clinic-home-cta-cta-primary": {
                         "h": 48,
                         "w": 196,
                         "x": 286,
-                        "y": 204.2656
+                        "y": 442.2656
                       },
-                      "source-pps-45925aad26d13539-0-cta-title": {
-                        "h": 48,
+                      "source-pps-82e82120c659a33a-0-cta-title": {
+                        "h": 286,
                         "w": 552.96,
                         "x": 107.52,
                         "y": 129.6
@@ -50240,22 +49975,22 @@
                     "itemOrder": [
                       "cta-actions"
                     ],
-                    "sectionHeight": 296,
+                    "sectionHeight": 534,
                     "width": 768
                   },
                   "mobile": {
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-cta-title": 24.48
+                      "source-pps-82e82120c659a33a-0-cta-title": 24.48
                     },
                     "frames": {
                       "clinic-home-cta-cta-primary": {
                         "h": 48,
                         "w": 343.2,
                         "x": 23.4,
-                        "y": 200.6656
+                        "y": 365.6656
                       },
-                      "source-pps-45925aad26d13539-0-cta-title": {
-                        "h": 34,
+                      "source-pps-82e82120c659a33a-0-cta-title": {
+                        "h": 199,
                         "w": 343.2,
                         "x": 23.4,
                         "y": 140
@@ -50264,22 +49999,22 @@
                     "itemOrder": [
                       "cta-actions"
                     ],
-                    "sectionHeight": 292,
+                    "sectionHeight": 457,
                     "width": 390
                   },
                   "wide": {
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-cta-title": 35.2512
+                      "source-pps-82e82120c659a33a-0-cta-title": 35.2512
                     },
                     "frames": {
                       "clinic-home-cta-cta-primary": {
                         "h": 48,
                         "w": 196,
                         "x": 622,
-                        "y": 254.6656
+                        "y": 397.6656
                       },
-                      "source-pps-45925aad26d13539-0-cta-title": {
-                        "h": 48,
+                      "source-pps-82e82120c659a33a-0-cta-title": {
+                        "h": 191,
                         "w": 864,
                         "x": 288,
                         "y": 180
@@ -50288,7 +50023,7 @@
                     "itemOrder": [
                       "cta-actions"
                     ],
-                    "sectionHeight": 346,
+                    "sectionHeight": 489,
                     "width": 1440
                   }
                 },
@@ -50543,9 +50278,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-957a601882f18855-3-layout-0-0",
+                  "id": "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N4.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/Orthodontics.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -50608,9 +50343,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-371d469f44704627-4-layout-0-1",
+                  "id": "source-image-pps-image-957a601882f18855-3-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/8-.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N4.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -50651,9 +50386,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-2",
+                  "id": "source-image-pps-image-371d469f44704627-4-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/Specialist-Led-Care-e1765283016879.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/8-.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -50684,7 +50419,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "invisalign-teen",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -50694,9 +50429,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-d4a208a20436f247-7-layout-0-3",
+                  "id": "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/invisalign-teen.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/Specialist-Led-Care-e1765283016879.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -50888,7 +50623,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-957a601882f18855-3-layout-0-0": {
+                      "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -51146,7 +50881,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-957a601882f18855-3-layout-0-0": {
+                      "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -51271,36 +51006,36 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-957a601882f18855-3-layout-0-0",
+                      "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0",
                       "source-pps-84494040dfb74024-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-84494040dfb74024-0",
-                    "mediaElementId": "source-image-pps-image-957a601882f18855-3-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-371d469f44704627-4-layout-0-1",
+                      "source-image-pps-image-957a601882f18855-3-layout-0-1",
                       "source-pps-80c4fce8e0e3d8af-2-procedure-service-0-1",
                       "source-pps-f591efeb534f01dd-2-layout-body-0-1"
                     ],
                     "id": "clinic-source-unit-pps-80c4fce8e0e3d8af-2",
-                    "mediaElementId": "source-image-pps-image-371d469f44704627-4-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-957a601882f18855-3-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-2",
+                      "source-image-pps-image-371d469f44704627-4-layout-0-2",
                       "source-pps-aac56deba7243c11-3-procedure-service-0-2"
                     ],
                     "id": "clinic-source-unit-pps-aac56deba7243c11-3",
-                    "mediaElementId": "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-371d469f44704627-4-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-d4a208a20436f247-7-layout-0-3",
+                      "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-3",
                       "source-pps-f622b6235306401a-4-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-f622b6235306401a-4",
-                    "mediaElementId": "source-image-pps-image-d4a208a20436f247-7-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -51724,7 +51459,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "INVISALIGN",
+                  "alt": "itero",
                   "entrance": {
                     "effect": "none"
                   },
@@ -51734,9 +51469,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-511f63dc52573805-9-layout-0-0",
+                  "id": "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/INVISALIGN.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/itero-1.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -51767,7 +51502,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "INVISALIGN",
                   "entrance": {
                     "effect": "none"
                   },
@@ -51777,9 +51512,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-1",
+                  "id": "source-image-pps-image-511f63dc52573805-9-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N3-e1765969303267.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/INVISALIGN.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -51820,9 +51555,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-54c3fe5310016443-14-layout-0-2",
+                  "id": "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N6-scaled.webp",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N3-e1765969303267.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -51863,9 +51598,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-b9396526ba018783-15-layout-0-3",
+                  "id": "source-image-pps-image-54c3fe5310016443-14-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/CLIENT-scaled.webp",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N6-scaled.webp",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -52033,7 +51768,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-511f63dc52573805-9-layout-0-0": {
+                      "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -52259,7 +51994,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-511f63dc52573805-9-layout-0-0": {
+                      "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -52370,35 +52105,35 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-511f63dc52573805-9-layout-0-0",
+                      "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0",
                       "source-pps-48794f18cd696cea-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-48794f18cd696cea-0",
-                    "mediaElementId": "source-image-pps-image-511f63dc52573805-9-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-1",
+                      "source-image-pps-image-511f63dc52573805-9-layout-0-1",
                       "source-pps-d8f3d7b70a08186e-3-procedure-service-0-1"
                     ],
                     "id": "clinic-source-unit-pps-d8f3d7b70a08186e-3",
-                    "mediaElementId": "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-511f63dc52573805-9-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-54c3fe5310016443-14-layout-0-2",
+                      "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-2",
                       "source-pps-0c62d6ec4205d01e-4-procedure-service-0-2"
                     ],
                     "id": "clinic-source-unit-pps-0c62d6ec4205d01e-4",
-                    "mediaElementId": "source-image-pps-image-54c3fe5310016443-14-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-b9396526ba018783-15-layout-0-3",
+                      "source-image-pps-image-54c3fe5310016443-14-layout-0-3",
                       "source-pps-18d206491c9a2278-6-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-18d206491c9a2278-6",
-                    "mediaElementId": "source-image-pps-image-b9396526ba018783-15-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-54c3fe5310016443-14-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -53165,9 +52900,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0",
+                  "id": "source-image-pps-image-b96c739980f95ab5-1-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2023/05/2-1.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2023/05/1-1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -53208,9 +52943,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-5368f03dd295159e-3-layout-0-1",
+                  "id": "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/04/qtq80-1QFh7a-1024x683.jpeg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2023/05/2-1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -53251,9 +52986,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-2",
+                  "id": "source-image-pps-image-5368f03dd295159e-3-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2023/09/female-dentist-adjusting-lamp-1024x682.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/04/qtq80-1QFh7a-1024x683.jpeg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -53284,7 +53019,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "young woman at Dental 360 Chicago Irving park clinic",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -53294,9 +53029,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-06f98f62d0d9b120-2-layout-0-3",
+                  "id": "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2023/09/young-woman-at-the-dentist-office.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2023/09/female-dentist-adjusting-lamp-1024x682.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -53441,7 +53176,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0": {
+                      "source-image-pps-image-b96c739980f95ab5-1-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -53653,7 +53388,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0": {
+                      "source-image-pps-image-b96c739980f95ab5-1-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -53758,35 +53493,35 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0",
+                      "source-image-pps-image-b96c739980f95ab5-1-layout-0-0",
                       "source-pps-7240a95641632040-4-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-7240a95641632040-4",
-                    "mediaElementId": "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-b96c739980f95ab5-1-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-5368f03dd295159e-3-layout-0-1",
+                      "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-1",
                       "source-pps-32ab3f09e11d585f-5-procedure-service-0-1"
                     ],
                     "id": "clinic-source-unit-pps-32ab3f09e11d585f-5",
-                    "mediaElementId": "source-image-pps-image-5368f03dd295159e-3-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-2",
+                      "source-image-pps-image-5368f03dd295159e-3-layout-0-2",
                       "source-pps-881854181edc5522-6-procedure-service-0-2"
                     ],
                     "id": "clinic-source-unit-pps-881854181edc5522-6",
-                    "mediaElementId": "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-5368f03dd295159e-3-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-06f98f62d0d9b120-2-layout-0-3",
+                      "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-3",
                       "source-pps-f1c31a2613d61db6-7-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-f1c31a2613d61db6-7",
-                    "mediaElementId": "source-image-pps-image-06f98f62d0d9b120-2-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -55999,7 +55734,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "young woman at Dental 360 Chicago Irving park clinic",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -56009,9 +55744,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0",
+                  "id": "source-image-pps-image-e890bb8539d961c2-1-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2023/09/young-woman-at-the-dentist-office.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_1401918893-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -56064,7 +55799,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "Dental Veneers",
                   "entrance": {
                     "effect": "none"
                   },
@@ -56074,9 +55809,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-e890bb8539d961c2-1-layout-0-1",
+                  "id": "source-image-pps-image-af53557f55c1c153-2-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_1401918893-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_398174746-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -56129,7 +55864,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "Dental Veneers",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -56139,9 +55874,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-af53557f55c1c153-2-layout-0-2",
+                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_398174746-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -56204,9 +55939,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-3",
+                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -56446,7 +56181,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0": {
+                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -56758,7 +56493,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0": {
+                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -56906,38 +56641,38 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0",
+                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0",
                       "source-pps-6638c30d3efec0f6-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-6638c30d3efec0f6-0",
-                    "mediaElementId": "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-e890bb8539d961c2-1-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-1",
+                      "source-image-pps-image-af53557f55c1c153-2-layout-0-1",
                       "source-pps-f325953ea439db9e-1-procedure-service-0-1",
                       "source-pps-f17fd73f7377a883-1-layout-body-0-1"
                     ],
                     "id": "clinic-source-unit-pps-f325953ea439db9e-1",
-                    "mediaElementId": "source-image-pps-image-e890bb8539d961c2-1-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-af53557f55c1c153-2-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-af53557f55c1c153-2-layout-0-2",
+                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2",
                       "source-pps-abe3e7dd3b1f9772-2-procedure-service-0-2",
                       "source-pps-cc724c4c67ddaf5d-2-layout-body-0-2"
                     ],
                     "id": "clinic-source-unit-pps-abe3e7dd3b1f9772-2",
-                    "mediaElementId": "source-image-pps-image-af53557f55c1c153-2-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-3",
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-3",
                       "source-pps-3ebd832d293de0c2-4-procedure-service-0-3",
                       "source-pps-605e311797d8f59d-4-layout-body-0-3"
                     ],
                     "id": "clinic-source-unit-pps-3ebd832d293de0c2-4",
-                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -57358,7 +57093,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "Dental Veneers",
                   "entrance": {
                     "effect": "none"
                   },
@@ -57368,9 +57103,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-e890bb8539d961c2-1-layout-0-0",
+                  "id": "source-image-pps-image-af53557f55c1c153-2-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_1401918893-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_398174746-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -57401,7 +57136,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "Dental Veneers",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -57411,9 +57146,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-af53557f55c1c153-2-layout-0-1",
+                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_398174746-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -57476,9 +57211,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2",
+                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -57509,7 +57244,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "Children’s Dentistry",
                   "entrance": {
                     "effect": "none"
                   },
@@ -57519,9 +57254,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-3",
+                  "id": "source-image-pps-image-3750c5be68fd6448-5-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_610113029-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -57736,7 +57471,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0": {
+                      "source-image-pps-image-af53557f55c1c153-2-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -58010,7 +57745,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0": {
+                      "source-image-pps-image-af53557f55c1c153-2-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -58142,36 +57877,36 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0",
+                      "source-image-pps-image-af53557f55c1c153-2-layout-0-0",
                       "source-pps-3e76790bd1d8ef6b-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-3e76790bd1d8ef6b-0",
-                    "mediaElementId": "source-image-pps-image-e890bb8539d961c2-1-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-af53557f55c1c153-2-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-af53557f55c1c153-2-layout-0-1",
+                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-1",
                       "source-pps-0509ba7244ec1a03-1-procedure-service-0-1"
                     ],
                     "id": "clinic-source-unit-pps-0509ba7244ec1a03-1",
-                    "mediaElementId": "source-image-pps-image-af53557f55c1c153-2-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2",
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-2",
                       "source-pps-508ff078dcae2ae3-2-procedure-service-0-2",
                       "source-pps-28291c86de25277a-2-layout-body-0-2"
                     ],
                     "id": "clinic-source-unit-pps-508ff078dcae2ae3-2",
-                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-3",
+                      "source-image-pps-image-3750c5be68fd6448-5-layout-0-3",
                       "source-pps-01eb6f7d8344c68a-3-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-01eb6f7d8344c68a-3",
-                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-3750c5be68fd6448-5-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -58611,9 +58346,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0",
+                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -58666,7 +58401,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "Children’s Dentistry",
                   "entrance": {
                     "effect": "none"
                   },
@@ -58676,9 +58411,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-1",
+                  "id": "source-image-pps-image-3750c5be68fd6448-5-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_610113029-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -58709,7 +58444,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "Children’s Dentistry",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -58719,9 +58454,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-3750c5be68fd6448-5-layout-0-2",
+                  "id": "source-image-pps-image-f3410b354a26a091-6-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_610113029-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2018/12/img-01-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -58762,9 +58497,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-f3410b354a26a091-6-layout-0-3",
+                  "id": "source-image-pps-image-9cbdc4d72e6ece4e-7-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2018/12/img-01-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/08/dental-implants-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -58956,7 +58691,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0": {
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -59214,7 +58949,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0": {
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -59339,36 +59074,36 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0",
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-0",
                       "source-pps-47a1f99c594b19f2-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-47a1f99c594b19f2-0",
-                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-1",
+                      "source-image-pps-image-3750c5be68fd6448-5-layout-0-1",
                       "source-pps-e8e571c17ca238c8-2-procedure-service-0-1",
                       "source-pps-3435e20c0d4eb40f-2-layout-body-0-1"
                     ],
                     "id": "clinic-source-unit-pps-e8e571c17ca238c8-2",
-                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-3750c5be68fd6448-5-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-3750c5be68fd6448-5-layout-0-2",
+                      "source-image-pps-image-f3410b354a26a091-6-layout-0-2",
                       "source-pps-546ed8d7ba236e7a-3-procedure-service-0-2"
                     ],
                     "id": "clinic-source-unit-pps-546ed8d7ba236e7a-3",
-                    "mediaElementId": "source-image-pps-image-3750c5be68fd6448-5-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-f3410b354a26a091-6-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-f3410b354a26a091-6-layout-0-3",
+                      "source-image-pps-image-9cbdc4d72e6ece4e-7-layout-0-3",
                       "source-pps-eb2a0caa160e3e28-4-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-eb2a0caa160e3e28-4",
-                    "mediaElementId": "source-image-pps-image-f3410b354a26a091-6-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-9cbdc4d72e6ece4e-7-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -59574,387 +59309,6 @@
           "title": "General Dentistry"
         },
         {
-          "id": "clinic-about",
-          "sections": [
-            {
-              "background": {
-                "color": "#FFFFFF",
-                "image": {
-                  "overlayColor": "#FFFFFF",
-                  "overlayOpacity": 0.82,
-                  "src": "/stock/pexels/dental-atmosphere/4269268.webp"
-                }
-              },
-              "elements": [
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 48,
-                    "w": 604.8,
-                    "x": 86.4,
-                    "y": 198
-                  },
-                  "id": "source-pps-45925aad26d13539-0-hero-title",
-                  "kind": "text",
-                  "style": {
-                    "align": "left",
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 35.2512,
-                    "fontWeight": 600,
-                    "lineHeight": 1.35
-                  },
-                  "text": "Dental 360",
-                  "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 111,
-                    "w": 604.8,
-                    "x": 86.4,
-                    "y": 259.3328
-                  },
-                  "id": "source-pps-82e82120c659a33a-0-hero-sub",
-                  "kind": "text",
-                  "style": {
-                    "align": "left",
-                    "color": "#111318",
-                    "fontFamily": "body",
-                    "fontSize": 20.4,
-                    "fontWeight": 400,
-                    "lineHeight": 1.7
-                  },
-                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
-                  "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 40,
-                    "w": 900,
-                    "x": 116,
-                    "y": 620
-                  },
-                  "id": "clinic-dental-stock-disclosure",
-                  "kind": "text",
-                  "style": {
-                    "color": "#5A6270",
-                    "fontFamily": "body",
-                    "fontSize": 14,
-                    "fontWeight": 600,
-                    "lineHeight": 1.4
-                  },
-                  "text": "Licensed sample imagery · replaced with your practice photography",
-                  "z": 2
-                }
-              ],
-              "height": 872,
-              "heroLayout": {
-                "bands": {
-                  "compact": {
-                    "align": "start",
-                    "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 35.2512,
-                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
-                    },
-                    "frames": {
-                      "source-pps-45925aad26d13539-0-hero-title": {
-                        "h": 48,
-                        "w": 399.36,
-                        "x": 46.08,
-                        "y": 144
-                      },
-                      "source-pps-82e82120c659a33a-0-hero-sub": {
-                        "h": 184,
-                        "w": 399.36,
-                        "x": 46.08,
-                        "y": 205.3328
-                      }
-                    },
-                    "mediaFrame": {
-                      "h": 307.2,
-                      "w": 245.76,
-                      "x": 476.16,
-                      "y": 100.8
-                    },
-                    "sectionHeight": 560,
-                    "width": 768
-                  },
-                  "mobile": {
-                    "align": "start",
-                    "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 24.48,
-                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
-                    },
-                    "frames": {
-                      "source-pps-45925aad26d13539-0-hero-title": {
-                        "h": 34,
-                        "w": 343.2,
-                        "x": 23.4,
-                        "y": 56
-                      },
-                      "source-pps-82e82120c659a33a-0-hero-sub": {
-                        "h": 184,
-                        "w": 343.2,
-                        "x": 23.4,
-                        "y": 103.3328
-                      }
-                    },
-                    "mediaFrame": {
-                      "h": 257.4,
-                      "w": 343.2,
-                      "x": 23.4,
-                      "y": 313.9984
-                    },
-                    "sectionHeight": 615,
-                    "width": 390
-                  },
-                  "wide": {
-                    "align": "start",
-                    "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 35.2512,
-                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
-                    },
-                    "frames": {
-                      "source-pps-45925aad26d13539-0-hero-title": {
-                        "h": 48,
-                        "w": 604.8,
-                        "x": 86.4,
-                        "y": 198
-                      },
-                      "source-pps-82e82120c659a33a-0-hero-sub": {
-                        "h": 111,
-                        "w": 604.8,
-                        "x": 86.4,
-                        "y": 259.3328
-                      }
-                    },
-                    "mediaFrame": {
-                      "h": 756,
-                      "w": 604.8,
-                      "x": 748.8,
-                      "y": 72
-                    },
-                    "sectionHeight": 872,
-                    "width": 1440
-                  }
-                },
-                "catalogVersion": 1,
-                "mediaKind": "image",
-                "mediaSlotRole": "referential-figure",
-                "requestedId": "hero.split-left",
-                "resolvedId": "hero.split-left",
-                "scrim": "none"
-              },
-              "id": "clinic-about-hero",
-              "layout": "canvas",
-              "name": "Introduction",
-              "surfaceTone": "base",
-              "type": "hero"
-            },
-            {
-              "background": {
-                "color": "#FFFFFF"
-              },
-              "elements": [
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "us-demo-providers-layout-title",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 48,
-                    "fontWeight": 600,
-                    "lineHeight": 1.2
-                  },
-                  "text": "Meet the Doctor",
-                  "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-pps-82e82120c659a33a-0-provider-bio",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 22,
-                    "fontWeight": 600,
-                    "lineHeight": 1.35
-                  },
-                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
-                  "z": 2
-                },
-                {
-                  "alt": "",
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media",
-                  "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/dr-1-scaled.webp",
-                  "style": {
-                    "borderRadius": 4,
-                    "objectFit": "cover",
-                    "shadow": false
-                  },
-                  "z": 1
-                }
-              ],
-              "height": 781,
-              "id": "us-demo-providers",
-              "layout": "canvas",
-              "name": "Meet the Doctor",
-              "sectionLayout": {
-                "bands": {
-                  "compact": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 35.2512
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 362.88,
-                        "w": 290.304,
-                        "x": 439.296,
-                        "y": 57.6
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 123,
-                        "w": 359.424,
-                        "x": 38.4,
-                        "y": 132.2656
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 48,
-                        "w": 359.424,
-                        "x": 38.4,
-                        "y": 57.6
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 464,
-                    "width": 768
-                  },
-                  "mobile": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 24.48
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 263.25,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 42
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 153,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 392.5812
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 34,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 331.9156
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 589,
-                    "width": 390
-                  },
-                  "wide": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 35.2512
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 665.28,
-                        "w": 532.224,
-                        "x": 821.376,
-                        "y": 72
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 92,
-                        "w": 658.944,
-                        "x": 86.4,
-                        "y": 146.6656
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 48,
-                        "w": 658.944,
-                        "x": 86.4,
-                        "y": 72
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 781,
-                    "width": 1440
-                  }
-                },
-                "catalogVersion": 1,
-                "enhancement": "none",
-                "items": [
-                  {
-                    "elementIds": [
-                      "source-pps-82e82120c659a33a-0-provider-bio",
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media"
-                    ],
-                    "id": "us-demo-providers-about",
-                    "mediaElementId": "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media"
-                  }
-                ],
-                "kind": "about",
-                "mediaRole": "referential-figure",
-                "requestedId": "about.split-left",
-                "resolvedId": "about.split-left"
-              },
-              "surfaceTone": "base",
-              "type": "about"
-            }
-          ],
-          "slug": "about",
-          "title": "About"
-        },
-        {
           "id": "clinic-contact",
           "sections": [
             {
@@ -59993,6 +59347,29 @@
                   },
                   "text": "3435 W. Irving Park Rd, Chicago, IL 60618",
                   "z": 2
+                },
+                {
+                  "entrance": {
+                    "effect": "none"
+                  },
+                  "frame": {
+                    "h": 111,
+                    "w": 604.8,
+                    "x": 86.4,
+                    "y": 307.3328
+                  },
+                  "id": "source-pps-82e82120c659a33a-0-hero-sub",
+                  "kind": "text",
+                  "style": {
+                    "align": "left",
+                    "color": "#111318",
+                    "fontFamily": "body",
+                    "fontSize": 20.4,
+                    "fontWeight": 400,
+                    "lineHeight": 1.7
+                  },
+                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
+                  "z": 2
                 }
               ],
               "height": 872,
@@ -60001,9 +59378,16 @@
                   "compact": {
                     "align": "start",
                     "fontSizes": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4,
                       "source-pps-978d29d360f576c4-0-hero-title": 35.2512
                     },
                     "frames": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 184,
+                        "w": 399.36,
+                        "x": 46.08,
+                        "y": 300.3328
+                      },
                       "source-pps-978d29d360f576c4-0-hero-title": {
                         "h": 143,
                         "w": 399.36,
@@ -60023,9 +59407,16 @@
                   "mobile": {
                     "align": "start",
                     "fontSizes": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4,
                       "source-pps-978d29d360f576c4-0-hero-title": 24.48
                     },
                     "frames": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 184,
+                        "w": 343.2,
+                        "x": 23.4,
+                        "y": 136.3328
+                      },
                       "source-pps-978d29d360f576c4-0-hero-title": {
                         "h": 67,
                         "w": 343.2,
@@ -60037,17 +59428,24 @@
                       "h": 257.4,
                       "w": 343.2,
                       "x": 23.4,
-                      "y": 149.6656
+                      "y": 346.9984
                     },
-                    "sectionHeight": 520,
+                    "sectionHeight": 648,
                     "width": 390
                   },
                   "wide": {
                     "align": "start",
                     "fontSizes": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4,
                       "source-pps-978d29d360f576c4-0-hero-title": 35.2512
                     },
                     "frames": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 111,
+                        "w": 604.8,
+                        "x": 86.4,
+                        "y": 307.3328
+                      },
                       "source-pps-978d29d360f576c4-0-hero-title": {
                         "h": 96,
                         "w": 604.8,
@@ -60667,7 +60065,7 @@
       ],
       "publicContact": {
         "address": "3435 W. Irving Park Rd, Chicago, IL 60618",
-        "phone": "+1 773-588-8200",
+        "phone": "(773) 588-8200",
         "version": 1
       },
       "theme": {
@@ -60788,7 +60186,7 @@
       },
       "version": 2
     },
-    "sha256": "06c54513d5b710d9e9e7c680a94aa8163c0872e1acb446000f5f42140051f9c6"
+    "sha256": "a29a9950a190954223fb00e10b7b3122b896cd9d7b751c28385f11e924e5618d"
   },
   {
     "fixture": "dental360",
@@ -60829,11 +60227,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -60875,7 +60273,6 @@
             "Orthodontics",
             "Pediatric Dentistry",
             "Preventive Dentistry",
-            "About",
             "Contact"
           ],
           "url": [
@@ -60887,7 +60284,6 @@
             "https://golden.invalid/orthodontics",
             "https://golden.invalid/pediatric-dentistry",
             "https://golden.invalid/general-dentistry",
-            "https://golden.invalid/about",
             "https://golden.invalid/contact"
           ]
         }
@@ -60912,11 +60308,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -61073,11 +60469,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -61194,11 +60590,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -61345,11 +60741,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -61506,11 +60902,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -61595,11 +60991,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -61746,11 +61142,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -61887,97 +61283,6 @@
           ]
         }
       ],
-      "about": [
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid#identity",
-          "@type": [
-            "Dentist",
-            "MedicalClinic",
-            "LocalBusiness"
-          ],
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "US",
-            "streetAddress": "3435 W. Irving Park Rd, Chicago, IL 60618"
-          },
-          "contactPoint": {
-            "@type": "ContactPoint",
-            "availableLanguage": [
-              "en"
-            ],
-            "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
-          },
-          "description": "Review available services, visit information, material risks, and individual limitations before care.",
-          "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
-          "url": "https://golden.invalid"
-        },
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid#website",
-          "@type": "WebSite",
-          "inLanguage": "en-US",
-          "name": "Dental 360",
-          "publisher": {
-            "@id": "https://golden.invalid#identity"
-          },
-          "url": "https://golden.invalid"
-        },
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid/about#webpage",
-          "@type": [
-            "WebPage",
-            "ProfilePage"
-          ],
-          "about": {
-            "@id": "https://golden.invalid#identity"
-          },
-          "breadcrumb": {
-            "@id": "https://golden.invalid/about#breadcrumb"
-          },
-          "description": "Review available services, visit information, material risks, and individual limitations before care.",
-          "inLanguage": "en-US",
-          "isPartOf": {
-            "@id": "https://golden.invalid#website"
-          },
-          "mainEntity": {
-            "@id": "https://golden.invalid/about#provider"
-          },
-          "name": "About · Dental 360",
-          "url": "https://golden.invalid/about"
-        },
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid/about#provider",
-          "@type": "Person",
-          "description": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
-          "memberOf": {
-            "@id": "https://golden.invalid#identity"
-          }
-        },
-        {
-          "@context": "https://schema.org",
-          "@id": "https://golden.invalid/about#breadcrumb",
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            {
-              "@type": "ListItem",
-              "item": "https://golden.invalid",
-              "name": "Home",
-              "position": 1
-            },
-            {
-              "@type": "ListItem",
-              "item": "https://golden.invalid/about",
-              "name": "About",
-              "position": 2
-            }
-          ]
-        }
-      ],
       "contact": [
         {
           "@context": "https://schema.org",
@@ -61998,11 +61303,11 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "+1 773-588-8200"
+            "telephone": "(773) 588-8200"
           },
           "description": "Review available services, visit information, material risks, and individual limitations before care.",
           "name": "Dental 360",
-          "telephone": "+1 773-588-8200",
+          "telephone": "(773) 588-8200",
           "url": "https://golden.invalid"
         },
         {
@@ -62166,6 +61471,29 @@
                   "z": 2
                 },
                 {
+                  "entrance": {
+                    "effect": "none"
+                  },
+                  "frame": {
+                    "h": 111,
+                    "w": 604.8,
+                    "x": 86.4,
+                    "y": 259.3328
+                  },
+                  "id": "source-pps-82e82120c659a33a-0-hero-sub",
+                  "kind": "text",
+                  "style": {
+                    "align": "left",
+                    "color": "#111318",
+                    "fontFamily": "body",
+                    "fontSize": 20.4,
+                    "fontWeight": 400,
+                    "lineHeight": 1.7
+                  },
+                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
+                  "z": 2
+                },
+                {
                   "alt": "Dental 360 - Family Dentistry, Implants, Kids, Braces & Emergencies",
                   "entrance": {
                     "effect": "none"
@@ -62192,7 +61520,8 @@
                   "compact": {
                     "align": "start",
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 35.2512
+                      "source-pps-45925aad26d13539-0-hero-title": 35.2512,
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
                     },
                     "frames": {
                       "source-pps-45925aad26d13539-0-hero-title": {
@@ -62200,6 +61529,12 @@
                         "w": 399.36,
                         "x": 46.08,
                         "y": 144
+                      },
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 184,
+                        "w": 399.36,
+                        "x": 46.08,
+                        "y": 205.3328
                       }
                     },
                     "mediaFrame": {
@@ -62214,7 +61549,8 @@
                   "mobile": {
                     "align": "start",
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 24.48
+                      "source-pps-45925aad26d13539-0-hero-title": 24.48,
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
                     },
                     "frames": {
                       "source-pps-45925aad26d13539-0-hero-title": {
@@ -62222,21 +61558,28 @@
                         "w": 343.2,
                         "x": 23.4,
                         "y": 56
+                      },
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 184,
+                        "w": 343.2,
+                        "x": 23.4,
+                        "y": 103.3328
                       }
                     },
                     "mediaFrame": {
                       "h": 257.4,
                       "w": 343.2,
                       "x": 23.4,
-                      "y": 116.6656
+                      "y": 313.9984
                     },
-                    "sectionHeight": 520,
+                    "sectionHeight": 615,
                     "width": 390
                   },
                   "wide": {
                     "align": "start",
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 35.2512
+                      "source-pps-45925aad26d13539-0-hero-title": 35.2512,
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
                     },
                     "frames": {
                       "source-pps-45925aad26d13539-0-hero-title": {
@@ -62244,6 +61587,12 @@
                         "w": 604.8,
                         "x": 86.4,
                         "y": 198
+                      },
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 111,
+                        "w": 604.8,
+                        "x": 86.4,
+                        "y": 259.3328
                       }
                     },
                     "mediaFrame": {
@@ -63387,197 +62736,6 @@
             },
             {
               "background": {
-                "color": "#FFFFFF"
-              },
-              "elements": [
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "us-demo-providers-layout-title",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 48,
-                    "fontWeight": 600,
-                    "lineHeight": 1.2
-                  },
-                  "text": "Meet the Doctor",
-                  "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-pps-82e82120c659a33a-0-provider-bio",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 22,
-                    "fontWeight": 600,
-                    "lineHeight": 1.35
-                  },
-                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
-                  "z": 2
-                },
-                {
-                  "alt": "",
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media",
-                  "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/dr-1-scaled.webp",
-                  "style": {
-                    "borderRadius": 4,
-                    "objectFit": "cover",
-                    "shadow": false
-                  },
-                  "z": 1
-                }
-              ],
-              "height": 781,
-              "id": "us-demo-providers",
-              "layout": "canvas",
-              "name": "Meet the Doctor",
-              "sectionLayout": {
-                "bands": {
-                  "compact": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 35.2512
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 362.88,
-                        "w": 290.304,
-                        "x": 439.296,
-                        "y": 57.6
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 123,
-                        "w": 359.424,
-                        "x": 38.4,
-                        "y": 132.2656
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 48,
-                        "w": 359.424,
-                        "x": 38.4,
-                        "y": 57.6
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 464,
-                    "width": 768
-                  },
-                  "mobile": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 24.48
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 263.25,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 42
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 153,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 392.5812
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 34,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 331.9156
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 589,
-                    "width": 390
-                  },
-                  "wide": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 35.2512
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 665.28,
-                        "w": 532.224,
-                        "x": 821.376,
-                        "y": 72
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 92,
-                        "w": 658.944,
-                        "x": 86.4,
-                        "y": 146.6656
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 48,
-                        "w": 658.944,
-                        "x": 86.4,
-                        "y": 72
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 781,
-                    "width": 1440
-                  }
-                },
-                "catalogVersion": 1,
-                "enhancement": "none",
-                "items": [
-                  {
-                    "elementIds": [
-                      "source-pps-82e82120c659a33a-0-provider-bio",
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media"
-                    ],
-                    "id": "us-demo-providers-about",
-                    "mediaElementId": "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media"
-                  }
-                ],
-                "kind": "about",
-                "mediaRole": "referential-figure",
-                "requestedId": "about.split-left",
-                "resolvedId": "about.split-left"
-              },
-              "surfaceTone": "tint",
-              "type": "about"
-            },
-            {
-              "background": {
                 "color": "#F2F2F2"
               },
               "elements": [
@@ -63845,9 +63003,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11",
+                  "id": "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/Orthodontics.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/dr-1-scaled.webp",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -63915,7 +63073,7 @@
                         "x": 38.4,
                         "y": 399.7986
                       },
-                      "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11": {
+                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11": {
                         "h": 254.2002,
                         "w": 338.9336,
                         "x": 390.6664,
@@ -64016,7 +63174,7 @@
                         "x": 19.5,
                         "y": 284.832
                       },
-                      "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11": {
+                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11": {
                         "h": 168.8336,
                         "w": 168.8336,
                         "x": 201.6664,
@@ -64117,7 +63275,7 @@
                         "x": 940.0885,
                         "y": 146.6656
                       },
-                      "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11": {
+                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11": {
                         "h": 310.1336,
                         "w": 413.5115,
                         "x": 940.0885,
@@ -64303,15 +63461,15 @@
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11"
+                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11"
                     ],
                     "focalPoint": {
                       "x": 0.5,
                       "y": 0.5
                     },
                     "id": "gallery-0-11",
-                    "mediaElementId": "source-image-pps-image-d4c6549d39f11ddc-2-gallery-0-11",
-                    "orientation": "landscape"
+                    "mediaElementId": "source-image-pps-image-cd8d7aa4dc5fef4c-0-gallery-0-11",
+                    "orientation": "square"
                   }
                 ],
                 "kind": "gallery",
@@ -64319,7 +63477,7 @@
                 "requestedId": "gallery.uniform-grid",
                 "resolvedId": "gallery.uniform-grid"
               },
-              "surfaceTone": "dark",
+              "surfaceTone": "tint",
               "type": "gallery"
             },
             {
@@ -64525,7 +63683,7 @@
                 "requestedId": "gallery.uniform-grid",
                 "resolvedId": "gallery.uniform-grid"
               },
-              "surfaceTone": "base",
+              "surfaceTone": "dark",
               "type": "gallery"
             },
             {
@@ -65125,7 +64283,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-pps-45925aad26d13539-0-cta-title",
+                  "id": "source-pps-82e82120c659a33a-0-cta-title",
                   "kind": "text",
                   "style": {
                     "color": "#111318",
@@ -65134,7 +64292,7 @@
                     "fontWeight": 600,
                     "lineHeight": 1.35
                   },
-                  "text": "Dental 360",
+                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
                   "z": 2
                 },
                 {
@@ -65161,7 +64319,7 @@
                   "z": 2
                 }
               ],
-              "height": 346,
+              "height": 489,
               "id": "clinic-home-cta",
               "layout": "canvas",
               "name": "Book Appointment",
@@ -65169,17 +64327,17 @@
                 "bands": {
                   "compact": {
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-cta-title": 35.2512
+                      "source-pps-82e82120c659a33a-0-cta-title": 35.2512
                     },
                     "frames": {
                       "clinic-home-cta-cta-primary": {
                         "h": 48,
                         "w": 196,
                         "x": 286,
-                        "y": 204.2656
+                        "y": 442.2656
                       },
-                      "source-pps-45925aad26d13539-0-cta-title": {
-                        "h": 48,
+                      "source-pps-82e82120c659a33a-0-cta-title": {
+                        "h": 286,
                         "w": 552.96,
                         "x": 107.52,
                         "y": 129.6
@@ -65188,22 +64346,22 @@
                     "itemOrder": [
                       "cta-actions"
                     ],
-                    "sectionHeight": 296,
+                    "sectionHeight": 534,
                     "width": 768
                   },
                   "mobile": {
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-cta-title": 24.48
+                      "source-pps-82e82120c659a33a-0-cta-title": 24.48
                     },
                     "frames": {
                       "clinic-home-cta-cta-primary": {
                         "h": 48,
                         "w": 343.2,
                         "x": 23.4,
-                        "y": 200.6656
+                        "y": 365.6656
                       },
-                      "source-pps-45925aad26d13539-0-cta-title": {
-                        "h": 34,
+                      "source-pps-82e82120c659a33a-0-cta-title": {
+                        "h": 199,
                         "w": 343.2,
                         "x": 23.4,
                         "y": 140
@@ -65212,22 +64370,22 @@
                     "itemOrder": [
                       "cta-actions"
                     ],
-                    "sectionHeight": 292,
+                    "sectionHeight": 457,
                     "width": 390
                   },
                   "wide": {
                     "fontSizes": {
-                      "source-pps-45925aad26d13539-0-cta-title": 35.2512
+                      "source-pps-82e82120c659a33a-0-cta-title": 35.2512
                     },
                     "frames": {
                       "clinic-home-cta-cta-primary": {
                         "h": 48,
                         "w": 196,
                         "x": 622,
-                        "y": 254.6656
+                        "y": 397.6656
                       },
-                      "source-pps-45925aad26d13539-0-cta-title": {
-                        "h": 48,
+                      "source-pps-82e82120c659a33a-0-cta-title": {
+                        "h": 191,
                         "w": 864,
                         "x": 288,
                         "y": 180
@@ -65236,7 +64394,7 @@
                     "itemOrder": [
                       "cta-actions"
                     ],
-                    "sectionHeight": 346,
+                    "sectionHeight": 489,
                     "width": 1440
                   }
                 },
@@ -65491,9 +64649,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-957a601882f18855-3-layout-0-0",
+                  "id": "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N4.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/Orthodontics.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -65556,9 +64714,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-371d469f44704627-4-layout-0-1",
+                  "id": "source-image-pps-image-957a601882f18855-3-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/8-.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N4.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -65599,9 +64757,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-2",
+                  "id": "source-image-pps-image-371d469f44704627-4-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/Specialist-Led-Care-e1765283016879.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/8-.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -65632,7 +64790,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "invisalign-teen",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -65642,9 +64800,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-d4a208a20436f247-7-layout-0-3",
+                  "id": "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/invisalign-teen.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/Specialist-Led-Care-e1765283016879.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -65836,7 +64994,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-957a601882f18855-3-layout-0-0": {
+                      "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -66094,7 +65252,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-957a601882f18855-3-layout-0-0": {
+                      "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -66219,36 +65377,36 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-957a601882f18855-3-layout-0-0",
+                      "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0",
                       "source-pps-84494040dfb74024-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-84494040dfb74024-0",
-                    "mediaElementId": "source-image-pps-image-957a601882f18855-3-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-d4c6549d39f11ddc-2-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-371d469f44704627-4-layout-0-1",
+                      "source-image-pps-image-957a601882f18855-3-layout-0-1",
                       "source-pps-80c4fce8e0e3d8af-2-procedure-service-0-1",
                       "source-pps-f591efeb534f01dd-2-layout-body-0-1"
                     ],
                     "id": "clinic-source-unit-pps-80c4fce8e0e3d8af-2",
-                    "mediaElementId": "source-image-pps-image-371d469f44704627-4-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-957a601882f18855-3-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-2",
+                      "source-image-pps-image-371d469f44704627-4-layout-0-2",
                       "source-pps-aac56deba7243c11-3-procedure-service-0-2"
                     ],
                     "id": "clinic-source-unit-pps-aac56deba7243c11-3",
-                    "mediaElementId": "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-371d469f44704627-4-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-d4a208a20436f247-7-layout-0-3",
+                      "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-3",
                       "source-pps-f622b6235306401a-4-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-f622b6235306401a-4",
-                    "mediaElementId": "source-image-pps-image-d4a208a20436f247-7-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-b79feddc8f16ddcd-5-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -66672,7 +65830,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "INVISALIGN",
+                  "alt": "itero",
                   "entrance": {
                     "effect": "none"
                   },
@@ -66682,9 +65840,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-511f63dc52573805-9-layout-0-0",
+                  "id": "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/INVISALIGN.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/itero-1.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -66715,7 +65873,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "INVISALIGN",
                   "entrance": {
                     "effect": "none"
                   },
@@ -66725,9 +65883,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-1",
+                  "id": "source-image-pps-image-511f63dc52573805-9-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N3-e1765969303267.png",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/INVISALIGN.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -66768,9 +65926,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-54c3fe5310016443-14-layout-0-2",
+                  "id": "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N6-scaled.webp",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N3-e1765969303267.png",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -66811,9 +65969,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-b9396526ba018783-15-layout-0-3",
+                  "id": "source-image-pps-image-54c3fe5310016443-14-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/CLIENT-scaled.webp",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/N6-scaled.webp",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -66981,7 +66139,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-511f63dc52573805-9-layout-0-0": {
+                      "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -67207,7 +66365,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-511f63dc52573805-9-layout-0-0": {
+                      "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -67318,35 +66476,35 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-511f63dc52573805-9-layout-0-0",
+                      "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0",
                       "source-pps-48794f18cd696cea-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-48794f18cd696cea-0",
-                    "mediaElementId": "source-image-pps-image-511f63dc52573805-9-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-a2dfea81c930e43b-8-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-1",
+                      "source-image-pps-image-511f63dc52573805-9-layout-0-1",
                       "source-pps-d8f3d7b70a08186e-3-procedure-service-0-1"
                     ],
                     "id": "clinic-source-unit-pps-d8f3d7b70a08186e-3",
-                    "mediaElementId": "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-511f63dc52573805-9-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-54c3fe5310016443-14-layout-0-2",
+                      "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-2",
                       "source-pps-0c62d6ec4205d01e-4-procedure-service-0-2"
                     ],
                     "id": "clinic-source-unit-pps-0c62d6ec4205d01e-4",
-                    "mediaElementId": "source-image-pps-image-54c3fe5310016443-14-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-6c27e40d9667e6f2-11-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-b9396526ba018783-15-layout-0-3",
+                      "source-image-pps-image-54c3fe5310016443-14-layout-0-3",
                       "source-pps-18d206491c9a2278-6-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-18d206491c9a2278-6",
-                    "mediaElementId": "source-image-pps-image-b9396526ba018783-15-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-54c3fe5310016443-14-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -68113,9 +67271,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0",
+                  "id": "source-image-pps-image-b96c739980f95ab5-1-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2023/05/2-1.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2023/05/1-1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -68156,9 +67314,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-5368f03dd295159e-3-layout-0-1",
+                  "id": "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/04/qtq80-1QFh7a-1024x683.jpeg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2023/05/2-1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -68199,9 +67357,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-2",
+                  "id": "source-image-pps-image-5368f03dd295159e-3-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2023/09/female-dentist-adjusting-lamp-1024x682.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2025/04/qtq80-1QFh7a-1024x683.jpeg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -68232,7 +67390,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "young woman at Dental 360 Chicago Irving park clinic",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -68242,9 +67400,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-06f98f62d0d9b120-2-layout-0-3",
+                  "id": "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2023/09/young-woman-at-the-dentist-office.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2023/09/female-dentist-adjusting-lamp-1024x682.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -68389,7 +67547,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0": {
+                      "source-image-pps-image-b96c739980f95ab5-1-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -68601,7 +67759,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0": {
+                      "source-image-pps-image-b96c739980f95ab5-1-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -68706,35 +67864,35 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0",
+                      "source-image-pps-image-b96c739980f95ab5-1-layout-0-0",
                       "source-pps-7240a95641632040-4-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-7240a95641632040-4",
-                    "mediaElementId": "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-b96c739980f95ab5-1-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-5368f03dd295159e-3-layout-0-1",
+                      "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-1",
                       "source-pps-32ab3f09e11d585f-5-procedure-service-0-1"
                     ],
                     "id": "clinic-source-unit-pps-32ab3f09e11d585f-5",
-                    "mediaElementId": "source-image-pps-image-5368f03dd295159e-3-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-d10a02e086a1b8d3-2-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-2",
+                      "source-image-pps-image-5368f03dd295159e-3-layout-0-2",
                       "source-pps-881854181edc5522-6-procedure-service-0-2"
                     ],
                     "id": "clinic-source-unit-pps-881854181edc5522-6",
-                    "mediaElementId": "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-5368f03dd295159e-3-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-06f98f62d0d9b120-2-layout-0-3",
+                      "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-3",
                       "source-pps-f1c31a2613d61db6-7-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-f1c31a2613d61db6-7",
-                    "mediaElementId": "source-image-pps-image-06f98f62d0d9b120-2-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-34d6a8b7cbf8bc96-0-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -70947,7 +70105,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "young woman at Dental 360 Chicago Irving park clinic",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -70957,9 +70115,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0",
+                  "id": "source-image-pps-image-e890bb8539d961c2-1-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2023/09/young-woman-at-the-dentist-office.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_1401918893-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -71012,7 +70170,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "Dental Veneers",
                   "entrance": {
                     "effect": "none"
                   },
@@ -71022,9 +70180,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-e890bb8539d961c2-1-layout-0-1",
+                  "id": "source-image-pps-image-af53557f55c1c153-2-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_1401918893-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_398174746-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -71077,7 +70235,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "Dental Veneers",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -71087,9 +70245,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-af53557f55c1c153-2-layout-0-2",
+                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_398174746-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -71152,9 +70310,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-3",
+                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -71394,7 +70552,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0": {
+                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -71706,7 +70864,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0": {
+                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -71854,38 +71012,38 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0",
+                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0",
                       "source-pps-6638c30d3efec0f6-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-6638c30d3efec0f6-0",
-                    "mediaElementId": "source-image-pps-image-06f98f62d0d9b120-2-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-e890bb8539d961c2-1-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-1",
+                      "source-image-pps-image-af53557f55c1c153-2-layout-0-1",
                       "source-pps-f325953ea439db9e-1-procedure-service-0-1",
                       "source-pps-f17fd73f7377a883-1-layout-body-0-1"
                     ],
                     "id": "clinic-source-unit-pps-f325953ea439db9e-1",
-                    "mediaElementId": "source-image-pps-image-e890bb8539d961c2-1-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-af53557f55c1c153-2-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-af53557f55c1c153-2-layout-0-2",
+                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2",
                       "source-pps-abe3e7dd3b1f9772-2-procedure-service-0-2",
                       "source-pps-cc724c4c67ddaf5d-2-layout-body-0-2"
                     ],
                     "id": "clinic-source-unit-pps-abe3e7dd3b1f9772-2",
-                    "mediaElementId": "source-image-pps-image-af53557f55c1c153-2-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-3",
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-3",
                       "source-pps-3ebd832d293de0c2-4-procedure-service-0-3",
                       "source-pps-605e311797d8f59d-4-layout-body-0-3"
                     ],
                     "id": "clinic-source-unit-pps-3ebd832d293de0c2-4",
-                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -72306,7 +71464,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "Dental Veneers",
                   "entrance": {
                     "effect": "none"
                   },
@@ -72316,9 +71474,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-e890bb8539d961c2-1-layout-0-0",
+                  "id": "source-image-pps-image-af53557f55c1c153-2-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_1401918893-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_398174746-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -72349,7 +71507,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "Dental Veneers",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -72359,9 +71517,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-af53557f55c1c153-2-layout-0-1",
+                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_398174746-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -72424,9 +71582,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2",
+                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -72457,7 +71615,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "Children’s Dentistry",
                   "entrance": {
                     "effect": "none"
                   },
@@ -72467,9 +71625,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-3",
+                  "id": "source-image-pps-image-3750c5be68fd6448-5-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_610113029-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -72684,7 +71842,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0": {
+                      "source-image-pps-image-af53557f55c1c153-2-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -72958,7 +72116,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0": {
+                      "source-image-pps-image-af53557f55c1c153-2-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -73090,36 +72248,36 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-e890bb8539d961c2-1-layout-0-0",
+                      "source-image-pps-image-af53557f55c1c153-2-layout-0-0",
                       "source-pps-3e76790bd1d8ef6b-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-3e76790bd1d8ef6b-0",
-                    "mediaElementId": "source-image-pps-image-e890bb8539d961c2-1-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-af53557f55c1c153-2-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-af53557f55c1c153-2-layout-0-1",
+                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-1",
                       "source-pps-0509ba7244ec1a03-1-procedure-service-0-1"
                     ],
                     "id": "clinic-source-unit-pps-0509ba7244ec1a03-1",
-                    "mediaElementId": "source-image-pps-image-af53557f55c1c153-2-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2",
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-2",
                       "source-pps-508ff078dcae2ae3-2-procedure-service-0-2",
                       "source-pps-28291c86de25277a-2-layout-body-0-2"
                     ],
                     "id": "clinic-source-unit-pps-508ff078dcae2ae3-2",
-                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-3",
+                      "source-image-pps-image-3750c5be68fd6448-5-layout-0-3",
                       "source-pps-01eb6f7d8344c68a-3-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-01eb6f7d8344c68a-3",
-                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-3750c5be68fd6448-5-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -73559,9 +72717,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0",
+                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-0",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/tooth-extraction-concept-in-cartoon-style-teeth-removal-design-free-vector-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -73614,7 +72772,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "",
+                  "alt": "Children’s Dentistry",
                   "entrance": {
                     "effect": "none"
                   },
@@ -73624,9 +72782,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-2ef8549c38aff917-4-layout-0-1",
+                  "id": "source-image-pps-image-3750c5be68fd6448-5-layout-0-1",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/360_F_632929156_FNVoxW8rFyxYDeldUUNAZcLK4KjUaFl1.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_610113029-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -73657,7 +72815,7 @@
                   "z": 2
                 },
                 {
-                  "alt": "Children’s Dentistry",
+                  "alt": "",
                   "entrance": {
                     "effect": "none"
                   },
@@ -73667,9 +72825,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-3750c5be68fd6448-5-layout-0-2",
+                  "id": "source-image-pps-image-f3410b354a26a091-6-layout-0-2",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2020/09/shutterstock_610113029-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2018/12/img-01-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -73710,9 +72868,9 @@
                     "x": 0,
                     "y": 0
                   },
-                  "id": "source-image-pps-image-f3410b354a26a091-6-layout-0-3",
+                  "id": "source-image-pps-image-9cbdc4d72e6ece4e-7-layout-0-3",
                   "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2018/12/img-01-770x500.jpg",
+                  "src": "https://dental360grp.com/wp-content/uploads/2020/08/dental-implants-770x500.jpg",
                   "style": {
                     "borderRadius": 4,
                     "objectFit": "cover",
@@ -73904,7 +73062,7 @@
                         "x": 38.4,
                         "y": 57.6
                       },
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0": {
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-0": {
                         "h": 276.672,
                         "w": 368.896,
                         "x": 54.4,
@@ -74162,7 +73320,7 @@
                         "x": 86.4,
                         "y": 72
                       },
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0": {
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-0": {
                         "h": 527.232,
                         "w": 702.976,
                         "x": 102.4,
@@ -74287,36 +73445,36 @@
                 "items": [
                   {
                     "elementIds": [
-                      "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0",
+                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-0",
                       "source-pps-47a1f99c594b19f2-0-procedure-service-0-0"
                     ],
                     "id": "clinic-source-unit-pps-47a1f99c594b19f2-0",
-                    "mediaElementId": "source-image-pps-image-dfd55c11b89c82ee-3-layout-0-0"
+                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-0"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-2ef8549c38aff917-4-layout-0-1",
+                      "source-image-pps-image-3750c5be68fd6448-5-layout-0-1",
                       "source-pps-e8e571c17ca238c8-2-procedure-service-0-1",
                       "source-pps-3435e20c0d4eb40f-2-layout-body-0-1"
                     ],
                     "id": "clinic-source-unit-pps-e8e571c17ca238c8-2",
-                    "mediaElementId": "source-image-pps-image-2ef8549c38aff917-4-layout-0-1"
+                    "mediaElementId": "source-image-pps-image-3750c5be68fd6448-5-layout-0-1"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-3750c5be68fd6448-5-layout-0-2",
+                      "source-image-pps-image-f3410b354a26a091-6-layout-0-2",
                       "source-pps-546ed8d7ba236e7a-3-procedure-service-0-2"
                     ],
                     "id": "clinic-source-unit-pps-546ed8d7ba236e7a-3",
-                    "mediaElementId": "source-image-pps-image-3750c5be68fd6448-5-layout-0-2"
+                    "mediaElementId": "source-image-pps-image-f3410b354a26a091-6-layout-0-2"
                   },
                   {
                     "elementIds": [
-                      "source-image-pps-image-f3410b354a26a091-6-layout-0-3",
+                      "source-image-pps-image-9cbdc4d72e6ece4e-7-layout-0-3",
                       "source-pps-eb2a0caa160e3e28-4-procedure-service-0-3"
                     ],
                     "id": "clinic-source-unit-pps-eb2a0caa160e3e28-4",
-                    "mediaElementId": "source-image-pps-image-f3410b354a26a091-6-layout-0-3"
+                    "mediaElementId": "source-image-pps-image-9cbdc4d72e6ece4e-7-layout-0-3"
                   },
                   {
                     "elementIds": [
@@ -74522,369 +73680,6 @@
           "title": "General Dentistry"
         },
         {
-          "id": "clinic-about",
-          "sections": [
-            {
-              "background": {
-                "color": "#FFFFFF",
-                "image": {
-                  "overlayColor": "#FFFFFF",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/dr-1-scaled.webp"
-                }
-              },
-              "clinicHeroLayout": {
-                "mode": "split",
-                "reason": "no measured dimensions",
-                "version": 1
-              },
-              "elements": [
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 48,
-                    "w": 604.8,
-                    "x": 86.4,
-                    "y": 198
-                  },
-                  "id": "source-pps-45925aad26d13539-0-hero-title",
-                  "kind": "text",
-                  "style": {
-                    "align": "left",
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 35.2512,
-                    "fontWeight": 600,
-                    "lineHeight": 1.35
-                  },
-                  "text": "Dental 360",
-                  "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 111,
-                    "w": 604.8,
-                    "x": 86.4,
-                    "y": 259.3328
-                  },
-                  "id": "source-pps-82e82120c659a33a-0-hero-sub",
-                  "kind": "text",
-                  "style": {
-                    "align": "left",
-                    "color": "#111318",
-                    "fontFamily": "body",
-                    "fontSize": 20.4,
-                    "fontWeight": 400,
-                    "lineHeight": 1.7
-                  },
-                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
-                  "z": 2
-                }
-              ],
-              "height": 872,
-              "heroLayout": {
-                "bands": {
-                  "compact": {
-                    "align": "start",
-                    "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 35.2512,
-                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
-                    },
-                    "frames": {
-                      "source-pps-45925aad26d13539-0-hero-title": {
-                        "h": 48,
-                        "w": 399.36,
-                        "x": 46.08,
-                        "y": 144
-                      },
-                      "source-pps-82e82120c659a33a-0-hero-sub": {
-                        "h": 184,
-                        "w": 399.36,
-                        "x": 46.08,
-                        "y": 205.3328
-                      }
-                    },
-                    "mediaFrame": {
-                      "h": 307.2,
-                      "w": 245.76,
-                      "x": 476.16,
-                      "y": 100.8
-                    },
-                    "sectionHeight": 560,
-                    "width": 768
-                  },
-                  "mobile": {
-                    "align": "start",
-                    "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 24.48,
-                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
-                    },
-                    "frames": {
-                      "source-pps-45925aad26d13539-0-hero-title": {
-                        "h": 34,
-                        "w": 343.2,
-                        "x": 23.4,
-                        "y": 56
-                      },
-                      "source-pps-82e82120c659a33a-0-hero-sub": {
-                        "h": 184,
-                        "w": 343.2,
-                        "x": 23.4,
-                        "y": 103.3328
-                      }
-                    },
-                    "mediaFrame": {
-                      "h": 257.4,
-                      "w": 343.2,
-                      "x": 23.4,
-                      "y": 313.9984
-                    },
-                    "sectionHeight": 615,
-                    "width": 390
-                  },
-                  "wide": {
-                    "align": "start",
-                    "fontSizes": {
-                      "source-pps-45925aad26d13539-0-hero-title": 35.2512,
-                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4
-                    },
-                    "frames": {
-                      "source-pps-45925aad26d13539-0-hero-title": {
-                        "h": 48,
-                        "w": 604.8,
-                        "x": 86.4,
-                        "y": 198
-                      },
-                      "source-pps-82e82120c659a33a-0-hero-sub": {
-                        "h": 111,
-                        "w": 604.8,
-                        "x": 86.4,
-                        "y": 259.3328
-                      }
-                    },
-                    "mediaFrame": {
-                      "h": 756,
-                      "w": 604.8,
-                      "x": 748.8,
-                      "y": 72
-                    },
-                    "sectionHeight": 872,
-                    "width": 1440
-                  }
-                },
-                "catalogVersion": 1,
-                "mediaKind": "image",
-                "mediaSlotRole": "referential-figure",
-                "requestedId": "hero.split-left",
-                "resolvedId": "hero.split-left",
-                "scrim": "none"
-              },
-              "id": "clinic-about-hero",
-              "layout": "canvas",
-              "name": "Introduction",
-              "surfaceTone": "base",
-              "type": "hero"
-            },
-            {
-              "background": {
-                "color": "#FFFFFF"
-              },
-              "elements": [
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "us-demo-providers-layout-title",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 48,
-                    "fontWeight": 600,
-                    "lineHeight": 1.2
-                  },
-                  "text": "Meet the Doctor",
-                  "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-pps-82e82120c659a33a-0-provider-bio",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 22,
-                    "fontWeight": 600,
-                    "lineHeight": 1.35
-                  },
-                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
-                  "z": 2
-                },
-                {
-                  "alt": "",
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media",
-                  "kind": "image",
-                  "src": "https://dental360grp.com/wp-content/uploads/2025/12/dr-1-scaled.webp",
-                  "style": {
-                    "borderRadius": 4,
-                    "objectFit": "cover",
-                    "shadow": false
-                  },
-                  "z": 1
-                }
-              ],
-              "height": 781,
-              "id": "us-demo-providers",
-              "layout": "canvas",
-              "name": "Meet the Doctor",
-              "sectionLayout": {
-                "bands": {
-                  "compact": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 35.2512
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 362.88,
-                        "w": 290.304,
-                        "x": 439.296,
-                        "y": 57.6
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 123,
-                        "w": 359.424,
-                        "x": 38.4,
-                        "y": 132.2656
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 48,
-                        "w": 359.424,
-                        "x": 38.4,
-                        "y": 57.6
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 464,
-                    "width": 768
-                  },
-                  "mobile": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 24.48
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 263.25,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 42
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 153,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 392.5812
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 34,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 331.9156
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 589,
-                    "width": 390
-                  },
-                  "wide": {
-                    "fontSizes": {
-                      "source-pps-82e82120c659a33a-0-provider-bio": 17,
-                      "us-demo-providers-layout-title": 35.2512
-                    },
-                    "frames": {
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media": {
-                        "h": 665.28,
-                        "w": 532.224,
-                        "x": 821.376,
-                        "y": 72
-                      },
-                      "source-pps-82e82120c659a33a-0-provider-bio": {
-                        "h": 92,
-                        "w": 658.944,
-                        "x": 86.4,
-                        "y": 146.6656
-                      },
-                      "us-demo-providers-layout-title": {
-                        "h": 48,
-                        "w": 658.944,
-                        "x": 86.4,
-                        "y": 72
-                      }
-                    },
-                    "itemOrder": [
-                      "us-demo-providers-about"
-                    ],
-                    "sectionHeight": 781,
-                    "width": 1440
-                  }
-                },
-                "catalogVersion": 1,
-                "enhancement": "none",
-                "items": [
-                  {
-                    "elementIds": [
-                      "source-pps-82e82120c659a33a-0-provider-bio",
-                      "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media"
-                    ],
-                    "id": "us-demo-providers-about",
-                    "mediaElementId": "source-image-pps-image-cd8d7aa4dc5fef4c-0-about-media"
-                  }
-                ],
-                "kind": "about",
-                "mediaRole": "referential-figure",
-                "requestedId": "about.split-left",
-                "resolvedId": "about.split-left"
-              },
-              "surfaceTone": "base",
-              "type": "about"
-            }
-          ],
-          "slug": "about",
-          "title": "About"
-        },
-        {
           "id": "clinic-contact",
           "sections": [
             {
@@ -74923,6 +73718,29 @@
                   },
                   "text": "3435 W. Irving Park Rd, Chicago, IL 60618",
                   "z": 2
+                },
+                {
+                  "entrance": {
+                    "effect": "none"
+                  },
+                  "frame": {
+                    "h": 111,
+                    "w": 604.8,
+                    "x": 86.4,
+                    "y": 307.3328
+                  },
+                  "id": "source-pps-82e82120c659a33a-0-hero-sub",
+                  "kind": "text",
+                  "style": {
+                    "align": "left",
+                    "color": "#111318",
+                    "fontFamily": "body",
+                    "fontSize": 20.4,
+                    "fontWeight": 400,
+                    "lineHeight": 1.7
+                  },
+                  "text": "Learn about Dental 360 USA & our commitment to providing high-quality dental care. We offer a range of services & treatments to meet all your dental needs.",
+                  "z": 2
                 }
               ],
               "height": 872,
@@ -74931,9 +73749,16 @@
                   "compact": {
                     "align": "start",
                     "fontSizes": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4,
                       "source-pps-978d29d360f576c4-0-hero-title": 35.2512
                     },
                     "frames": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 184,
+                        "w": 399.36,
+                        "x": 46.08,
+                        "y": 300.3328
+                      },
                       "source-pps-978d29d360f576c4-0-hero-title": {
                         "h": 143,
                         "w": 399.36,
@@ -74953,9 +73778,16 @@
                   "mobile": {
                     "align": "start",
                     "fontSizes": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4,
                       "source-pps-978d29d360f576c4-0-hero-title": 24.48
                     },
                     "frames": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 184,
+                        "w": 343.2,
+                        "x": 23.4,
+                        "y": 136.3328
+                      },
                       "source-pps-978d29d360f576c4-0-hero-title": {
                         "h": 67,
                         "w": 343.2,
@@ -74967,17 +73799,24 @@
                       "h": 257.4,
                       "w": 343.2,
                       "x": 23.4,
-                      "y": 149.6656
+                      "y": 346.9984
                     },
-                    "sectionHeight": 520,
+                    "sectionHeight": 648,
                     "width": 390
                   },
                   "wide": {
                     "align": "start",
                     "fontSizes": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": 20.4,
                       "source-pps-978d29d360f576c4-0-hero-title": 35.2512
                     },
                     "frames": {
+                      "source-pps-82e82120c659a33a-0-hero-sub": {
+                        "h": 111,
+                        "w": 604.8,
+                        "x": 86.4,
+                        "y": 307.3328
+                      },
                       "source-pps-978d29d360f576c4-0-hero-title": {
                         "h": 96,
                         "w": 604.8,
@@ -75597,7 +74436,7 @@
       ],
       "publicContact": {
         "address": "3435 W. Irving Park Rd, Chicago, IL 60618",
-        "phone": "+1 773-588-8200",
+        "phone": "(773) 588-8200",
         "version": 1
       },
       "theme": {
@@ -75718,7 +74557,7 @@
       },
       "version": 2
     },
-    "sha256": "f4c531e30cd4d6cc24f0c1f5bf4cf5888d289db93ee7dcf95fae21f1487085a3"
+    "sha256": "66e70d9bb27dc948d6a88493c7ae1066839b497e90b47575e160544f81255453"
   },
   {
     "fixture": "iddental",
@@ -75752,10 +74591,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -75880,10 +74719,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -76057,10 +74896,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -76239,10 +75078,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -76371,10 +75210,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -76543,10 +75382,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -76725,10 +75564,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -76877,10 +75716,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -76999,10 +75838,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -77171,10 +76010,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -77353,10 +76192,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -77505,10 +76344,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -112203,7 +111042,7 @@
       ],
       "publicContact": {
         "address": "3663 W 6th St STE 300 Los Angeles, CA 90020",
-        "phone": "2133521080",
+        "phone": "(213) 352-1080",
         "version": 1
       },
       "theme": {
@@ -112324,7 +111163,7 @@
       },
       "version": 2
     },
-    "sha256": "bee6a6d8471b6b22f3c4f3926bfd5be6f4d4f5a3dd5c913988d4358fef012f2f"
+    "sha256": "d1efecd0eaa75b04dc817eb84213ffad5a3ccd5501f3c2ed647b0fd5b79c089a"
   },
   {
     "fixture": "iddental",
@@ -112358,10 +111197,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -112486,10 +111325,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -112663,10 +111502,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -112845,10 +111684,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -112977,10 +111816,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -113149,10 +111988,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -113331,10 +112170,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -113483,10 +112322,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -113605,10 +112444,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -113777,10 +112616,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -113959,10 +112798,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -114111,10 +112950,10 @@
               "en"
             ],
             "contactType": "customer service",
-            "telephone": "2133521080"
+            "telephone": "(213) 352-1080"
           },
           "name": "ID Dental Implant Center",
-          "telephone": "2133521080",
+          "telephone": "(213) 352-1080",
           "url": "https://golden.invalid"
         },
         {
@@ -149339,7 +148178,7 @@
       ],
       "publicContact": {
         "address": "3663 W 6th St STE 300 Los Angeles, CA 90020",
-        "phone": "2133521080",
+        "phone": "(213) 352-1080",
         "version": 1
       },
       "theme": {
@@ -149460,6 +148299,6 @@
       },
       "version": 2
     },
-    "sha256": "e8e47b26c263f822eaa8e678aeb7455a2b61aa4653bccf24ce908928ed234414"
+    "sha256": "dd0755cb478726a0e9294c98d6fed69932da069a9d791ffa4fcad113b24254dd"
   }
 ]

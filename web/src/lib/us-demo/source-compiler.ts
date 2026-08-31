@@ -215,6 +215,31 @@ function clinicMasterPinForArtifact(
 }
 
 /**
+ * ONE RENDERING OF A US TELEPHONE NUMBER, WHEREVER THE PRACTICE PRINTS IT.
+ *
+ * `publicContact` is the display contract — the utility strip, the ledger micro-bar, the
+ * `telephone` in the LocalBusiness node. It is not a source block, so it carries no verbatim
+ * obligation, and it was reproducing whatever shape the crawl found: Forefront's structured data
+ * says "(918) 664-6845" and Kings Park's says "7033233910", so the same strip printed a phone
+ * number in one demo and ten digits in the next. Nine corpora publish six different renderings of
+ * the same ten digits.
+ *
+ * Normalised only where the digits are unambiguously a US number — ten digits, or eleven behind a
+ * leading 1. Anything else (an extension, a short code, a number that is not a number) is returned
+ * exactly as the practice wrote it, because a rule that cannot read it must not rewrite it. The
+ * `phone` SOURCE BLOCK is untouched and still carries the practice's own characters.
+ */
+export function usDisplayPhone(value: string | undefined): string | undefined {
+  const raw = value?.trim();
+  if (!raw) return raw;
+  if (/[a-z]/iu.test(raw)) return raw;
+  const digits = raw.replace(/\D/gu, '');
+  const national = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
+  if (national.length !== 10) return raw;
+  return `(${national.slice(0, 3)}) ${national.slice(3, 6)}-${national.slice(6)}`;
+}
+
+/**
  * Strict source-only compiler for a US medical outreach preview.
  * It neither translates nor asks an LLM to write copy; every factual canvas string points to an
  * immutable public-source block linked through the crawl artifact.
@@ -279,7 +304,7 @@ function compileUsMedicalDemoProfile(
     fontSelection?.locale === 'en-US' ? fontSelection : null,
   );
   const introduction = curated.accepted.find((block) => block.kind === 'introduction');
-  const phone = curated.accepted.find((block) => block.kind === 'phone')?.text;
+  const phone = usDisplayPhone(curated.accepted.find((block) => block.kind === 'phone')?.text);
   const address = curated.accepted.find((block) => block.kind === 'address')?.text;
   const configWithoutStock: SiteConfig = {
     version: 2,

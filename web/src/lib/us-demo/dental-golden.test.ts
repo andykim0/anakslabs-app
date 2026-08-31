@@ -64,6 +64,39 @@ import {
  * text left any fixture that was not on this list. Legitimate because every removal is a menu or
  * a sentence fragment the practice never wrote as a sentence, and every addition is that
  * practice's own prose from its own page.
+ *
+ * CAPTURE 4 — the five defects a second real issuance found (Kings Park, Forefront). Four of the
+ * five are invisible to this corpus by construction: no fixture prints a foreign practice's file,
+ * an education mark, a repeated ZIP or an SEO geo qualifier in its <title>. The two that reach
+ * dental are the phone DISPLAY contract and two rules about what a section may claim.
+ *
+ * Stated expectation before regen, per fixture and per path — anything else is a stop:
+ *
+ *   cameods    ONE path, both modes: `$.config.pages[9].showInNav: undefined -> false`. Its
+ *              nav printed "Scaling and Root Planing" and "Scaling And Root Planing", two
+ *              destinations a reader cannot tell apart, because the label resolver's last resort
+ *              was `?? page.title` — which hands back the string that already collided. The page
+ *              is untouched; it leaves the bar. `publicContact.phone` does NOT move: cameods
+ *              already publishes "(630) 425-4488", which is what the display rule produces.
+ *   dental360  Loses its About PAGE (`$.config.pages: length 10 -> 9`) and, with it, the stock
+ *              asset that page's hero was holding (`$.config.assetRefs`). `/about-us/` publishes
+ *              one candidate biography — "Learn about Dental 360 USA & our commitment to
+ *              providing high-quality dental care." — which names no clinician, and the page
+ *              contributes no `provider_name`, so it is no longer a `provider_bio` and there is
+ *              no provider section for the About page to exist for. The sentence is not lost: it
+ *              is now an `introduction` (census provider_bio 1 -> 0, introduction 0 -> 1). Phone
+ *              "+1 773-588-8200" -> "(773) 588-8200".
+ *   iddental   ONE path, both modes: `$.config.publicContact.phone: "2133521080" ->
+ *              "(213) 352-1080"`. Nothing else: it has no provider section to lose, no nav
+ *              collision, and its `phone` SOURCE BLOCK still reads "2133521080".
+ *
+ * No fixture may change `deliverable` or gain a delivery blocker, and no fixture may lose a
+ * photograph: the new image rules match 2 files in this corpus and both are on Kings Park.
+ *
+ * Found exactly that: 6 of 6 moved, every reported path was on this list, and no path that is not
+ * on it moved. Legitimate because each movement is a claim the demo was making that its source
+ * does not support — a nav entry that repeats another, a doctor section with no doctor in it, and
+ * ten digits where a phone number belongs.
  */
 describe('dental output is byte-identical across the specialty parameterisation', () => {
   const golden = readDentalGolden();
