@@ -35,6 +35,35 @@ import {
  * copy the practice itself published being restored to its own demo, and because the two
  * fixtures with no occurrence of any affected term did not move by a single byte — which is the
  * evidence that the change is scoped to what it claimed to touch.
+ *
+ * CAPTURE 3 — the heading/body boundary. `sourceHeadingBodyPairs` paired a heading with the tail
+ * of any longer run that merely contained it, so a heading nested in a page title or in a longer
+ * heading shipped that run's leftover as a service card. The fix filters WHICH OCCURRENCE may be
+ * paired; the boundary set that ends a body is untouched.
+ *
+ * Stated expectation before regen: ALL SIX entries move, because every one of the three fixtures
+ * loses at least one block and the render mode does not change extraction. Enumerated per fixture,
+ * from the block census over all eight corpora:
+ *
+ *   cameods    192 -> 184 blocks. 8 lost, 0 gained, every one a nav-menu dump on a
+ *              /periodontics/ or /endodontic-treatment/ page ("LANAP® Periodontal Treatment Dental
+ *              Implants Endodontic Procedures Cracked Teeth…"). These won the pairing only because
+ *              the boundary-aligned occurrence was contaminated; with the contaminated one gone
+ *              the menu is rejected as a body in its own right.
+ *   dental360  110 -> 107 blocks. 5 lost, 2 gained. Four are the "Services Include…" tail of
+ *              "Our <X> Dentistry Services Include" — the exact defect — and the fifth,
+ *              "for Teens & Adults We offer a full range of solutions…", is replaced by the
+ *              orthodontics page's own paragraph. The second gain is a provider_bio from
+ *              /about-us/, which the widened provider-path predicate now reads.
+ *   iddental   565 -> 567 blocks. 2 lost, 10 gained. The lost pair is the one-character fragment
+ *              "s" (from "Implant-Supported Bridge" matched inside "…Bridges") and the over-long
+ *              glued body under it; the gains are that page's own paragraph and its seven benefit
+ *              list items, plus Dr. Nam's biography composed from /about/dr-nam.
+ *
+ * Found exactly that: 6 of 6 moved, each fixture's block delta matched the number above, and no
+ * text left any fixture that was not on this list. Legitimate because every removal is a menu or
+ * a sentence fragment the practice never wrote as a sentence, and every addition is that
+ * practice's own prose from its own page.
  */
 describe('dental output is byte-identical across the specialty parameterisation', () => {
   const golden = readDentalGolden();

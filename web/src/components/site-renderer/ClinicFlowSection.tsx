@@ -424,6 +424,40 @@ export const CLINIC_FLOW_CSS = `
 }
 `
 /**
+ * GALLERY TILE BACKDROP — what shows through a picture that is not fully opaque.
+ *
+ * `ImageContent` paints every image's own box with `surfaceSubtle` as an INLINE style, so on a
+ * light theme the backdrop is white. That is invisible under a photograph and glaring under a
+ * logo or a wedge mark: one measured tile is an alpha-masked PNG that is 29.3% transparent, and
+ * the white read as a blown-out panel rather than as a picture on a surface.
+ *
+ * Only an inline style can be beaten by `!important`, which is why this is written as one, and it
+ * is scoped exactly like the crop anchor above — clinic master, en-US, gallery media only. Hero
+ * media, procedure media and every KR tenant gallery keep the paint they have.
+ *
+ * The value is a variable each design language sets from ITS OWN surface family, defaulting to the
+ * section's surface tinted 6% toward the section's own text. Nothing here is a new colour: the
+ * default cannot leave the section's own two tokens, and each language's override names tokens it
+ * already draws its rules and cards with.
+ *
+ * NO AA IMPACT IN ANY LANGUAGE. This paints the inside of [data-clinic-flow-media], which contains
+ * one <img> and nothing else — the tile caption is [data-clinic-flow-item-copy], a sibling box
+ * outside it, in all three languages. No text is rendered against this surface, so no contrast
+ * pair changes. Verified against the marquee, ledger and atelier invariant suites.
+ */
++ `
+.anaks-site[data-clinic-master]:not([data-ko-clinic]) [data-clinic-flow-section^="gallery."] [data-clinic-flow-media] > img {
+  background: var(
+    --clinic-gallery-tile-backdrop,
+    color-mix(
+      in srgb,
+      var(--clinic-section-text, var(--clinic-text)) 6%,
+      var(--clinic-section-surface, var(--clinic-surface))
+    )
+  ) !important;
+}
+`
+/**
  * OPERATOR SOURCING NOTE — a caption, never body copy.
  *
  * CLINIC_STOCK_DISCLOSURE ("Licensed sample imagery · replaced with your practice photography")

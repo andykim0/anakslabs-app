@@ -12,7 +12,9 @@ import { US_MEDICAL_OUTREACH_PROFILE } from '@/lib/clinic-engine/profiles';
 import { sourceTextIsOperationalBlob } from '@/lib/clinic-engine/source-text-gates';
 import {
   sourceHeadingIsChromeSectionLabel,
+  sourceLastSentenceEnd,
   sourceProseWithoutTrailingChrome,
+  sourceTextIsKeywordRun,
   sourceTextIsSiteChrome,
 } from './source-noise';
 export { sourceTextIsOperationalBlob } from '@/lib/clinic-engine/source-text-gates';
@@ -21,7 +23,42 @@ const PATIENT_CONTENT_RE =
   /\b(?:testimonial|patient stor(?:y|ies)|before\s*(?:and|&)\s*after|review(?:s)?|case result)\b/iu;
 const PORTAL_OR_BOOKING_RE =
   /(?:patientportal|patient-portal|portal|book|booking|appointment-request|schedule-online)/iu;
-const PROVIDER_PATH_RE = /\/(?:about|doctor|doctors|provider|providers|team|our-team)(?:\/|$)/iu;
+/**
+ * A whole path SEGMENT that names the page where a practice introduces its people.
+ *
+ * The predicate this replaces was `/(?:about|doctor|doctors|provider|providers|team|our-team)(?:\/|$)/`,
+ * which required the word to sit immediately after a slash. `/meet-our-doctor/` therefore matched
+ * nothing, and one practice's entire biography — DDS from USC, licensed in California in 1996,
+ * almost thirty years in Los Angeles, gold-level Invisalign for over twenty, five society
+ * memberships — was never read at all. Its demo carried the two sentences of `/about/`'s meta
+ * description instead.
+ *
+ * ANCHORED TO THE WHOLE SEGMENT, and matched at any depth. Anchoring is what keeps a blog post out:
+ * a post at `/meet-our-new-scanner/` is one segment that this pattern does not match, whereas an
+ * unanchored `doctor` would have claimed `/ask-your-doctor-about-invisalign/`. Depth is what lets
+ * `/team/dr-nick-mavrostomos/` and `/about/dr-nam` keep working, which the old pattern already did.
+ *
+ * Measured over all eight corpora (287 distinct paths): gains `/meet-our-doctor/` and
+ * `/meet-our-team/` on Brentwood, `/about-us/`, `/about-us/dr-apa/` and
+ * `/about-us/philanthropy-partnerships/` on APA, `/about-us/` on dental360, and loses nothing that
+ * the old predicate matched. No blog post, article or category page is claimed on any corpus.
+ *
+ * `dr-<name>` is deliberately NOT a segment of its own: every such page in the corpora already
+ * matches through its `team`/`about` parent, and Brentwood files its blog at the site root, where
+ * a `dr-` slug on a post would have no tree to be excluded by.
+ */
+const PROVIDER_SEGMENT_RE =
+  /^(?:about|about-us|meet-(?:our-|the-|your-)?(?:doctors?|dentists?|providers?|physicians?|surgeons?|team|staff|us)|our-(?:doctors?|dentists?|providers?|physicians?|surgeons?|team|staff)|doctors?|providers?|physicians?|team|our-team|staff)$/iu;
+/** Trees whose pages are posts about the practice, never the page that introduces its people. */
+const NON_PROVIDER_TREE_RE =
+  /\/(?:blog|news|press|category|tag|article|articles|post|posts|buzz)(?:\/|$)/iu;
+
+function pathIntroducesProviders(pathname: string): boolean {
+  if (NON_PROVIDER_TREE_RE.test(pathname)) return false;
+  return pathname.split('/').some((segment) => (
+    segment.length > 0 && PROVIDER_SEGMENT_RE.test(segment)
+  ));
+}
 const SERVICE_PATH_RE = /\/(?:service|services|treatment|treatments|procedure|procedures)(?:\/|$)/iu;
 /**
  * Most practices never put the word "service" in a treatment page's URL. This clinic files its
@@ -308,6 +345,62 @@ function splitVerbatimBody(page: CrawlPageArtifact, value: string): {
 }
 
 /**
+ * Whether a heading occurrence is the START of what the page published, or a fragment of a longer
+ * run that merely contains those characters.
+ *
+ * `indexOf` has no notion of a boundary, so a heading that is a substring of a longer string the
+ * page also published was paired with that string's LEFTOVER TAIL. Three shapes of this were
+ * measured on one practice alone: "Teeth Whitening" inside the page title
+ * "Teeth Whitening in Brentwood, LA in Los Angeles, CA | Brentwood Dentistry" yielded the body
+ * "in Brentwood, LA in Los Angeles, CA |"; "Implant Restoration" inside the longer heading
+ * "The Role of Implant Restoration in a Smile Makeover" yielded a body starting mid-sentence; and
+ * "Cosmetic Dentistry" inside "Cosmetic Dentistry at Brentwood Dentistry" yielded a body that
+ * repeated its own lead. 54 such pairs exist across the eight measured corpora.
+ *
+ * Two tests, both about the occurrence rather than the text it produced:
+ *
+ * - CONTAINMENT. The page's own headings and its title are the runs it published as single
+ *   strings. An occurrence sitting inside one of them, without consuming it, is a fragment. This
+ *   is the "start of a block" test in the only form the artifact can answer: crawl text is DOM
+ *   nodes joined by a single space, with no newlines (0 of 298 pages carry one) and no reliable
+ *   terminal punctuation before a heading node — requiring one was measured to reject 47% of APA's
+ *   legitimate pairs, because prose nodes routinely end without a full stop.
+ * - CONTINUATION. A lowercase letter or a joining punctuation mark where the body would start
+ *   means the run kept going through the match, whether it cut a token in half ("Schedule a
+ *   Consult" inside "Schedule a Consultation", "Location" inside "Locations") or carried on into
+ *   the next clause ("Teeth Whitening" + " in Brentwood, LA…").
+ *
+ * A suffix match (`end` exactly at the container's end) is deliberately allowed: it produces the
+ * same body as the longer heading, which is a duplicate rather than a corruption, and rejecting it
+ * would need a left-hand test that the glued crawl text cannot support.
+ *
+ * This is a filter on which OCCURRENCE may be paired. It never removes a heading from
+ * `allHeadingStarts`, so no body grows past a boundary it used to stop at.
+ */
+function headingOccurrenceIsBoundary(input: {
+  pageText: string;
+  heading: string;
+  start: number;
+  containerStarts: (run: string) => readonly number[];
+  containers: readonly string[];
+}): boolean {
+  const end = input.start + input.heading.length;
+  /**
+   * The body must not open mid-word or mid-sentence. A lowercase letter after the separators the
+   * body trimmer strips means the run kept going ("Teeth Whitening" + " in Brentwood, LA…"), and a
+   * comma or a closing bracket means the same thing with punctuation instead of a word
+   * ("Dr. Ismael Khouly" + ", DDS, MS, PhD is an internationally recognised leader…").
+   */
+  if (/^[\s:|·–—-]*[\p{Ll},;)\]]/u.test(input.pageText.slice(end, end + 8))) return false;
+  return !input.containers.some((run) => (
+    run.length > input.heading.length
+    && input.containerStarts(run).some(
+      (runStart) => runStart <= input.start && end < runStart + run.length,
+    )
+  ));
+}
+
+/**
  * The crawl artifact intentionally keeps no source HTML. Pair each captured heading with the
  * verbatim normalized text between that heading and the next one. Repeated navigation headings
  * are resolved by choosing the occurrence with the largest substantive body, so nav dumps lose
@@ -315,6 +408,17 @@ function splitVerbatimBody(page: CrawlPageArtifact, value: string): {
  */
 export function sourceHeadingBodyPairs(page: CrawlPageArtifact): HeadingBodyPair[] {
   const pageText = page.text ?? '';
+  const containers = [...new Set(
+    [...page.headings, page.title].map(clean).filter((value): value is string => Boolean(value)),
+  )];
+  const containerStartCache = new Map<string, readonly number[]>();
+  const containerStarts = (run: string): readonly number[] => {
+    const cached = containerStartCache.get(run);
+    if (cached) return cached;
+    const found = occurrences(pageText, run);
+    containerStartCache.set(run, found);
+    return found;
+  };
   const headings = page.headings
     .map((heading, headingOrdinal) => ({
       heading: clean(heading),
@@ -336,13 +440,36 @@ export function sourceHeadingBodyPairs(page: CrawlPageArtifact): HeadingBodyPair
   return headings.filter(
     (entry) => !sourceHeadingIsChromeSectionLabel(entry.heading),
   ).map((entry) => {
-    const starts = occurrences(pageText, entry.heading);
+    const starts = occurrences(pageText, entry.heading).filter((start) => (
+      headingOccurrenceIsBoundary({
+        pageText,
+        heading: entry.heading,
+        start,
+        containerStarts,
+        containers,
+      })
+    ));
     const candidates = starts.map((start) => {
       const bodyStart = start + entry.heading.length;
       const bodyEnd = allHeadingStarts.find((candidate) => candidate >= bodyStart)
         ?? pageText.length;
       const split = splitVerbatimBody(page, pageText.slice(bodyStart, bodyEnd));
       const body = boundedVerbatimBody(split.body);
+      /**
+       * A nav dump is not a body. The docstring above says nav occurrences "lose deterministically
+       * to the actual content occurrence" — which was true only while a contaminated content
+       * occurrence existed to beat them. Once the boundary filter removes that occurrence, the
+       * menu is the last candidate standing and wins by default: dental360's "General Dentistry"
+       * card went from a truncated stub to "Cosmetic Dentistry Restorative Dentistry Oral Surgery
+       * Pediatric Dentistry Orthodontics Career About Us Contact Us".
+       *
+       * `sourceTextIsKeywordRun` is the menu test this file's trimmer already applies to a trailing
+       * run, used here on a whole candidate body. That is narrower than the whole-block Title Case
+       * rule `source-noise` measured and rejected: this never sees a heading, a provider biography
+       * or a structured description — only the text a heading was paired with — and a paragraph
+       * with one sentence in it is not a keyword run.
+       */
+      if (body && sourceTextIsKeywordRun(body)) return undefined;
       return body ? { ...split, body } : undefined;
     }).filter((candidate): candidate is {
       body: string;
@@ -484,6 +611,71 @@ function addressFromPageText(text: string | undefined): string | undefined {
   return undefined;
 }
 
+/** How many of a provider page's pairs may become biographies. Four bios reach a demo at most. */
+const PROVIDER_BIO_PAIR_LIMIT = 4;
+/**
+ * A bio slot is a paragraph, not a page. Longer runs are cut back to whole sentences.
+ *
+ * 900 rather than something rounder because of what it buys on the practice this was measured
+ * against: it carries the degree, the licence year, the three decades, the advanced-restorative
+ * certifications and the twenty years of gold-level Invisalign, and stops at the finished sentence
+ * before the run that follows them — an unpunctuated glue of six society names ending in a
+ * magazine's "Best Aesthetic Dentist in LA", which is a superiority claim the demo screen would
+ * rewrite anyway. A shorter ceiling stopped at the third sentence; a longer one buys only that run.
+ */
+const PROVIDER_BIO_MAXIMUM = 900;
+/** Below this, and below two finished sentences, a run is a caption or a roster of links. */
+const PROVIDER_BIO_MINIMUM = 200;
+/**
+ * A paragraph that names a clinician. `Dr.` followed by a capital, or a post-nominal in either the
+ * plain or the dotted rendering a practice prints on a name plate ("NEDA NAIM D.D.S.").
+ */
+const PROVIDER_BIO_SUBJECT_RE =
+  /\bDr\.?\s+\p{Lu}|\b(?:DDS|DMD|BDS|MDS|MSD|FAGD|MAGD)\b|\b(?:D\.D\.S|D\.M\.D|M\.D)\.?/u;
+/**
+ * The LAST segment of a path whose subject is the practice's people.
+ *
+ * `pathIntroducesProviders` matches any segment so that a page nested under `/team/` or `/about/`
+ * keeps its provider treatment, which is what the old predicate did and what APA and ID Dental
+ * rely on. Composition needs the narrower question — is this page ABOUT the people, or a topic
+ * filed under the About tree — because the wider one made `/about/technology` contribute a Cone
+ * Beam CT paragraph as a biography and `/about-us/philanthropy-partnerships/` a donation
+ * announcement. Both are the practice's own writing; neither is anybody's biography.
+ *
+ * `dr-<name>` is safe HERE and not in the outer predicate: composition only ever runs on a page the
+ * outer predicate already accepted, so a root-level blog post with a `dr-` slug never reaches it.
+ */
+const PROVIDER_LEAF_SEGMENT_RE = /^dr-[\p{L}\d-]+$/iu;
+
+function pathIsAboutTheProviders(pathname: string): boolean {
+  const leaf = pathname.split('/').filter(Boolean).at(-1);
+  if (!leaf) return false;
+  return PROVIDER_SEGMENT_RE.test(leaf) || PROVIDER_LEAF_SEGMENT_RE.test(leaf);
+}
+
+/**
+ * A provider page's paragraph as a biography: about a person, at least a short paragraph of
+ * finished sentences, and cut back to whole sentences under the ceiling. Returns nothing for the
+ * office copy, the photo caption and the roster of colleague links that share these pages.
+ */
+function providerBiographyProse(value: string | undefined): string | undefined {
+  const text = clean(value);
+  if (!text || text.length < PROVIDER_BIO_MINIMUM) return undefined;
+  if (!PROVIDER_BIO_SUBJECT_RE.test(text)) return undefined;
+  const first = sourceLastSentenceEnd(text.slice(0, Math.floor(text.length / 2)));
+  if (first <= 0 || sourceLastSentenceEnd(text) <= first) return undefined;
+  if (text.length <= PROVIDER_BIO_MAXIMUM) return text;
+  const boundary = sourceLastSentenceEnd(text.slice(0, PROVIDER_BIO_MAXIMUM));
+  return boundary > 0 ? text.slice(0, boundary).trim() || undefined : undefined;
+}
+
+/** Whether the composed paragraph and the page's meta description are the same biography. */
+function biographyRepeatsDescription(bio: string, description: string | undefined): boolean {
+  const summary = clean(description);
+  if (!summary || summary.length < 60) return false;
+  return bio.includes(summary.slice(0, 60)) || summary.includes(bio.slice(0, 60));
+}
+
 function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   if (!safePage(page)) return [];
   const blocks: ProspectPublicSourceBlock[] = [];
@@ -538,8 +730,9 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
   );
 
   const url = new URL(page.url);
-  if (url.pathname === '/' || PROVIDER_PATH_RE.test(url.pathname)) {
-    const providerHeadings = PROVIDER_PATH_RE.test(url.pathname)
+  const introducesProviders = pathIntroducesProviders(url.pathname);
+  if (url.pathname === '/' || introducesProviders) {
+    const providerHeadings = introducesProviders
       ? page.headings
           .map(clean)
           .filter((value): value is string => Boolean(
@@ -568,8 +761,43 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
         page.headings.findIndex((heading) => clean(heading) === providerCredential),
       );
     }
+    /**
+     * The biography the practice actually published, ahead of the one it wrote for search engines.
+     *
+     * Until now `provider_bio` was `structured.description` and nothing else, so the About section
+     * of a demo was whatever fitted in a meta tag. Brentwood's read "Brentwood Dentistry is located
+     * in the heart of West Los Angeles. Dr. Neda Naim and her team do their utmost to ensure that
+     * you have a pleasant experience." while `/meet-our-doctor/` carried her degree, her licence
+     * year, her Invisalign standing and her society memberships — none of which the demo could
+     * reach, because that path was not a provider path.
+     *
+     * Composed from the page's own heading/body pairs and emitted BEFORE the description, because
+     * the meta description is a summary of the page and the page is the source. Only pairs that
+     * name a clinician qualify: an About page's office copy ("our treatment rooms are equipped
+     * with...") is a practice introduction, not a biography, and giving it the `provider_bio` kind
+     * would have let it crowd the doctor out of the four-slot provider list downstream.
+     *
+     * Each contribution is cut to whole sentences under a ceiling — half a sentence about a named
+     * person is worse than a shorter bio. Credential sentences are kept: a credential is a factual
+     * claim the practice attests to under the terms of service, and `medical-credential-claim` is
+     * an advisory rule, so it reaches the operator on `deliveryAdvisories` rather than being
+     * suppressed here.
+     */
+    if (introducesProviders && pathIsAboutTheProviders(url.pathname)) {
+      const description = page.structured.description ?? page.description;
+      sourceHeadingBodyPairs(page)
+        .filter((pair) => pair.body && !pair.heading.endsWith('?'))
+        .slice(0, PROVIDER_BIO_PAIR_LIMIT)
+        .forEach((pair) => {
+          const bio = providerBiographyProse(pair.body);
+          // The description of a one-doctor page is a summary OF this paragraph, not a second bio.
+          if (bio && !biographyRepeatsDescription(bio, description)) {
+            add('provider_bio', bio, 'text', pair.headingOrdinal);
+          }
+        });
+    }
     add(
-      PROVIDER_PATH_RE.test(url.pathname) ? 'provider_bio' : 'introduction',
+      introducesProviders ? 'provider_bio' : 'introduction',
       page.structured.description ?? page.description,
       page.structured.description ? 'structured.description' : 'description',
     );

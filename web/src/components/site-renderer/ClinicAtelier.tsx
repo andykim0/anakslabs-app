@@ -595,6 +595,8 @@ ${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-media] {
   aspect-ratio: 1;
   border: 0;
   border-radius: 0;
+  /* The board's rule tone over its own cream — a mounted print's mount, not a white hole. */
+  --clinic-gallery-tile-backdrop: color-mix(in srgb, var(--at-rule) 45%, var(--at-cream));
 }
 /*
   THE CONSTANT CAPTION BAND — Apparatus Studio's ruled "IN STOCK : LIGHTING" strip, at the board's

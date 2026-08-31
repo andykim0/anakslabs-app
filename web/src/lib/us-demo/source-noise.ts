@@ -135,6 +135,10 @@ const SCHEDULE_ROW_RE =
  * the Procedure Itself" are both keyword blobs by this test and both are the practice's own
  * headings, which is why the trimmer below only ever consults it after a real sentence has ended.
  */
+export function sourceTextIsKeywordRun(text: string): boolean {
+  return isKeywordRun(text);
+}
+
 function isKeywordRun(text: string): boolean {
   /**
    * The ellipsis counts as sentence punctuation here, which is not a nicety — it is the whole
@@ -151,6 +155,11 @@ function isKeywordRun(text: string): boolean {
   if (carrying.length < 4) return false;
   const capitalised = carrying.filter((word) => /^[^A-Za-z]*[A-Z]/u.test(word)).length;
   return capitalised / carrying.length >= 0.6;
+}
+
+/** The index just past the last `.`/`!`/`?` that ends a sentence rather than an abbreviation. */
+export function sourceLastSentenceEnd(text: string): number {
+  return lastSentenceEnd(text);
 }
 
 /** The index just past the last `.`/`!`/`?` that ends a sentence rather than an abbreviation. */

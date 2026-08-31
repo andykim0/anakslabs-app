@@ -579,6 +579,8 @@ ${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-media] {
   aspect-ratio: 16 / 9;
   border: 0;
   border-radius: 0;
+  /* The sheet's own rule tone over its own surface — the contact sheet's paper, not paper white. */
+  --clinic-gallery-tile-backdrop: color-mix(in srgb, var(--lg-rule) 55%, var(--lg-surface));
 }
 /*
   A caption band with nothing in it is a 12px strip of white under every tile. The served gallery

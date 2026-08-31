@@ -545,6 +545,8 @@ ${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-media] {
   aspect-ratio: 3 / 2;
   border: var(--mq-border) solid var(--mq-ink) !important;
   background: var(--mq-ink);
+  /* A transparent picture shows the tile's own ink, not the inline surfaceSubtle white. */
+  --clinic-gallery-tile-backdrop: var(--mq-ink);
   border-radius: var(--mq-tile-a) !important;
 }
 ${S} [data-clinic-flow-section^="gallery."] [data-clinic-flow-item]:nth-child(4n+2) [data-clinic-flow-media] { border-radius: var(--mq-tile-b) !important; }

@@ -266,10 +266,16 @@ describe('US-CONNECTORS D4 — published actions are provider-neutral and source
      * hero band, and the header stopped drawing a prospect's logo file. No action href, no
      * source string and no element structure in this fixture changed — the assertions above and
      * below this line are what verify that, and all of them still hold unedited.
+     *
+     * Moved a second time, deliberately: CLINIC_FLOW_CSS gained the gallery tile backdrop rule,
+     * which paints the inside of a gallery tile so a partially transparent picture does not sit on
+     * inline `surfaceSubtle` white. CSS text only — this fixture publishes no gallery section, so
+     * the rule matches nothing in this document and the movement is the stylesheet's own bytes.
+     * Every href, source string and element assertion in this test is unedited and still passes.
      */
     assert.equal(
       createHash('sha256').update(inlineWithoutActions).digest('hex'),
-      '3d416b99d1ef5d528511874906b67110b72dc0cedab12418310bc2a6c8bd5cea',
+      '180150dc7ad31377e186bf117868f2c4ac3699a33db3304167bf2596a3928826',
     );
   });
 });

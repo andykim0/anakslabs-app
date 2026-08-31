@@ -385,6 +385,17 @@ function nearestSentenceEnd(text: string): number {
 }
 
 /**
+ * Below this a card body is a fragment, not a sentence. The extractor's own floor for a paired
+ * body is 32 characters, which "in Brentwood, LA in Los Angeles, CA |" — 37 characters of title
+ * residue — cleared, and it shipped as the body of three service cards. The card slot is a
+ * paragraph, so it can ask for more than the extractor's minimum without touching it.
+ */
+const CARD_BODY_MINIMUM = 48;
+
+/** A trailing separator is a run that was cut, not a sentence that ended. */
+const CARD_BODY_DANGLING_TAIL_RE = /[|·•/\\,;:–—-]$/u;
+
+/**
  * The card body a source block may become: itself when it already reads as one, a shorter run of
  * its own whole sentences when it does not, and nothing at all when it was never prose.
  */
@@ -392,6 +403,16 @@ function clinicCardBody<T extends { text: string }>(block: T | undefined): T | u
   if (!block) return undefined;
   const text = block.text.trim();
   if (text.length === 0) return undefined;
+  /**
+   * Shape, checked before length so the reason is the shape. A body that opens on a lowercase
+   * letter is the back half of somebody else's sentence, and a body that closes on a separator is
+   * the front half of a run that kept going. Both are what a boundary-less heading match leaves
+   * behind, and neither is a sentence the practice wrote. This is a floor under the card slot, not
+   * a scrubber: it declines to print a fragment, it never repairs one.
+   */
+  if (/^\p{Ll}/u.test(text)) return undefined;
+  if (CARD_BODY_DANGLING_TAIL_RE.test(text)) return undefined;
+  if (text.length < CARD_BODY_MINIMUM) return undefined;
   if (isKeywordBlob(text)) return undefined;
   if (text.length <= CARD_BODY_TARGET) return block;
   const end = nearestSentenceEnd(text);
@@ -1228,7 +1249,10 @@ function sourcePhoneFromBlocks(
  * actual portraits, `Dr.-Neda-Naim.jpg` on `/` and `Dr.-Neda-Naim-1.jpg` on `/meet-our-doctor/`,
  * were never candidates: not a token miss (both match every provider predicate), not the dimension
  * gate (both clear it), not a reservation (nothing held them) — they simply sat on other pages,
- * and `/meet-our-doctor/` is not even a `PROVIDER_PATH_RE` match, so no bio is extracted there.
+ * and at the time `/meet-our-doctor/` was not a provider path at all, so no bio was extracted
+ * there for a photo to attach to. `pathIntroducesProviders` has since widened to reach it and the
+ * page now contributes its own biography, which makes the ladder below load-bearing rather than
+ * the only thing standing between this practice and a Facebook asset id.
  *
  * Rung 2 is `heroImageIsProviderPortrait`, the D1 filename person-predicate: `dr`, `dds`, `dmd`,
  * `doctor`, `headshot`, `portrait` in the filename, measured at 16 of 113 with zero false
