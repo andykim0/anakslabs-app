@@ -12,8 +12,8 @@ element-by-element capture of all seven committed corpora plus the stored Brentw
 with `designLanguage: 'marquee'`, the same call that issued the link now under review.
 
 Baseline before this branch: **2715 tests, 2715 pass, 0 fail.**
-With the code change and the golden not yet regenerated: **2749 tests, 2747 pass, 2 fail** — the 2
-golden entries below and nothing else. (34 of the 2749 are new; see *Tests added*.)
+With the code changes and the golden not yet regenerated: **2751 tests, 2747 pass, 4 fail** — the 4
+golden entries below and nothing else. (36 of the 2751 are new; see *Tests added*.)
 
 ---
 
@@ -23,16 +23,24 @@ golden entries below and nothing else. (34 of the 2749 are new; see *Tests added
 |---|---|
 | cameods outreach-safe | **none — byte-identical, same sha256** |
 | cameods preview-full | **none — byte-identical, same sha256** |
-| dental360 outreach-safe | **none — byte-identical, same sha256** |
-| dental360 preview-full | **none — byte-identical, same sha256** |
+| dental360 outreach-safe | one `directions` row VALUE and its element id, on the home page and on `/contact`: the fourth card stops repeating the third address and shows the next distinct location. `elements` length unchanged, `sourceReport` unchanged |
+| dental360 preview-full | the same |
 | iddental outreach-safe | `pages[0].sections[us-demo-contact].elements` 9 → 7 and `pages[11]` the same — one `Hours` label and its value, on the home page and on `/contact`; `sourceReport.usedBlocks` 375 → 374 |
 | iddental preview-full | the same three |
 
-Four of the six entries moving by zero bytes is the evidence that the change is scoped to what it
-claims. cameods publishes its schedule once, in JSON-LD (`structured.openingHours`, identical on
-all 20 pages), so it has exactly one candidate and the selector returns it unchanged. dental360
-publishes one footer line, also identical on all 20 pages. Neither can produce a second Hours card,
-and neither moves.
+cameods moving by zero bytes is not incidental. It publishes its schedule once, in JSON-LD
+(`structured.openingHours`, identical on all 20 pages) and exactly one phone and one address, so it
+has a single candidate of every kind and every selector on this branch returns it unchanged. Its
+silence is the evidence that both changes are scoped to duplication and touch nothing else.
+
+**Amendment, recorded rather than quietly folded in.** The first version of this document declared
+dental360 byte-identical and listed address deduplication under *Deliberately NOT in this branch*,
+on the stated ground that "no corpus produces a second one today". **That claim was false**, and the
+hours fix is what exposed it: with one of Brentwood's two Hours cards gone, a second Address card
+surfaced from under the four-row cap in `layout-sections.ts:738` —
+`11611 San Vicente Blvd., Ste L1, Los Angeles, CA 90049` beside the identical line without the comma
+after `Ste L1`. dental360 had the same defect and the same cap was hiding it. The rule is now in the
+branch and dental360 is a declared mover; see *Change 2*.
 
 iddental is the only dental fixture that publishes **two differently worded** schedules, so it is
 the only one that could move:
@@ -160,6 +168,39 @@ manufactured.
 
 ---
 
+## Change 2 — the practice's address, once per place
+
+`buildClinicDirectionsSection` labels a row from `block.kind` the same way it labels Hours, so every
+`address` block that reached it became its own `Address` card. The upstream dedupe key is
+`kind + exact text` (`source-extraction.ts:702`), which cannot see that a comma is not a second
+clinic.
+
+| fixture | address blocks extracted | the same place, worded differently |
+|---|---|---|
+| cameods | 1 | — |
+| iddental, apa, enamel, larkfield-derm, northbank-ortho | 1 each | — |
+| dental360 | 8 across 5 clinics | `3435 W. Irving Park Rd, Chicago, IL 60618` · `3435 W. Irving Park Rd Chicago, IL 60618` · `3435 W Irving Park Rd Chicago, IL 60618` |
+| brentwood | 2 | `11611 San Vicente Blvd., Ste L1, Los Angeles, CA 90049` · the same without the comma after `Ste L1` |
+
+**Fix.** `compiler.ts:230` keys phone and address on the text with punctuation and spacing
+normalised away (`[^a-z0-9]+` collapsed to a single space), and keeps the first of each key. Two
+addresses that name different places have different keys and both survive — which is why dental360
+keeps its five distinct clinics.
+
+Effect on the rendered `Location` section, both render modes:
+
+| fixture | before | after |
+|---|---|---|
+| cameods, iddental, apa, enamel, larkfield-derm, northbank-ortho | 1 Address card | unchanged |
+| **dental360** | `3435 W. Irving Park Rd, Chicago, IL 60618` **and** `3435 W. Irving Park Rd Chicago, IL 60618` — the same clinic twice | `3435 W. Irving Park Rd, Chicago, IL 60618` **and** `360 Berwyn LLC7039 W Roosevelt Rd, Berwyn, IL 60402` — two different clinics |
+| **brentwood** | 2 Address cards, one a punctuation variant of the other | 1 |
+
+dental360's four-row cap is still full, so it loses no card: the slot the duplicate occupied is
+taken by the next distinct location the practice publishes. The element count does not move, only
+the value in that row and its source-derived element id.
+
+---
+
 ## Tests added
 
 - `src/lib/us-demo/opening-hours.test.ts` (34 cases) — all seven committed corpora × both render
@@ -177,9 +218,10 @@ manufactured.
 - **Merging two renderings into a third.** The card prints what the practice published or nothing.
   A synthesised "Mon–Fri 8am–5pm, Sat–Sun closed" assembled from two partial sources would be a
   sentence no one on the practice's staff ever wrote.
-- **Deduping `phone` and `address`.** They are labelled from `block.kind` by the same code and could
-  duplicate the same way, but no corpus produces a second one today, so a rule for them would be
-  unfalsifiable on the evidence available.
+- **Collapsing two addresses that name different places.** The key is the normalised address, not
+  the block kind, precisely so a multi-location group keeps every location it publishes. dental360
+  is that case: it publishes eight address blocks across five clinics, and the branch removes only
+  the punctuation variants of one of them.
 - **iddental's glued footer.** `Thu: 9:30 AM – 6:00 PMSaturday: 9:00 AM` is missing a space in the
   practice's own markup. The reader now declines to guess at it and the complete rendering wins, so
   repairing the glue would change no output.

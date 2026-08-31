@@ -236,9 +236,25 @@ export function compilePremiumDentalMaster(input: {
    * never merges two renderings into a third that the practice never published.
    */
   const hours = selectSingleOpeningHours(blocks.filter((block) => block.kind === 'opening_hours'));
-  const location = blocks.filter((block) => (
-    ['phone', 'address'].includes(block.kind) || block === hours
-  ));
+  /**
+   * The same address twice is the same defect wearing a different label. Brentwood publishes
+   * `11611 San Vicente Blvd., Ste L1, Los Angeles, CA 90049` and the identical line without the
+   * comma after `Ste L1`; the upstream dedupe key is exact text, so both survived, and only the
+   * four-row cap kept the second one off the card stack while a duplicate Hours occupied a slot.
+   *
+   * This collapses renderings that differ ONLY in punctuation and spacing — never two addresses
+   * that name different places. A multi-location practice keeps every distinct location it
+   * publishes, which is why the key is the normalised address and not the block kind.
+   */
+  const seenLocation = new Set<string>();
+  const location = blocks.filter((block) => {
+    if (block === hours) return true;
+    if (!['phone', 'address'].includes(block.kind)) return false;
+    const key = `${block.kind}:${block.text.toLocaleLowerCase('en-US').replace(/[^a-z0-9]+/gu, ' ').trim()}`;
+    if (seenLocation.has(key)) return false;
+    seenLocation.add(key);
+    return true;
+  });
   const faqQuestions = blocks.filter((block) => block.kind === 'faq_question');
   const faqAnswers = blocks.filter((block) => block.kind === 'faq_answer');
   const result: Section[] = [

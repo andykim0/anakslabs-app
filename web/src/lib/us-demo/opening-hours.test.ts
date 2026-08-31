@@ -94,6 +94,44 @@ describe('one Hours card per compile, or none', () => {
   }
 });
 
+/**
+ * The same defect wearing a different label. A comma is not a second clinic — but a different
+ * street is, and a multi-location group must keep every location it publishes.
+ */
+describe('one Address card per place', () => {
+  test('a punctuation variant of the same address is not a second card', () => {
+    // dental360 publishes `3435 W. Irving Park Rd` three ways; before the fix the fourth
+    // directions row repeated the third.
+    const { config } = prepareUsMedicalPreview({
+      artifact: artifactFor('scripts/fixtures/us-demo-artifacts/t0-dental360.json'),
+      renderMode: 'outreach-safe',
+    });
+    for (const { page, texts } of directionsTexts(config)) {
+      const addresses = texts.filter((_, index) => texts[index - 1] === 'Address');
+      const normalised = addresses.map((a) => a.toLocaleLowerCase('en-US').replace(/[^a-z0-9]+/gu, ' ').trim());
+      assert.equal(
+        new Set(normalised).size,
+        normalised.length,
+        `${page}: the same address twice — ${JSON.stringify(addresses)}`,
+      );
+    }
+  });
+
+  test('a multi-location practice keeps its distinct locations', () => {
+    // The rule keys on the normalised address, not on the block kind, so deduplication can never
+    // cost a group one of its clinics.
+    const { config } = prepareUsMedicalPreview({
+      artifact: artifactFor('scripts/fixtures/us-demo-artifacts/t0-dental360.json'),
+      renderMode: 'outreach-safe',
+    });
+    const [home] = directionsTexts(config);
+    const addresses = home.texts.filter((_, index) => home.texts[index - 1] === 'Address');
+    assert.equal(addresses.length, 2, JSON.stringify(home.texts));
+    assert.ok(addresses[0].includes('Irving Park'), addresses[0]);
+    assert.ok(!addresses[1].includes('Irving Park'), `second card repeats the first: ${addresses[1]}`);
+  });
+});
+
 describe('the schedule reader', () => {
   const days = (text: string) => {
     const reading = parseOpeningHours(text);
