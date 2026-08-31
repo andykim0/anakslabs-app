@@ -64,8 +64,15 @@ const DEMO_DISCLOSURES = Object.freeze({
     'Google rating and review count can appear here after practice verification. Review text is not republished.',
   beforeAfter:
     'Consented cases can be added after the practice completes privacy and advertising-claim review.',
-  providerImageAlt:
-    "Portrait placeholder — replace with the doctor's approved photo",
+  /**
+   * `alt` is read aloud to whoever is looking at the page, so it describes the frame — it does not
+   * brief the operator. The previous string ("replace with the doctor's approved photo") was an
+   * internal instruction that a screen reader announced verbatim to the prospect, on the very slot
+   * that was supposed to introduce their doctor. The two prospect-facing modes no longer reach
+   * this alt at all (they omit the slot's image instead), so it now serves only `demo` and `live`,
+   * where the empty frame is a genuine "not supplied yet" and should read as one.
+   */
+  providerImageAlt: 'Doctor portrait coming soon',
 } as const);
 
 function disclosureSection(input: {
@@ -90,18 +97,26 @@ function providerLayoutImage(input: {
   bio: ClinicMasterSourceBlock;
   experience: ClinicMasterExperience;
 }): ClinicLayoutImage | undefined {
+  const prospectFacing = input.experience.mode === 'preview-full'
+    || input.experience.mode === 'outreach-safe';
   const photo = input.experience.mode === 'live'
     ? input.experience.providerPhotos?.find(
         (candidate) => candidate.providerBioBlockId === input.bio.id
           && candidate.origin === 'customer_upload',
       )
-    : input.experience.mode === 'preview-full'
+    : input.experience.mode === 'preview-full' || input.experience.mode === 'outreach-safe'
       ? input.experience.providerPhotos?.find(
         (candidate) => candidate.providerBioBlockId === input.bio.id
             && candidate.origin === 'prospect_public_source',
         )
     : undefined;
-  if (input.experience.mode === 'preview-full' && !photo) return undefined;
+  /**
+   * Both prospect-facing modes omit the image rather than substitute one. A placeholder here is a
+   * note to ourselves rendered onto someone else's doctor; an absent image is simply a card that
+   * leads with the practice's own words. `demo` and `live` keep the frame, because there the empty
+   * slot is a customer's own to fill.
+   */
+  if (prospectFacing && !photo) return undefined;
   return {
     id: photo && 'sourceImageId' in photo
       ? photo.sourceImageId

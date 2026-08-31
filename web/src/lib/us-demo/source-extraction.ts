@@ -10,7 +10,11 @@ import {
 } from '@/lib/clinic-engine/pipeline';
 import { US_MEDICAL_OUTREACH_PROFILE } from '@/lib/clinic-engine/profiles';
 import { sourceTextIsOperationalBlob } from '@/lib/clinic-engine/source-text-gates';
-import { sourceTextIsSiteChrome } from './source-noise';
+import {
+  sourceHeadingIsChromeSectionLabel,
+  sourceProseWithoutTrailingChrome,
+  sourceTextIsSiteChrome,
+} from './source-noise';
 export { sourceTextIsOperationalBlob } from '@/lib/clinic-engine/source-text-gates';
 
 const PATIENT_CONTENT_RE =
@@ -312,7 +316,16 @@ export function sourceHeadingBodyPairs(page: CrawlPageArtifact): HeadingBodyPair
   const allHeadingStarts = [...new Set(headings.flatMap(
     (entry) => occurrences(pageText, entry.heading),
   ))].sort((left, right) => left - right);
-  return headings.map((entry) => {
+  /**
+   * A footer column label stops being a PAIR without ceasing to be a BOUNDARY. `allHeadingStarts`
+   * above is deliberately computed from the unfiltered list: it is what tells the heading before
+   * it where its body ends, so removing the label from that set would extend the previous body
+   * straight through the chrome it was supposed to stop at — making the contamination worse, not
+   * better. Only the emitted pairs shrink.
+   */
+  return headings.filter(
+    (entry) => !sourceHeadingIsChromeSectionLabel(entry.heading),
+  ).map((entry) => {
     const starts = occurrences(pageText, entry.heading);
     const candidates = starts.map((start) => {
       const bodyStart = start + entry.heading.length;
@@ -411,6 +424,25 @@ const CHROME_EXEMPT_KINDS: ReadonlySet<ProspectPublicSourceKind> = new Set([
 ]);
 
 /**
+ * Kinds that are meant to be sentences, and are therefore the only ones the trailing-chrome
+ * trimmer may touch.
+ *
+ * Titles and labels are excluded on purpose: `service`, `faq_question` and `provider_name` are
+ * short capitalised phrases by nature, which is exactly the shape the trimmer's keyword test
+ * describes, so running it over them would ask it to distinguish a heading from a menu — a
+ * judgement it was measured to get wrong. `cta`, `phone`, `address` and `opening_hours` are
+ * operational fields whose whole content is the chrome-shaped thing.
+ */
+const PROSE_KINDS: ReadonlySet<ProspectPublicSourceKind> = new Set([
+  'introduction',
+  'provider_bio',
+  'service_detail',
+  'faq_answer',
+  'insurance',
+  'price_or_financing',
+]);
+
+/**
  * Page text is DOM nodes joined by a single space, so a phone node sitting next to an address node
  * becomes one run of characters. Ora Dentistry's header prints
  *
@@ -456,7 +488,21 @@ function pageBlocks(page: CrawlPageArtifact): ProspectPublicSourceBlock[] {
     // Contact fields are exempt: hours and addresses share vocabulary with footer chrome and are
     // extracted from structured data, not from the page-text sweep that picks chrome up.
     if (!CHROME_EXEMPT_KINDS.has(kind) && sourceTextIsSiteChrome(text)) return;
-    blocks.push(sourceBlock({ kind, text, sourceUrl: page.url, field, ordinal }));
+    /**
+     * Body-copy hygiene, applied to the prose kinds only and at the one point every one of them
+     * passes through. It runs here rather than at a render site so that the block a consumer
+     * receives is already clean — the insurance card is assembled straight from blocks and never
+     * reaches `clinicCardBody`, which is why the length band and the keyword-blob test that guard
+     * every other card never saw Brentwood's contamination.
+     *
+     * Extraction is upstream of the whole compile, so this is upstream of the medical-ad screen
+     * in `prepareUsMedicalPreview` by construction: blocks -> `compileUsMedicalDemo` ->
+     * `enforceGeneratedMedicalConfig`. The screen therefore reads the trimmed sentence, never the
+     * menu that used to follow it.
+     */
+    const prose = PROSE_KINDS.has(kind) ? sourceProseWithoutTrailingChrome(text) : text;
+    if (!prose) return;
+    blocks.push(sourceBlock({ kind, text: prose, sourceUrl: page.url, field, ordinal }));
   };
   add('business_name', clinicDisplayName(page), 'structured.businessName');
   add('phone', page.structured.phone, 'structured.phone');

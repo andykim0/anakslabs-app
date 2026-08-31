@@ -285,27 +285,30 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       )),
     );
     /**
-     * The provider placeholder is still an outreach-safe-only artefact and still asserted.
+     * All three demo disclosures are now absent from BOTH prospect-facing modes, and the
+     * expectations are inverted rather than deleted — a stronger claim than each one replaced.
      *
-     * The other two moved on purpose. The rating-aggregate and before-and-after notes are no
-     * longer compiled on outreach-safe at all — they were our copy occupying a slot, and leaving
-     * them in the section list made `applyClinicSurfaceCadence` solve the tone rhythm against
-     * sections the renderer then suppressed, which split a tint pair and left a lone tint against
-     * the dark gallery. So the expectation is inverted rather than deleted: they must now be
-     * absent from BOTH modes, which is a stronger claim than the one it replaces.
+     * The rating-aggregate and before-and-after notes went first: they were our copy occupying a
+     * slot, and leaving them in the section list made `applyClinicSurfaceCadence` solve the tone
+     * rhythm against sections the renderer then suppressed, which split a tint pair and left a
+     * lone tint against the dark gallery.
+     *
+     * The provider placeholder follows them for the same reason and a worse one. It was an
+     * outreach-safe-only artefact because outreach-safe carried no provider photo at all — and
+     * the first Brentwood preview showed what that costs: an empty grey frame where the practice
+     * had published a portrait, captioned, for a screen reader to read out, "Portrait placeholder
+     * — replace with the doctor's approved photo". A note to ourselves, rendered onto someone
+     * else's doctor. Both modes now show the published portrait or omit the image.
      *
      * What this test defends is unchanged — outreach-safe and preview-full share one multipage,
      * nav and JSON-LD schema, and sales copy never reaches preview-full.
      */
-    assert.match(JSON.stringify(implicit.config), /provider-placeholder\.svg/u);
-    assert.doesNotMatch(
-      JSON.stringify(implicit.config),
-      /Consented cases can be added|rating and review count can appear/u,
-    );
-    assert.doesNotMatch(
-      JSON.stringify(full.config),
-      /Consented cases can be added|rating and review count can appear|provider-placeholder\.svg/iu,
-    );
+    for (const compiled of [implicit, full]) {
+      assert.doesNotMatch(
+        JSON.stringify(compiled.config),
+        /Consented cases can be added|rating and review count can appear|provider-placeholder\.svg/iu,
+      );
+    }
   });
 
   test('clinic surface cadence는 양 모드 구조를 보존하고 substantial/short dark 규칙을 지킨다', () => {

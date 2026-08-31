@@ -26,6 +26,7 @@ import {
   type ClinicLayoutContentUnit,
   type ClinicLayoutImage,
   type ClinicMasterExperience,
+  type ClinicPreviewProviderPhotoProjection,
   type ClinicSourcePhoneProjection,
 } from '@/lib/clinic-master';
 import type {
@@ -39,6 +40,7 @@ import {
   clinicImageDimensions,
   clinicPhotoGate,
   eligibleForClinicHero,
+  heroImageIsProviderPortrait,
   clinicPhotoPoolForPattern,
   clinicPhotoPoolForTopic,
   clinicPhotoSlotPool,
@@ -1215,6 +1217,71 @@ function sourcePhoneFromBlocks(
   return undefined;
 }
 
+/**
+ * The photo the "Meet the Doctor" slot shows, one per `provider_bio` block.
+ *
+ * The candidate ladder is ordered by strength of evidence that the file depicts THIS person,
+ * because the previous ordering had only one rung — crawl-page membership — and Brentwood is what
+ * that costs. Its bio is `structured.description` on `/about/`, whose single eligible image is
+ * `13575800_1327592913934828_482243595075617930_o.webp`: a Facebook asset id with empty alt, which
+ * `sourceImageIsProvider` marks a provider photo because the PAGE title says "Dentist". The two
+ * actual portraits, `Dr.-Neda-Naim.jpg` on `/` and `Dr.-Neda-Naim-1.jpg` on `/meet-our-doctor/`,
+ * were never candidates: not a token miss (both match every provider predicate), not the dimension
+ * gate (both clear it), not a reservation (nothing held them) — they simply sat on other pages,
+ * and `/meet-our-doctor/` is not even a `PROVIDER_PATH_RE` match, so no bio is extracted there.
+ *
+ * Rung 2 is `heroImageIsProviderPortrait`, the D1 filename person-predicate: `dr`, `dds`, `dmd`,
+ * `doctor`, `headshot`, `portrait` in the filename, measured at 16 of 113 with zero false
+ * positives, and deliberately excluding the profession words that describe ordinary clinical
+ * photography. It outranks both page-scoped rungs because a filename naming a person's title is
+ * stronger evidence than a page whose title happens to say "Dentist" — which is precisely the
+ * distinction the D1 comment already drew for heroes.
+ */
+function providerPhotoProjections(input: {
+  blocks: readonly ProspectPublicSourceBlock[];
+  images: readonly ProjectedUsDemoSourceImage[];
+}): ClinicPreviewProviderPhotoProjection[] {
+  const eligible = (image: ProjectedUsDemoSourceImage): boolean => (
+    !sourceImageIsBeforeAfter(image)
+    && !sourceImageIsAssociationMark(image)
+    && clinicPhotoGate(image).eligibleForPhotoSlot
+  );
+  const sitePortraits = input.images.filter(
+    (image) => eligible(image) && heroImageIsProviderPortrait(image),
+  );
+  const providers = input.blocks.filter((block) => block.kind === 'provider_bio');
+  /**
+   * Claimed rather than indexed. The old `[occurrence]` worked only because page-scoped pools are
+   * disjoint — `prospectPublicSourceImages` projects each URL once, under the first page it
+   * appeared on — and the site-wide rung breaks that, so two bios could otherwise be given the
+   * same face. Taking the first UNCLAIMED candidate is the same answer wherever the pools are
+   * still disjoint and the only correct one where they are not.
+   */
+  const claimed = new Set<string>();
+  return providers.flatMap((bio) => {
+    const exactPageImages = input.images.filter(
+      (image) => image.page.url === bio.sourceUrl && eligible(image),
+    );
+    const free = (image: ProjectedUsDemoSourceImage): boolean => !claimed.has(image.source.id);
+    const photo = [
+      exactPageImages.filter(heroImageIsProviderPortrait),
+      sitePortraits,
+      exactPageImages.filter(sourceImageIsProvider),
+      exactPageImages,
+    ].flatMap((rung) => rung.filter(free).slice(0, 1))[0];
+    if (!photo) return [];
+    claimed.add(photo.source.id);
+    return [{
+      version: 1 as const,
+      providerBioBlockId: bio.id,
+      src: photo.source.url,
+      alt: photo.source.alt,
+      origin: 'prospect_public_source' as const,
+      sourceImageId: photo.source.id,
+    }];
+  });
+}
+
 function previewExperience(input: {
   artifact: CrawlArtifactPayload;
   blocks: readonly ProspectPublicSourceBlock[];
@@ -1232,30 +1299,7 @@ function previewExperience(input: {
     ...(sourcePhone ? { phone: sourcePhone.sourceText } : {}),
     ...(googleMapsUrl ? { googleMapsUrl } : {}),
   }) ?? undefined;
-  const providers = input.blocks.filter((block) => block.kind === 'provider_bio');
-  const providerPhotos = providers.flatMap((bio, index) => {
-    const occurrence = providers.slice(0, index).filter(
-      (candidate) => candidate.sourceUrl === bio.sourceUrl,
-    ).length;
-    const exactPageImages = input.images.filter((image) => (
-      image.page.url === bio.sourceUrl
-      && !sourceImageIsBeforeAfter(image)
-      && !sourceImageIsAssociationMark(image)
-      && clinicPhotoGate(image).eligibleForPhotoSlot
-    ));
-    const providerImages = exactPageImages.filter(sourceImageIsProvider);
-    const photo = providerImages[occurrence] ?? exactPageImages[occurrence];
-    return photo
-      ? [{
-          version: 1 as const,
-          providerBioBlockId: bio.id,
-          src: photo.source.url,
-          alt: photo.source.alt,
-          origin: 'prospect_public_source' as const,
-          sourceImageId: photo.source.id,
-        }]
-      : [];
-  });
+  const providerPhotos = providerPhotoProjections(input);
   const beforeAfterImages = input.images
     .filter((image) => sourceImageIsBeforeAfter(image) && !sourceImageIsAssociationMark(image))
     .slice(0, 8)
@@ -1473,7 +1517,9 @@ export function compileUsMedicalFullPreview(input: {
   ));
   const reservedImages = new Set([
     homeImage?.source.id,
-    ...(experience.mode === 'preview-full'
+    // Both prospect-facing modes now place a provider photo, so both must hold it: an unreserved
+    // portrait is shown twice, once as the doctor and once as a gallery tile.
+    ...(experience.mode === 'preview-full' || experience.mode === 'outreach-safe'
       ? experience.providerPhotos?.map((photo) => photo.sourceImageId) ?? []
       : []),
     ...(experience.mode === 'preview-full'
@@ -2074,8 +2120,13 @@ export function outreachSafeExperienceFromArtifact(input: {
   blocks: readonly ProspectPublicSourceBlock[];
 }): Extract<ClinicMasterExperience, { mode: 'outreach-safe' }> {
   const sourcePhone = sourcePhoneFromBlocks(input.artifact, input.blocks);
+  const providerPhotos = providerPhotoProjections({
+    blocks: input.blocks,
+    images: prospectPublicSourceImages(input.artifact),
+  });
   return {
     mode: 'outreach-safe',
     ...(sourcePhone ? { sourcePhone } : {}),
+    ...(providerPhotos.length > 0 ? { providerPhotos } : {}),
   };
 }

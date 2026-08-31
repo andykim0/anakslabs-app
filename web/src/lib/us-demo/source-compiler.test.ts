@@ -221,11 +221,24 @@ describe('US-DEMO P2 — source-only English compiler', () => {
       )),
       false,
     );
-    const providerImage = sections
-      .find((section) => section.id === 'us-demo-providers')
-      ?.elements.find((element) => element.kind === 'image');
-    assert.equal(providerImage?.kind, 'image');
-    assert.match(providerImage?.kind === 'image' ? providerImage.alt ?? '' : '', /placeholder/iu);
+    /**
+     * The provider slot shows a photograph the practice published, or nothing.
+     *
+     * This asserted the placeholder until the first Brentwood outreach preview showed what the
+     * placeholder is: a grey frame whose alt text read "Portrait placeholder — replace with the
+     * doctor's approved photo" — an instruction to our operator, announced by a screen reader to
+     * the prospect, on the one slot meant to introduce their doctor. Outreach-safe now projects
+     * the same provider photo preview-full does, and where the practice published none the image
+     * is omitted rather than substituted. This fixture publishes none, so the assertion is that
+     * the slot is imageless AND that no disclosure copy took its place.
+     */
+    const providerSection = sections.find((section) => section.id === 'us-demo-providers');
+    assert.ok(providerSection, 'expected a provider section');
+    assert.equal(
+      providerSection.elements.some((element) => element.kind === 'image'),
+      false,
+    );
+    assert.doesNotMatch(JSON.stringify(first.config), /provider-placeholder\.svg/u);
     assert.doesNotMatch(JSON.stringify(first.config), /patient says|testimonial/iu);
     const html = renderToStaticMarkup(createElement(SiteRenderer, {
       config: first.config,
@@ -239,7 +252,8 @@ describe('US-DEMO P2 — source-only English compiler', () => {
     );
     assert.match(html, /<h1\b[^>]*>[^<]+<\/h1>/u);
     assert.match(html, /<h2\b[^>]*>Meet the Doctor<\/h2>/u);
-    assert.match(html, /<img[^>]+Portrait placeholder/u);
+    // The heading and the bio still render; only the substituted frame is gone. See above.
+    assert.doesNotMatch(html, /Portrait placeholder|provider-placeholder/u);
     assert.match(html, /data-clinic-sticky-booking="1"/u);
     assert.match(html, /data-clinic-booking-state="deactivated"/u);
     assert.doesNotMatch(html, /<canvas\b|fonts\.googleapis\.com|fonts\.gstatic\.com/iu);

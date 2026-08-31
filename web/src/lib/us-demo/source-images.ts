@@ -46,9 +46,16 @@ const CREDENTIAL_IMAGE_RE =
  * Deliberately NOT keyed on size or aspect: `renderedDimensions` is absent for every one of the
  * 781 pooled images across the seven corpora, so nothing measurable distinguishes a badge from a
  * photograph. The vocabulary is the only evidence the crawl actually carries.
+ *
+ * `university` closes an asymmetry rather than adding a new class: `college`, `institute`,
+ * `academy` and `society` were already here, and a university is the same kind of issuing body.
+ * Measured across all 709 projected images of the seven corpora plus Brentwood it changes nothing
+ * — zero images gained, zero lost — so it is a completion of the list, not the fix for anything.
+ * `crest` was measured alongside it and is NOT added: it names a device rather than a body, `seal`
+ * already occupies that register, and it likewise matched nothing.
  */
 const ASSOCIATION_MARK_RE =
-  /\b(?:alumni|association|academy|society|college|board|accredit\w*|member(?:ship)?|award|certified|fellow(?:ship)?|institute|federation|council|seal)\b/iu;
+  /\b(?:alumni|association|academy|society|college|university|board|accredit\w*|member(?:ship)?|award|certified|fellow(?:ship)?|institute|federation|council|seal)\b/iu;
 
 /**
  * An initialism standing alone as the entire alt text. A practice writing "CDA" or "AAO" is
@@ -62,6 +69,26 @@ const ASSOCIATION_MARK_RE =
  * begins with a letter and a bare number is a caption, so that is where the line goes.
  */
 const ACRONYM_ALT_RE = /^[A-Z][A-Z0-9&.\- ]{1,5}$/u;
+
+/**
+ * A media pipeline that lost the caption and wrote the file name into `alt` instead.
+ *
+ * Brentwood's university crest arrives as `CSUNS.svg-1.png` with alt `"CSUNS.svg"`. The alt is an
+ * initialism — the practice's own upload name for the CSU Northridge seal — wearing the extension
+ * of the file it was converted from. `ACRONYM_ALT_RE` is anchored and upper-case-only by design,
+ * so the four residue characters `.svg` defeat it twice over: they add lower case and they push
+ * the string past the six-character ceiling. Stripping the extension asks the rule the question it
+ * was written to answer.
+ *
+ * Anchored to the END and to a closed list of image extensions on purpose. A generic `\.\w{3,4}$`
+ * would eat the trailing token of any alt that happens to end in a short word after a period, and
+ * the closed list is exactly the set an image alt can plausibly carry.
+ */
+const ALT_FILE_EXTENSION_RE = /\.(?:svg|png|jpe?g|gif|webp|avif|bmp|tiff?|ico)$/iu;
+
+function altWithoutFileExtension(alt: string): string {
+  return alt.replace(ALT_FILE_EXTENSION_RE, '').trim();
+}
 
 const BUSINESS_NAME_POISON_RE =
   /\bid dental implant(?:\s*(?:&|and)\s*cosmetic)? center\b|\bimplant center\b|\bid dental\b|\bkoreatown\b|\blos angeles\b|,?\s*\bca\b/giu;
@@ -276,7 +303,8 @@ export function sourceImageIsInsuranceCarrierMark(
 export function sourceImageIsAssociationMark(image: ProjectedUsDemoSourceImage): boolean {
   const alt = image.candidate.alt.trim();
   if (ASSOCIATION_MARK_RE.test(`${image.source.url} ${alt}`)) return true;
-  return alt.length > 0 && ACRONYM_ALT_RE.test(alt);
+  const bare = altWithoutFileExtension(alt);
+  return bare.length > 0 && ACRONYM_ALT_RE.test(bare);
 }
 
 function imageFilename(image: ProjectedUsDemoSourceImage): string {

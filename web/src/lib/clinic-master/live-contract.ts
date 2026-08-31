@@ -48,8 +48,20 @@ export interface ClinicPreviewProviderPhotoProjection {
 export type ClinicMasterExperience =
   | { readonly mode: 'demo' }
   | {
+      /**
+       * `providerPhotos` is the SAME projection outreach-safe already renders everywhere else.
+       *
+       * The mode's other withholdings are policy: the booking destination would send a real
+       * patient into a practice that has not asked us to send one, and before/after images are
+       * patient photographs. A doctor's own public headshot is neither — it is a
+       * `prospect_public_source` image, and outreach-safe already puts that exact file in the
+       * home gallery, on procedure pages and in the practice grid. Withholding it from the one
+       * slot that is meant to show a face was an omission, not a safeguard, and its cost was an
+       * operator-instruction placeholder rendered to the prospect.
+       */
       readonly mode: 'outreach-safe';
       readonly sourcePhone?: ClinicSourcePhoneProjection;
+      readonly providerPhotos?: readonly ClinicPreviewProviderPhotoProjection[];
     }
   | {
       readonly mode: 'preview-full';

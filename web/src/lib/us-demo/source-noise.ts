@@ -84,6 +84,119 @@ export function sourceTextIsSiteChrome(value: string): boolean {
     || sourceTextIsLegalFooter(value);
 }
 
+/**
+ * The label at the top of a footer column, or of a nav group. It heads a list of links, never a
+ * paragraph, so the text underneath it is the link list itself.
+ *
+ * The crawl keeps no HTML, so a footer column heading and a section heading arrive identically —
+ * as an entry in `page.headings` with a run of page text under it. That is how Brentwood's
+ * "Insurance & Financing" card ended with "Meet Us / Meet Our Doctor Meet Our Team Office Tour
+ * Testimonials / Hours / Monday: 8am – 5pm Tuesday: 8am – 5pm": four blocks, not one contaminated
+ * paragraph, each one a footer column of `/insurance/` that the insurance branch classified as
+ * insurance copy because of the path it sat on.
+ *
+ * This is the same idea as `GENERIC_HEADING_RE` in `source-extraction.ts`, which already discards
+ * "Home", "About", "Services", "Contact" and "Menu" for exactly this reason, and it is deliberately
+ * confined to the labels that only ever head a link list. `Location`, `Address` and `Resources`
+ * were measured and left out: a practice can and does write a real section under those.
+ *
+ * Measured across all eight corpora — 2,835 heading/body pairs — this removes 225, and every one
+ * of them is footer chrome: opening-hours tables, "Quick Links" columns, "Find Us" address-and-
+ * copyright dumps. Nothing that reads as the practice's own writing is in the set.
+ *
+ * Hours are the notable case, and removing them loses nothing: `opening_hours` is extracted from
+ * structured data as its own kind and rendered by the directions section, so the footer copy of it
+ * is a duplicate that had wandered into a prose slot.
+ */
+const CHROME_SECTION_LABEL_RE =
+  /^(?:meet\s+us|follow\s+us|connect(?:\s+with\s+us)?|quick\s+links|useful\s+links|helpful\s+links|navigation|main\s+menu|site\s*map|find\s+us|social(?:\s+media)?|newsletter|patient\s+portal|(?:office\s+|opening\s+|business\s+|our\s+)?hours?)$/iu;
+
+export function sourceHeadingIsChromeSectionLabel(value: string): boolean {
+  return CHROME_SECTION_LABEL_RE.test(value.trim());
+}
+
+/**
+ * A published opening-hours row: a weekday, a separator, and a clock time or "Closed".
+ *
+ * All three parts are required, and that is the whole precision argument. "We reopen on Monday."
+ * and "Appointments run Monday through Friday" name a weekday and are ordinary sentences; a
+ * schedule prints the time next to the day. The separator requirement rules out the remaining
+ * prose shape, "open Monday 8am", which no practice writes inside a paragraph.
+ */
+const SCHEDULE_ROW_RE =
+  /\b(?:mon|tue|tues|wed|wednes|thu|thur|thurs|fri|sat|satur|sun)(?:day)?\b\s*[:–—-]\s*(?:\d{1,2}(?::\d{2})?\s*(?:a\.?m\.?|p\.?m\.?)|closed)\b/iu;
+
+/**
+ * A run of capitalised label words with no sentence punctuation — a printed menu, not a sentence.
+ *
+ * This is the predicate `clinicCardBody` already uses to reject a whole card body, restated here
+ * so the same judgement can be made about a TAIL. It is not applied to a whole block: measured
+ * against the corpora, "What to Expect at Your Appointment" and "The Real Risk of Veneers Isn't
+ * the Procedure Itself" are both keyword blobs by this test and both are the practice's own
+ * headings, which is why the trimmer below only ever consults it after a real sentence has ended.
+ */
+function isKeywordRun(text: string): boolean {
+  /**
+   * The ellipsis counts as sentence punctuation here, which is not a nicety — it is the whole
+   * reason this rule is safe. Three apa provider biographies end in a sentence the crawl truncated
+   * ("He is board-certified by the American Board of Oral Implantology…", "In 2002, he founded the
+   * Rosenthal Institute at New York University's College of Dentistry to further the…"). Those are
+   * proper-noun-dense, carry no full stop, and were cut as menus by the first version of this
+   * rule. A run that ends mid-sentence is a sentence; a menu never trails off.
+   */
+  if (/[.!?]|…|\.\.\./u.test(text)) return false;
+  const words = text.split(/\s+/u).filter(Boolean);
+  if (words.length < 6) return false;
+  const carrying = words.filter((word) => word.replace(/[^A-Za-z]/gu, '').length > 3);
+  if (carrying.length < 4) return false;
+  const capitalised = carrying.filter((word) => /^[^A-Za-z]*[A-Z]/u.test(word)).length;
+  return capitalised / carrying.length >= 0.6;
+}
+
+/** The index just past the last `.`/`!`/`?` that ends a sentence rather than an abbreviation. */
+function lastSentenceEnd(text: string): number {
+  let best = -1;
+  for (const match of text.matchAll(/[.!?](?=\s|$)/gu)) {
+    const index = (match.index ?? 0) + 1;
+    // "Dr." / "St." / "U.S." end a token, not a sentence — the same guard `clinicCardBody` uses.
+    if (/(?:^|\s)(?:[A-Z][a-z]{0,2}|[A-Z](?:\.[A-Z])*)\.$/u.test(text.slice(0, index))) continue;
+    best = index;
+  }
+  return best;
+}
+
+/**
+ * Prose with a trailing run of site chrome removed, cut at the last real sentence boundary before
+ * it. Returns `undefined` when nothing but chrome is left.
+ *
+ * The cut point is a sentence end and never a word boundary, because half a sentence published
+ * under a practice's name is worse than the menu it replaced. Where there is no sentence at all
+ * before the contamination the whole block goes: a block that is only a schedule row or only a
+ * menu was never prose, and there is nothing in it to keep.
+ *
+ * Deliberately NOT a general "Title Case looks like a menu" rule over the whole block. That was
+ * built, measured against the eight corpora, and rejected: it fired on 40+ of the practices' own
+ * headings and on two apa provider biographies ("...and at Nova Southeastern University College of
+ * Dental Medicine"), because a proper-noun phrase and a nav column have the same capitalisation.
+ * Requiring a completed sentence in front of the run is what separates them.
+ */
+export function sourceProseWithoutTrailingChrome(value: string): string | undefined {
+  const text = value.trim();
+  if (text.length === 0) return undefined;
+  const schedule = SCHEDULE_ROW_RE.exec(text);
+  if (schedule) {
+    // The last sentence that finished BEFORE the schedule row started, not the last in the block:
+    // a paragraph whose middle names an hours row keeps the paragraph up to that point.
+    const boundary = lastSentenceEnd(text.slice(0, schedule.index));
+    return boundary < 0 ? undefined : text.slice(0, boundary).trim() || undefined;
+  }
+  const boundary = lastSentenceEnd(text);
+  if (boundary < 0 || boundary >= text.length) return text;
+  return isKeywordRun(text.slice(boundary).trim())
+    ? text.slice(0, boundary).trim() || undefined
+    : text;
+}
+
 const PROCEDURE_NAME_MAXIMUM = 60;
 const PROCEDURE_WORD_MAXIMUM = 6;
 
