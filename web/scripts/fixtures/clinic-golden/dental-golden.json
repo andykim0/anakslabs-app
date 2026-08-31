@@ -46578,8 +46578,8 @@
     "sourceReport": {
       "excludedBlocks": 0,
       "origin": "prospect_public_source",
-      "totalBlocks": 111,
-      "usedBlocks": 108
+      "totalBlocks": 110,
+      "usedBlocks": 107
     },
     "jsonLd": {
       "": [
@@ -55251,31 +55251,9 @@
                   },
                   "text": "This option is very durable and matches the same shade as your teeth.",
                   "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 22,
-                    "fontWeight": 600,
-                    "lineHeight": 1.35
-                  },
-                  "text": "Opening Hours",
-                  "z": 2
                 }
               ],
-              "height": 1168,
+              "height": 1095,
               "id": "clinic-procedure-implant-details-overview",
               "layout": "canvas",
               "name": "Dental Implants Overview",
@@ -55290,7 +55268,6 @@
                       "source-pps-61fe7e396375f6ef-9-procedure-service-1-8": 20.4,
                       "source-pps-7240a95641632040-7-procedure-service-1-6": 20.4,
                       "source-pps-74fbcee2f9475ae1-6-procedure-service-0-5": 20.4,
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": 20.4,
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": 20.4,
                       "source-pps-881854181edc5522-8-procedure-service-1-7": 20.4,
                       "source-pps-bb4fe45f279cae2b-2-layout-body-0-1": 17,
@@ -55348,12 +55325,6 @@
                         "x": 468.6288,
                         "y": 655.9296
                       },
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": {
-                        "h": 28,
-                        "w": 244.9712,
-                        "x": 468.6288,
-                        "y": 1265.2592
-                      },
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": {
                         "h": 28,
                         "w": 244.9712,
@@ -55405,7 +55376,7 @@
                         "y": 196.2656
                       },
                       "feature-group-clinic-procedure-implant-details-overview-2": {
-                        "h": 563.9968,
+                        "h": 490.6640000000001,
                         "w": 244.9712,
                         "x": 468.6288,
                         "y": 729.2624
@@ -55420,10 +55391,9 @@
                       "clinic-source-unit-pps-74fbcee2f9475ae1-6",
                       "clinic-source-unit-pps-7240a95641632040-7",
                       "clinic-source-unit-pps-881854181edc5522-8",
-                      "clinic-source-unit-pps-61fe7e396375f6ef-9",
-                      "clinic-source-unit-pps-7d48fab9b9d881d3-14"
+                      "clinic-source-unit-pps-61fe7e396375f6ef-9"
                     ],
-                    "sectionHeight": 1353,
+                    "sectionHeight": 1280,
                     "width": 768
                   },
                   "mobile": {
@@ -55435,7 +55405,6 @@
                       "source-pps-61fe7e396375f6ef-9-procedure-service-1-8": 20.4,
                       "source-pps-7240a95641632040-7-procedure-service-1-6": 20.4,
                       "source-pps-74fbcee2f9475ae1-6-procedure-service-0-5": 20.4,
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": 20.4,
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": 20.4,
                       "source-pps-881854181edc5522-8-procedure-service-1-7": 20.4,
                       "source-pps-bb4fe45f279cae2b-2-layout-body-0-1": 17,
@@ -55486,12 +55455,6 @@
                         "w": 351,
                         "x": 19.5,
                         "y": 414.6624
-                      },
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": {
-                        "h": 28,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 805.992
                       },
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": {
                         "h": 28,
@@ -55544,7 +55507,7 @@
                         "y": 102.6656
                       },
                       "feature-group-clinic-procedure-implant-details-overview-2": {
-                        "h": 377.99679999999995,
+                        "h": 336.66400000000004,
                         "w": 351,
                         "x": 19.5,
                         "y": 455.9952
@@ -55559,10 +55522,9 @@
                       "clinic-source-unit-pps-74fbcee2f9475ae1-6",
                       "clinic-source-unit-pps-7240a95641632040-7",
                       "clinic-source-unit-pps-881854181edc5522-8",
-                      "clinic-source-unit-pps-61fe7e396375f6ef-9",
-                      "clinic-source-unit-pps-7d48fab9b9d881d3-14"
+                      "clinic-source-unit-pps-61fe7e396375f6ef-9"
                     ],
-                    "sectionHeight": 878,
+                    "sectionHeight": 836,
                     "width": 390
                   },
                   "wide": {
@@ -55574,7 +55536,6 @@
                       "source-pps-61fe7e396375f6ef-9-procedure-service-1-8": 20.4,
                       "source-pps-7240a95641632040-7-procedure-service-1-6": 20.4,
                       "source-pps-74fbcee2f9475ae1-6-procedure-service-0-5": 20.4,
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": 20.4,
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": 20.4,
                       "source-pps-881854181edc5522-8-procedure-service-1-7": 20.4,
                       "source-pps-bb4fe45f279cae2b-2-layout-body-0-1": 17,
@@ -55632,12 +55593,6 @@
                         "x": 850.7088,
                         "y": 561.3296
                       },
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": {
-                        "h": 28,
-                        "w": 486.8912,
-                        "x": 850.7088,
-                        "y": 1080.6592
-                      },
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": {
                         "h": 28,
                         "w": 486.8912,
@@ -55689,7 +55644,7 @@
                         "y": 162.6656
                       },
                       "feature-group-clinic-procedure-implant-details-overview-2": {
-                        "h": 473.9968,
+                        "h": 400.6639999999999,
                         "w": 486.8911999999999,
                         "x": 850.7088,
                         "y": 634.6624
@@ -55704,10 +55659,9 @@
                       "clinic-source-unit-pps-74fbcee2f9475ae1-6",
                       "clinic-source-unit-pps-7240a95641632040-7",
                       "clinic-source-unit-pps-881854181edc5522-8",
-                      "clinic-source-unit-pps-61fe7e396375f6ef-9",
-                      "clinic-source-unit-pps-7d48fab9b9d881d3-14"
+                      "clinic-source-unit-pps-61fe7e396375f6ef-9"
                     ],
-                    "sectionHeight": 1168,
+                    "sectionHeight": 1095,
                     "width": 1440
                   }
                 },
@@ -55789,12 +55743,6 @@
                       "source-pps-5352e78d348a77d5-9-layout-body-1-8"
                     ],
                     "id": "clinic-source-unit-pps-61fe7e396375f6ef-9"
-                  },
-                  {
-                    "elementIds": [
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9"
-                    ],
-                    "id": "clinic-source-unit-pps-7d48fab9b9d881d3-14"
                   }
                 ],
                 "kind": "features",
@@ -60866,7 +60814,7 @@
       },
       "version": 2
     },
-    "sha256": "57a5b1a9e30636bdd208968b8a2f42e6a24c1e965ede6dde641556cce9844f80"
+    "sha256": "5a16a9008f8d43884851040007935fa4d9f283342a3c86a1515dc1bef03e0256"
   },
   {
     "fixture": "dental360",
@@ -60883,8 +60831,8 @@
     "sourceReport": {
       "excludedBlocks": 0,
       "origin": "prospect_public_source",
-      "totalBlocks": 111,
-      "usedBlocks": 108
+      "totalBlocks": 110,
+      "usedBlocks": 107
     },
     "jsonLd": {
       "": [
@@ -69762,31 +69710,9 @@
                   },
                   "text": "This option is very durable and matches the same shade as your teeth.",
                   "z": 2
-                },
-                {
-                  "entrance": {
-                    "effect": "none"
-                  },
-                  "frame": {
-                    "h": 1,
-                    "w": 1,
-                    "x": 0,
-                    "y": 0
-                  },
-                  "id": "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9",
-                  "kind": "text",
-                  "style": {
-                    "color": "#111318",
-                    "fontFamily": "heading",
-                    "fontSize": 22,
-                    "fontWeight": 600,
-                    "lineHeight": 1.35
-                  },
-                  "text": "Opening Hours",
-                  "z": 2
                 }
               ],
-              "height": 1168,
+              "height": 1095,
               "id": "clinic-procedure-implant-details-overview",
               "layout": "canvas",
               "name": "Dental Implants Overview",
@@ -69801,7 +69727,6 @@
                       "source-pps-61fe7e396375f6ef-9-procedure-service-1-8": 20.4,
                       "source-pps-7240a95641632040-7-procedure-service-1-6": 20.4,
                       "source-pps-74fbcee2f9475ae1-6-procedure-service-0-5": 20.4,
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": 20.4,
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": 20.4,
                       "source-pps-881854181edc5522-8-procedure-service-1-7": 20.4,
                       "source-pps-bb4fe45f279cae2b-2-layout-body-0-1": 17,
@@ -69859,12 +69784,6 @@
                         "x": 468.6288,
                         "y": 655.9296
                       },
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": {
-                        "h": 28,
-                        "w": 244.9712,
-                        "x": 468.6288,
-                        "y": 1265.2592
-                      },
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": {
                         "h": 28,
                         "w": 244.9712,
@@ -69916,7 +69835,7 @@
                         "y": 196.2656
                       },
                       "feature-group-clinic-procedure-implant-details-overview-2": {
-                        "h": 563.9968,
+                        "h": 490.6640000000001,
                         "w": 244.9712,
                         "x": 468.6288,
                         "y": 729.2624
@@ -69931,10 +69850,9 @@
                       "clinic-source-unit-pps-74fbcee2f9475ae1-6",
                       "clinic-source-unit-pps-7240a95641632040-7",
                       "clinic-source-unit-pps-881854181edc5522-8",
-                      "clinic-source-unit-pps-61fe7e396375f6ef-9",
-                      "clinic-source-unit-pps-7d48fab9b9d881d3-14"
+                      "clinic-source-unit-pps-61fe7e396375f6ef-9"
                     ],
-                    "sectionHeight": 1353,
+                    "sectionHeight": 1280,
                     "width": 768
                   },
                   "mobile": {
@@ -69946,7 +69864,6 @@
                       "source-pps-61fe7e396375f6ef-9-procedure-service-1-8": 20.4,
                       "source-pps-7240a95641632040-7-procedure-service-1-6": 20.4,
                       "source-pps-74fbcee2f9475ae1-6-procedure-service-0-5": 20.4,
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": 20.4,
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": 20.4,
                       "source-pps-881854181edc5522-8-procedure-service-1-7": 20.4,
                       "source-pps-bb4fe45f279cae2b-2-layout-body-0-1": 17,
@@ -69997,12 +69914,6 @@
                         "w": 351,
                         "x": 19.5,
                         "y": 414.6624
-                      },
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": {
-                        "h": 28,
-                        "w": 351,
-                        "x": 19.5,
-                        "y": 805.992
                       },
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": {
                         "h": 28,
@@ -70055,7 +69966,7 @@
                         "y": 102.6656
                       },
                       "feature-group-clinic-procedure-implant-details-overview-2": {
-                        "h": 377.99679999999995,
+                        "h": 336.66400000000004,
                         "w": 351,
                         "x": 19.5,
                         "y": 455.9952
@@ -70070,10 +69981,9 @@
                       "clinic-source-unit-pps-74fbcee2f9475ae1-6",
                       "clinic-source-unit-pps-7240a95641632040-7",
                       "clinic-source-unit-pps-881854181edc5522-8",
-                      "clinic-source-unit-pps-61fe7e396375f6ef-9",
-                      "clinic-source-unit-pps-7d48fab9b9d881d3-14"
+                      "clinic-source-unit-pps-61fe7e396375f6ef-9"
                     ],
-                    "sectionHeight": 878,
+                    "sectionHeight": 836,
                     "width": 390
                   },
                   "wide": {
@@ -70085,7 +69995,6 @@
                       "source-pps-61fe7e396375f6ef-9-procedure-service-1-8": 20.4,
                       "source-pps-7240a95641632040-7-procedure-service-1-6": 20.4,
                       "source-pps-74fbcee2f9475ae1-6-procedure-service-0-5": 20.4,
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": 20.4,
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": 20.4,
                       "source-pps-881854181edc5522-8-procedure-service-1-7": 20.4,
                       "source-pps-bb4fe45f279cae2b-2-layout-body-0-1": 17,
@@ -70143,12 +70052,6 @@
                         "x": 850.7088,
                         "y": 561.3296
                       },
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9": {
-                        "h": 28,
-                        "w": 486.8912,
-                        "x": 850.7088,
-                        "y": 1080.6592
-                      },
                       "source-pps-81ff9ea7137f50b7-4-procedure-service-0-3": {
                         "h": 28,
                         "w": 486.8912,
@@ -70200,7 +70103,7 @@
                         "y": 162.6656
                       },
                       "feature-group-clinic-procedure-implant-details-overview-2": {
-                        "h": 473.9968,
+                        "h": 400.6639999999999,
                         "w": 486.8911999999999,
                         "x": 850.7088,
                         "y": 634.6624
@@ -70215,10 +70118,9 @@
                       "clinic-source-unit-pps-74fbcee2f9475ae1-6",
                       "clinic-source-unit-pps-7240a95641632040-7",
                       "clinic-source-unit-pps-881854181edc5522-8",
-                      "clinic-source-unit-pps-61fe7e396375f6ef-9",
-                      "clinic-source-unit-pps-7d48fab9b9d881d3-14"
+                      "clinic-source-unit-pps-61fe7e396375f6ef-9"
                     ],
-                    "sectionHeight": 1168,
+                    "sectionHeight": 1095,
                     "width": 1440
                   }
                 },
@@ -70300,12 +70202,6 @@
                       "source-pps-5352e78d348a77d5-9-layout-body-1-8"
                     ],
                     "id": "clinic-source-unit-pps-61fe7e396375f6ef-9"
-                  },
-                  {
-                    "elementIds": [
-                      "source-pps-7d48fab9b9d881d3-14-procedure-service-1-9"
-                    ],
-                    "id": "clinic-source-unit-pps-7d48fab9b9d881d3-14"
                   }
                 ],
                 "kind": "features",
@@ -75377,7 +75273,7 @@
       },
       "version": 2
     },
-    "sha256": "6e3e5514c40108f05ac93666124f9694b2e7603a336fe296a4510eef198e8cd7"
+    "sha256": "1b7723d9c56e9fc1964cab2e8ed17bf1466529afb10961299ac0e4ee69223d95"
   },
   {
     "fixture": "iddental",
@@ -75387,7 +75283,7 @@
     "sourceReport": {
       "excludedBlocks": 18,
       "origin": "prospect_public_source",
-      "totalBlocks": 577,
+      "totalBlocks": 565,
       "usedBlocks": 375
     },
     "jsonLd": {
@@ -112159,7 +112055,7 @@
       },
       "version": 2
     },
-    "sha256": "2f2f17f41508b574504f72297ea65413a67ad1916d672db4b85fd44f312e7f8f"
+    "sha256": "92b87d7934912f47b84f3fafa6afe2390b9a88f16988a841aac09ae02f42a9bb"
   },
   {
     "fixture": "iddental",
@@ -112169,7 +112065,7 @@
     "sourceReport": {
       "excludedBlocks": 18,
       "origin": "prospect_public_source",
-      "totalBlocks": 577,
+      "totalBlocks": 565,
       "usedBlocks": 375
     },
     "jsonLd": {
@@ -149471,6 +149367,6 @@
       },
       "version": 2
     },
-    "sha256": "c2cb0a37431b2d98c2a9cf4a10c5562633ec5615cc91799b1dfa04ce31b2573a"
+    "sha256": "7e548a9b05dd33eccac211c274baf7478cb5ce03b5631aa90841ca36d7f3010b"
   }
 ]
