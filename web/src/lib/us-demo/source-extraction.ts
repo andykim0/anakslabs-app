@@ -59,8 +59,18 @@ const CTA_NON_TERMINAL_PRECEDING_WORD_RE =
   /^(?:a|an|the|and|or|but|of|to|for|with|without|in|on|at|by|from|as|into|through|about|your|our|their|this|that|these|those|is|are|be|more|most|new|easy|simple|available|affordable|personalized|advanced|comprehensive|blog|services?|insurance|financing|privacy|policy|terms?|accessibility|maps?)$/iu;
 const PHONE_TOKEN_RE = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/u;
 const EMAIL_TOKEN_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu;
+/**
+ * The tail used to be `\b(?:am|pm|closed)\b`, and `\b` cannot sit between a digit and a letter —
+ * so "8am" and "5pm" were never valid terminators and the match had to run all the way to a
+ * "Closed". On a seven-day footer the first "Closed" is 100 characters past "Monday", outside the
+ * 80-character window, so the leftmost match that fit began at WEDNESDAY: Brentwood's demo
+ * announced the practice opens on Wednesday. Terminating on the clock itself, and widening the
+ * window to hold a full week, is what makes the whole schedule the thing that gets read.
+ * Measured on all eight corpora: brentwood recovers Monday and Tuesday, apa and enamel gain a
+ * reading they never had, and cameods/dental360/iddental/larkfield/northbank are byte-identical.
+ */
 const OPENING_HOURS_TOKEN_RE =
-  /\b(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b[^.]{0,80}\b(?:am|pm|closed)\b/iu;
+  /\b(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b[^.]{0,150}(?:\bclosed\b|\d\s*[ap]\.?m\.?\b)/iu;
 const HOURS_LABEL_RE = /\b(?:office|opening|business)\s+hours?\s*:/iu;
 const ADDRESS_TOKEN_RE =
   /\b\d{2,6}\s+[A-Z0-9][^,\n]{2,80},?\s+(?:Los Angeles|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b[^.\n]{0,50}\b[A-Z]{2}\s+\d{5}(?:-\d{4})?\b/u;

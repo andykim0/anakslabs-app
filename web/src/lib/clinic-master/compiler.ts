@@ -16,6 +16,7 @@ import {
   buildClinicProductInfoSection,
   type ClinicLayoutImage,
 } from '@/lib/clinic-engine/layout-sections';
+import { selectSingleOpeningHours } from '@/lib/us-demo/opening-hours';
 import type { ClinicMasterExperience } from './live-contract';
 
 export type ClinicMasterSourceKind =
@@ -227,8 +228,16 @@ export function compilePremiumDentalMaster(input: {
   const insurancePricing = blocks.filter((block) => (
     block.kind === 'insurance' || block.kind === 'price_or_financing'
   )).slice(0, 12);
+  /**
+   * At most ONE Hours card. The directions row builder labels every `opening_hours` block `Hours`,
+   * so every surviving block became its own card and a practice that words its footer schedule
+   * differently from its contact page shipped two cards that contradicted each other. The reader
+   * in `us-demo/opening-hours` picks the single schedule this compile may print, or none — it
+   * never merges two renderings into a third that the practice never published.
+   */
+  const hours = selectSingleOpeningHours(blocks.filter((block) => block.kind === 'opening_hours'));
   const location = blocks.filter((block) => (
-    ['phone', 'address', 'opening_hours'].includes(block.kind)
+    ['phone', 'address'].includes(block.kind) || block === hours
   ));
   const faqQuestions = blocks.filter((block) => block.kind === 'faq_question');
   const faqAnswers = blocks.filter((block) => block.kind === 'faq_answer');
