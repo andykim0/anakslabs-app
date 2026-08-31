@@ -194,9 +194,28 @@ describe('US-DEMO P2 — source-only English compiler', () => {
       .flatMap((entry) => entry.sections)
       .flatMap((section) => section.elements)
       .flatMap((element) => (
-        element.kind === 'text' && element.id.startsWith('source-') ? [element.text] : []
+        element.kind === 'text' && element.id.startsWith('source-')
+          ? [{ id: element.id, text: element.text }]
+          : []
       ));
-    assert.ok(renderedFactualText.every((text) => sourceTexts.has(text)));
+    /**
+     * NOTHING INVENTED — now checked against the block the element actually CITES.
+     *
+     * A `source-` element is either the whole block, as it has always been, or a verbatim RUN of
+     * it: the hero prints "King's Park Dental Center" out of an SEO <title>, and a provider card
+     * prints "Dr. Alma Reyes" out of the sentence that is the only place this practice names her.
+     * `sourceFragmentText` refuses a fragment that is not a substring at construction; asserting
+     * it here against `source-${block.id}-…` is what makes the citation, and not merely the
+     * corpus, the thing the string has to come from.
+     */
+    const blockTextById = new Map(
+      first.sourceManifest.blocks.map((block) => [block.id, block.text] as const),
+    );
+    assert.ok(renderedFactualText.every(({ id, text }) => {
+      if (sourceTexts.has(text)) return true;
+      const cited = [...blockTextById].find(([blockId]) => id.startsWith(`source-${blockId}-`));
+      return Boolean(cited && cited[1].includes(text));
+    }));
     const sections = first.config.pages[0]?.sections ?? [];
     /**
      * These two used to be asserted as PRESENT here — a `custom` rating-aggregate section and a

@@ -123,9 +123,55 @@ export function clinicHeroBrandFragment(
   return businessName.text.includes(trimmed) ? { titleFragment: trimmed } : {};
 }
 
+/**
+ * THE CLINICIAN'S NAME, WHEN THE ONLY PLACE THE PRACTICE WROTE IT IS THE BIOGRAPHY.
+ *
+ * A `provider_name` block is a name the page put in a heading. Forefront's does not: "Tulsa
+ * dentist you can trust! Dr. Nathan Powell and his team…" is a `provider_bio` and nothing else,
+ * so the card was a heading, a photograph and a paragraph, with no one named — and Kings Park's
+ * second doctor had the same shape.
+ *
+ * Matched against the honorific because that is the token that makes the following words a name
+ * rather than a place. `(?!Dr\b)` stops the run at the next honorific, which is what keeps "Meet
+ * Dr. Nguyen Dr. Nguyen grew up in…" from reading as a four-word name.
+ *
+ * AND IT MUST OPEN A CLAUSE, which is the whole difference between the person a biography is
+ * ABOUT and a person it MENTIONS. Apa's third doctor reads "After graduation, Apa fulfilled his
+ * dream of working alongside Dr. Larry Rosenthal" — take the first honorific in that block and
+ * the card captions Apa's photograph with Rosenthal's name, which is the same defect as putting
+ * a stranger's face on a page, run backwards. A name after "alongside" is an object; a name
+ * after a full stop, or opening the block, is the subject.
+ */
+const PROVIDER_NAME_IN_BIO_RE =
+  /\bDr\.?\s+(?!Dr\b)[A-Z][a-z'’-]+(?:\s+(?!Dr\b)[A-Z][a-z'’-]+){0,2}/gu;
+/** Everything before the honorific, when the honorific opens the block or follows a clause end. */
+const CLAUSE_START_RE = /(?:^|[.!?,:;])\s*$/u;
+
+export function clinicProviderNameFromBio(bio: string): string | undefined {
+  const scanner = new RegExp(PROVIDER_NAME_IN_BIO_RE);
+  let match = scanner.exec(bio);
+  while (match !== null) {
+    if (CLAUSE_START_RE.test(bio.slice(0, match.index))) return match[0];
+    match = scanner.exec(bio);
+  }
+  return undefined;
+}
+
+/**
+ * An alt the practice never wrote. Squarespace and friends fall back to the upload's filename, so
+ * "DDS Headshot DSC_9546.jpg" reached a prospect's demo as the description of their own doctor.
+ */
+const FILENAME_ALT_RE = /\.(?:jpe?g|png|webp|gif|avif|svg)$/iu;
+
+export function clinicAltIsFilename(alt: string | undefined): boolean {
+  return Boolean(alt && FILENAME_ALT_RE.test(alt.trim()));
+}
+
 function providerLayoutImage(input: {
   bio: ClinicMasterSourceBlock;
   experience: ClinicMasterExperience;
+  /** The name this card captions, used to describe the face when the source alt is a filename. */
+  displayName?: string;
 }): ClinicLayoutImage | undefined {
   const prospectFacing = input.experience.mode === 'preview-full'
     || input.experience.mode === 'outreach-safe';
@@ -147,12 +193,19 @@ function providerLayoutImage(input: {
    * slot is a customer's own to fill.
    */
   if (prospectFacing && !photo) return undefined;
+  /**
+   * The name wins over a filename and nothing else. A practice that wrote a real alt keeps it
+   * byte for byte, and a card with no name to offer keeps whatever it had.
+   */
+  const alt = input.displayName && clinicAltIsFilename(photo?.alt)
+    ? input.displayName
+    : photo?.alt ?? DEMO_DISCLOSURES.providerImageAlt;
   return {
     id: photo && 'sourceImageId' in photo
       ? photo.sourceImageId
       : `provider-placeholder-${input.bio.id}`,
     src: photo?.src ?? '/clinic/provider-placeholder.svg',
-    alt: photo?.alt ?? DEMO_DISCLOSURES.providerImageAlt,
+    alt,
   };
 }
 
@@ -336,18 +389,34 @@ export function compilePremiumDentalMaster(input: {
       const credential = blocks.filter((block) => (
           block.kind === 'provider_credential' && block.sourceUrl === bio.sourceUrl
       ))[occurrence];
+      /**
+       * Only when the page gave this bio no heading of its own. A `provider_name` block is what
+       * the practice chose to call this person; reading the sentence is the fallback, not a
+       * second opinion.
+       */
+      const nameInBio = name ? undefined : clinicProviderNameFromBio(bio.text);
+      const displayName = name?.text ?? nameInBio;
+      const image = providerLayoutImage({
+        bio,
+        experience,
+        ...(displayName ? { displayName } : {}),
+      });
       result.push(buildClinicAboutSection({
         id: index === 0 ? 'us-demo-providers' : `us-demo-providers-${index + 1}`,
         name: providerHeading,
         theme,
         statement: name ?? bio,
-        body: name ? [bio] : [],
+        /**
+         * The bio is still the body when the caption came out of it — the card gains a name, it
+         * does not trade its biography for one. The two cite the same block under different
+         * element ids, exactly as the `provider_name` path already does.
+         */
+        body: name || nameInBio ? [bio] : [],
+        ...(nameInBio ? { statementFragment: nameInBio } : {}),
         ...(credential ? { facts: [credential] } : {}),
-        ...(providerLayoutImage({ bio, experience })
-          ? { image: providerLayoutImage({ bio, experience }) }
-          : {}),
+        ...(image ? { image } : {}),
         sourceRole: 'provider',
-        statementIsProviderName: Boolean(name),
+        statementIsProviderName: Boolean(name) || Boolean(nameInBio),
         candidates: ['about.split-left', 'about.heading-body-columns'],
       }));
     });

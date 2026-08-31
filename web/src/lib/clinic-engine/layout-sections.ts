@@ -91,6 +91,21 @@ export function buildClinicHeroSection(input: {
    * keeps the whole SEO string for the <title> and the JSON-LD.
    */
   titleFragment?: string;
+  /**
+   * THE CATEGORY LABEL, WHEN NO BLOCK ON THE PAGE NAMES THE TREATMENT.
+   *
+   * `titleFragment` is source: a verbatim run of `title`, refused if it is not one. This is the
+   * other case — the page HAS no heading that names a treatment, only a coupon cut mid-phrase
+   * ("$59 Exam &") or the numbered items of a blog post ("1 – Veneers change your teeth"). The
+   * page title and the section headings already fall back to the taxonomy's own label when that
+   * happens; this lets the H1, which is the loudest of the three, fall back to the same place
+   * instead of printing the one string the gate had just rejected.
+   *
+   * Chrome, and honest about it: it carries no `source-` id, exactly like the `${name} Overview`
+   * heading the same page prints below it, so nothing downstream reads it as the practice's
+   * words. `title` is still required and still binds the section to its block.
+   */
+  titleChrome?: string;
   lead?: ClinicMasterSourceBlock;
   articleEvidence?: {
     author: ClinicMasterSourceBlock;
@@ -111,9 +126,11 @@ export function buildClinicHeroSection(input: {
    */
   clinicHeroLayout?: ClinicHeroLayoutDecision;
 }): Section {
-  const title = input.titleFragment && input.title.text.includes(input.titleFragment)
-    ? sourceFragmentText(input.title, input.titleFragment, 'hero-title', input.theme, 'lead')
-    : sourceText(input.title, 'hero-title', input.theme, 'lead');
+  const title = input.titleChrome
+    ? layoutText(`${input.id}-hero-title`, input.titleChrome, input.theme, 'lead')
+    : input.titleFragment && input.title.text.includes(input.titleFragment)
+      ? sourceFragmentText(input.title, input.titleFragment, 'hero-title', input.theme, 'lead')
+      : sourceText(input.title, 'hero-title', input.theme, 'lead');
   const lead = input.lead
     ? sourceText(input.lead, 'hero-sub', input.theme, 'body')
     : undefined;
@@ -658,18 +675,34 @@ export function buildClinicAboutSection(input: {
   sourceRole?: 'provider';
   statementIsProviderName?: boolean;
   statementSourceIdPrefix?: string;
+  /**
+   * A VERBATIM FRAGMENT of `statement` to display in its place.
+   *
+   * Forefront publishes one doctor and never puts his name in a heading — it is inside the
+   * sentence, so the crawl has a `provider_bio` and no `provider_name`, and the card rendered as
+   * "Meet the Doctor" followed by a paragraph about a man it never named. The name is right
+   * there in the block; this prints that run of the block as the caption and leaves the rest as
+   * the body. Same fail-safe as the hero: `sourceFragmentText` refuses anything that is not a
+   * substring, so the card shows the practice's own characters or nothing.
+   */
+  statementFragment?: string;
 }): Section {
   const title = layoutText(`${input.id}-layout-title`, input.name, input.theme, 'title');
-  const statement = sourceText(
-    input.statement,
-    input.sourceRole === 'provider'
-      ? input.statementIsProviderName
-        ? 'provider-name'
-        : 'provider-bio'
-      : input.statementSourceIdPrefix ?? 'about-statement',
-    input.theme,
-    'lead',
-  );
+  const statementSuffix = input.sourceRole === 'provider'
+    ? input.statementIsProviderName
+      ? 'provider-name'
+      : 'provider-bio'
+    : input.statementSourceIdPrefix ?? 'about-statement';
+  const statement = input.statementFragment
+    && input.statement.text.includes(input.statementFragment)
+    ? sourceFragmentText(
+        input.statement,
+        input.statementFragment,
+        statementSuffix,
+        input.theme,
+        'lead',
+      )
+    : sourceText(input.statement, statementSuffix, input.theme, 'lead');
   const body = input.body.map((block, index) => (
     sourceText(
       block,

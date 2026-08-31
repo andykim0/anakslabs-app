@@ -291,12 +291,25 @@ const NAV_LABEL_LISTICLE_RE =
   /^\d+\s+(?:facts?|reasons?|things?|ways?|tips?|steps?|myths?|signs?|benefits?|questions?|misconceptions?)\b/iu;
 /** A label the crawl cut in half. A nav item never ends on a conjunction or an open bracket. */
 const NAV_LABEL_TRUNCATED_RE = /(?:\band\b|\bor\b|[&+,;:/(-])\s*$/u;
+/**
+ * The ITEMS of the listicle, not its title.
+ *
+ * `NAV_LABEL_LISTICLE_RE` rejects "4 Facts About Veneers", so the next heading down the post won
+ * the page instead and Kings Park titled a page "1 – Veneers change your teeth". An enumerated
+ * heading is a position in someone's argument; it names nothing, and it reads as nonsense the
+ * moment it is lifted out of the list it counts.
+ *
+ * The separator must be followed by a space, which is what keeps a real name that opens on a
+ * number — "3-Unit Bridge" — out of this rule.
+ */
+const NAV_LABEL_ENUMERATED_ITEM_RE = /^\d{1,2}\s*[-–—.):]\s+/u;
 
 function navLabelIsNavigable(value: string): boolean {
   const label = value.trim();
   if (!label) return false;
   if (NAV_LABEL_COUPON_RE.test(label)) return false;
   if (NAV_LABEL_LISTICLE_RE.test(label)) return false;
+  if (NAV_LABEL_ENUMERATED_ITEM_RE.test(label)) return false;
   return !NAV_LABEL_TRUNCATED_RE.test(label);
 }
 
@@ -1006,6 +1019,8 @@ function procedureContentSections(input: {
   theme: SiteTheme;
   bookingUrl?: string;
   phone?: string;
+  /** The block the page-title gate chose, so the booking card names what the tab names. */
+  titleBlock?: ProspectPublicSourceBlock;
 }): { sections: Section[]; usedImageIds: Set<string> } {
   const sourceUnits = prospectPublicSourceContentUnits(input.blocks);
   const images = input.images.filter((image) => !sourceImageIsInsuranceLogo(image));
@@ -1124,7 +1139,19 @@ function procedureContentSections(input: {
   });
   if (faq) pushSection(faq);
   if (input.bookingUrl) {
+    /**
+     * `sourceUnits[0].title` STILL LEADS, and is still what every page renders whose first unit
+     * is a heading — the ordering here is not the hero's, so preferring the hero's block outright
+     * rewrote the booking card on all three dental fixtures, which is a change nobody asked for.
+     *
+     * The chain only moves when that first choice is not a heading at all: Kings Park's booking
+     * card read "$59 Exam &", a price the crawl cut on its conjunction, which is the one case
+     * this is here to answer. Then the hero's block, then the first unit title that is a heading,
+     * then the original last resorts unchanged.
+     */
     const ctaTitle = input.blocks.find((block) => block.kind === 'cta')
+      ?? [sourceUnits[0]?.title, input.titleBlock, ...sourceUnits.map((unit) => unit.title)]
+        .find((block) => block && navLabelIsNavigable(block.text))
       ?? sourceUnits[0]?.title
       ?? input.blocks.find((block) => block.kind === 'service');
     if (ctaTitle) {
@@ -1939,10 +1966,47 @@ export function compileUsMedicalFullPreview(input: {
      * headings ("We Offer Different Services"), the sentences ("Why Periodontal Maintenance Is
      * Essential"), and the symptoms ("Red, swollen, or tender gums") that were reaching the bar.
      * Anything it turns down falls back to the category label, which always reads correctly.
+     *
+     * Anything it turns down falls back to the category label, which always reads correctly.
      */
-    const displayTitle = categoryServices.find((block) => (
+    const titleBlock = categoryServices.find((block) => (
       isUsableProcedurePageTitle(block.text) && navLabelIsNavigable(block.text)
-    ))?.text ?? meta.navLabel;
+    ));
+    const displayTitle = titleBlock?.text ?? meta.navLabel;
+    /**
+     * THE H1 IS HELD TO LESS THAN THE TAB, AND FOR A REASON.
+     *
+     * `isUsableProcedurePageTitle` asks whether a string can NAME a treatment, because a nav
+     * label has two words to work with. An H1 has a line, so a descriptive heading — "The
+     * Lifespan of Porcelain Veneers Isn't Defined by a Calendar" — is a perfectly good one, and
+     * holding the hero to the nav gate replaced eight of Apa's headings with a category word,
+     * one of them ("Implants", on a veneers page) naming the wrong treatment outright.
+     *
+     * So the hero is held only to `navLabelIsNavigable`: the narrow test for a string that is not
+     * a heading at all. A price cut mid-phrase ("$59 Exam &"), an enumerated item ("1 – Veneers
+     * change your teeth") and a listicle opener ("4 Facts About Veneers") are skipped; everything
+     * that reads as a sentence is kept exactly as it was. When the block that LEADS the page does
+     * not clear even that bar, the H1 takes the category label as chrome — it does not go hunting
+     * further down the list, because the next heading down belongs to a different post: promoting
+     * it titled Kings Park's veneers page "What to Look for in a Family Dentist in Burke VA".
+     * A category label is vaguer than a stolen headline and truer, and it is already what the tab
+     * and the section headings say.
+     */
+    const heroTitleBlock = categoryServices[0]
+      && navLabelIsNavigable(categoryServices[0].text)
+      ? categoryServices[0]
+      : undefined;
+    const heroH1Text = heroTitleBlock?.text ?? displayTitle;
+    /**
+     * Unchanged (`categoryServices[1]`) on every page whose first block leads. On a page where it
+     * did not, the sub must not reprint the H1 the chrome just supplied, nor the coupon the H1
+     * was rescued from.
+     */
+    const heroLead = heroTitleBlock
+      ? categoryServices[1]
+      : categoryServices.find(
+          (block) => block.text !== heroH1Text && navLabelIsNavigable(block.text),
+        );
     const pageTopic = procedureImageTopic(planned, slug, taxonomy);
     const categoryImages = topicPhotoPool(pageTopic);
     const heroImage = allocateHeroImage(categoryImages.hero.filter(eligibleForClinicHero));
@@ -1957,6 +2021,7 @@ export function compileUsMedicalFullPreview(input: {
       blocks: pageSourceBlocks,
       images: bodyImages,
       theme,
+      ...(heroTitleBlock ? { titleBlock: heroTitleBlock } : {}),
       bookingUrl: '#clinic-sticky-booking',
     });
     const galleryImages = bodyImages
@@ -2000,8 +2065,9 @@ export function compileUsMedicalFullPreview(input: {
       sections: [
         buildClinicHeroSection({
           id: `clinic-procedure-${category}-hero`,
-          title: categoryServices[0],
-          ...(categoryServices[1] ? { lead: categoryServices[1] } : {}),
+          title: heroTitleBlock ?? categoryServices[0],
+          ...(heroTitleBlock ? {} : { titleChrome: displayTitle }),
+          ...(heroLead ? { lead: heroLead } : {}),
           ...(articleAuthor
             ? {
                 articleEvidence: {

@@ -16,6 +16,7 @@ import {
   sourceImagePersonNames,
 } from './source-images';
 import { prospectPublicSourceBlocks } from './source-extraction';
+import { clinicAltIsFilename, clinicProviderNameFromBio } from '@/lib/clinic-master/compiler';
 
 /**
  * FIVE DEFECTS FOUND BY REISSUING TWO REAL DEMOS.
@@ -475,6 +476,147 @@ describe('the nav lists destinations, once each', () => {
       assert.doesNotMatch(label, /[$£€]\s?\d/u, label);
       assert.doesNotMatch(label, /^\d+\s+(?:facts?|reasons?|things?|ways?|tips?)\b/iu, label);
       assert.doesNotMatch(label, /(?:\band\b|\bor\b|[&+,;:/(-])\s*$/u, label);
+    }
+  });
+});
+
+/* ============================== 5. a third reissue: the title, and the unnamed doctor ======= */
+
+/**
+ * WHAT THE THIRD REISSUE OF THE SAME TWO SITES FOUND.
+ *
+ * The hero name fix of the previous wave was reported as not landing. It had landed: recompiling
+ * both saved artifacts at HEAD produces "King's Park Dental Center" and "Forefront Dentistry" in
+ * the config, and the fragment is skipped on neither. What had not landed was a NEW preview — the
+ * live page was compiled before the fix and a stored config is frozen at compile time, while the
+ * header, which cleans the same name at RENDER time, picked the fix up on deploy. That asymmetry
+ * is the whole reason the defect looked like a code defect twice.
+ */
+describe('the coupon and the listicle do not become the page', () => {
+  /**
+   * The gate governed the tab and nothing else, so Kings Park's emergency page was titled
+   * "X-ray - Emergency Dentistry" while its H1 and its booking button both read "$59 Exam &" — a
+   * price the crawl cut on its own ampersand, in the largest type on the page.
+   */
+  test('no rendered heading on any corpus is a price, a listicle or a cut-off phrase', () => {
+    for (const name of ALL) {
+      for (const page of compiled(name).config.pages) {
+        const hero = page.sections.find((section) => section.type === 'hero');
+        const cta = page.sections.find((section) => section.type === 'cta');
+        for (const [role, section] of [['hero', hero], ['cta', cta]] as const) {
+          if (!section) continue;
+          const heading = textsOf(section)[0];
+          if (!heading) continue;
+          const where = `${name} /${page.slug} ${role}: ${heading}`;
+          assert.doesNotMatch(heading, /[$£€]\s?\d/u, where);
+          assert.doesNotMatch(heading, /^\d+\s+(?:facts?|reasons?|things?|ways?|tips?)\b/iu, where);
+          assert.doesNotMatch(heading, /^\d{1,2}\s*[-–—.):]\s+/u, where);
+          assert.doesNotMatch(heading, /(?:\band\b|\bor\b|[&+,;:/(-])\s*$/u, where);
+        }
+      }
+    }
+  });
+
+  /**
+   * The items of a listicle, not its title. Rejecting "4 Facts About Veneers" promoted the next
+   * heading down the same post, so Kings Park titled a page "1 – Veneers change your teeth". A
+   * name that merely OPENS on a number is not one of these, which is what the required space
+   * after the separator is for.
+   */
+  test('an enumerated item is not a title, and a name that opens on a number still is', () => {
+    const enumerated = /^\d{1,2}\s*[-–—.):]\s+/u;
+    assert.match('1 – Veneers change your teeth', enumerated);
+    assert.match('2. Veneers last a long time', enumerated);
+    assert.match('3) Veneers can fix several things', enumerated);
+    assert.doesNotMatch('3-Unit Bridge', enumerated);
+    assert.doesNotMatch('All-on-4 Implants', enumerated);
+  });
+});
+
+describe('a face on a provider card belongs to someone the card names', () => {
+  /**
+   * Forefront publishes one doctor and never puts his name in a heading, so the crawl produced a
+   * `provider_bio` and no `provider_name`, and the card rendered as "Meet the Doctor", a
+   * photograph, and a paragraph about a man it never named. The name is inside the block; the
+   * card prints that run of it and keeps the biography.
+   */
+  test('a card is unnamed only where its own bio names nobody, and always keeps the bio', () => {
+    for (const name of ALL) {
+      for (const { page, section } of providerSections(compiled(name).config.pages)) {
+        const where = `${name} ${page} ${section.id}`;
+        const bio = section.elements.find((element) => (
+          element.kind === 'text' && element.id.includes('provider-bio')
+        ));
+        assert.ok(bio, `${where}: the card keeps the biography`);
+        const named = section.elements.some((element) => (
+          element.kind === 'text' && element.id.includes('provider-name')
+        ));
+        if (named) continue;
+        /**
+         * Apa's second card is the honest residual: "Apa was born and raised in upstate New York
+         * and, from the age of five, aspired to…" carries no honorific at all, so there is no
+         * name to lift and inventing one is the defect. A card may go unnamed — but only here.
+         */
+        assert.equal(
+          clinicProviderNameFromBio((bio as { text: string }).text),
+          undefined,
+          `${where}: a bio that names its subject captions the card`,
+        );
+      }
+    }
+  });
+
+  /**
+   * The subject of the sentence, never a colleague it mentions. Apa's third doctor reads "After
+   * graduation, Apa fulfilled his dream of working alongside Dr. Larry Rosenthal" — taking the
+   * first honorific there captioned Apa's photograph with Rosenthal's name, which is the defect
+   * this whole file exists to prevent, run backwards.
+   */
+  test('a name is read from a bio only where it opens a clause', () => {
+    assert.equal(
+      clinicProviderNameFromBio(
+        'Tulsa dentist you can trust! Dr. Nathan Powell and his team provide expert care',
+      ),
+      'Dr. Nathan Powell',
+    );
+    assert.equal(
+      clinicProviderNameFromBio(
+        'During the past 30 years as a practicing dentist, Dr. Bursich has continued to study',
+      ),
+      'Dr. Bursich',
+    );
+    assert.equal(
+      clinicProviderNameFromBio(
+        'After graduation, Apa fulfilled his dream of working alongside Dr. Larry Rosenthal',
+      ),
+      undefined,
+    );
+    // Two honorifics running is a page that repeated itself, not a four-word name.
+    assert.equal(
+      clinicProviderNameFromBio('Meet Dr. Nguyen Dr. Nguyen grew up in Warren, New Jersey.'),
+      undefined,
+    );
+  });
+
+  /**
+   * Squarespace falls back to the upload's filename, so "DDS Headshot DSC_9546.jpg" reached a
+   * prospect as the description of their own doctor. A practice that wrote a real alt keeps it.
+   */
+  test('a filename is not a description of a doctor', () => {
+    assert.ok(clinicAltIsFilename('DDS Headshot DSC_9546.jpg'));
+    assert.ok(clinicAltIsFilename('image-asset.jpeg'));
+    assert.ok(!clinicAltIsFilename('Thomas Bursich D.D.S'));
+    assert.ok(!clinicAltIsFilename('Dr. Neda Naim'));
+    assert.ok(!clinicAltIsFilename(undefined));
+    for (const name of ALL) {
+      for (const { page, section } of providerSections(compiled(name).config.pages)) {
+        const media = section.elements.find((element) => element.kind === 'image');
+        if (!media || media.kind !== 'image') continue;
+        assert.ok(
+          !clinicAltIsFilename(media.alt),
+          `${name} ${page} ${section.id}: the alt describes a person, not a file`,
+        );
+      }
     }
   });
 });
