@@ -13,7 +13,7 @@ import Module from 'node:module';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import assertNode from 'node:assert';
-import { describe, test } from 'node:test';
+import { afterEach, beforeEach, describe, mock, test } from 'node:test';
 import {
   MAX_MONTHLY_CONTENT_SLOTS,
   monthlySlotSlug,
@@ -33,6 +33,21 @@ import { publishSlot, slotGeneration } from './content-slot-fixtures';
 
 const PERIOD = '2026-08-01';
 const ACTOR = 'admin-user-7f3a2c9d';
+
+/**
+ * F3 asserts what the panel reports for the month it believes it is in, and the panel gets that
+ * month from the wall clock: `loadContentFulfillmentPanel` takes no clock and calls
+ * `siteFulfillmentPlan(site)`, whose `now` defaults to `new Date()`. With PERIOD a fixed string,
+ * the two agreed only during August 2026 and the suite began failing on the 1st of September —
+ * the same rot the 2026-08-14 batch cleared out of three other tests.
+ *
+ * The clock is frozen instead of the constant being bumped, because bumping only moves the
+ * expiry. The instant is derived FROM PERIOD so the two cannot drift apart again: midday UTC on
+ * the 15th is mid-month in every US zone this suite uses, so no zone offset or DST transition can
+ * push the panel into a neighbouring month. At the next rollover — and every one after it —
+ * nothing happens.
+ */
+const FROZEN_NOW = Date.parse(`${PERIOD.slice(0, 8)}15T12:00:00Z`);
 
 type ModuleLoader = {
   _load: (request: string, parent: unknown, isMain: boolean) => unknown;
@@ -61,6 +76,10 @@ class RecordingRepository extends MockContentQueueRepository {
 }
 
 describe('BLOG-SCREEN F3 — the panel stays correct as the roster grows', () => {
+  // Only Date is faked: the panel's fan-out is promise-based and must still settle normally.
+  beforeEach(() => mock.timers.enable({ apis: ['Date'], now: FROZEN_NOW }));
+  afterEach(() => mock.timers.reset());
+
   /**
    * 63 sites × 8 posts is 504 rows for the current month alone — past the pooled read's old
    * 500-row ceiling. Each site also carries four earlier months, so its 40 rows exceed the
