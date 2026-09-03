@@ -56,6 +56,7 @@ import {
   atelierRootStyle,
 } from './ClinicAtelier';
 import type { ClinicMasterExperience } from '@/lib/clinic-master/live-contract';
+import { tenantBrandName } from './TenantHeader';
 import { themeColor } from '@/lib/design/site-theme-tokens';
 import { continuousCanvasIsEnabled, siteCinematicIsEnabled } from '@/lib/motion/site-cinematic';
 import { StoryProgressRail } from '@/components/motion/StoryProgressRail';
@@ -448,9 +449,19 @@ export function SiteRenderer({
   const progressRail = config.siteCinematic?.progressRail ?? 'numbered';
   // [v4] 선택 페이지의 섹션만 렌더 (미매칭 시 홈으로 폴백 — 호출부가 사전 존재 확인)
   const page = findPage(config, pageSlug) ?? homePage(config);
+  /**
+   * The home page's largest heading, and the last place the raw SEO <title> could still reach a
+   * reader. A practice that never filled in businessInfo — every outreach preview — fell straight
+   * through to `meta.title`, so "Dentist Burke VA - King's Park Dental Center" rendered as the
+   * practice's own opening line while the header two inches above it said "King's Park Dental
+   * Center". `tenantBrandName` is that header's function: reached only once businessName is absent,
+   * it reads `meta.title` off the same config and cleans it against the same published-address
+   * evidence, so the two can never disagree. `meta.title` itself is untouched — it stays the
+   * <title> and the JSON-LD name.
+   */
   const clinicPageHeading = page.slug === ''
     ? config.businessInfo?.businessName?.trim()
-      || config.meta.title
+      || tenantBrandName(config)
       || config.businessInfo?.ownerName
       || page.title
     : page.title;
