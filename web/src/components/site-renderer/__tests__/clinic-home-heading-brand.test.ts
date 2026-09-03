@@ -37,6 +37,7 @@ import { prepareUsMedicalPreview } from '@/lib/us-demo/admin-workflow';
 import { buildSiteConfigFromSurvey } from '@/lib/data/site-templates';
 import { pagePlanFromTemplate, planFromTemplate, resolveTemplate } from '@/lib/data/site-blueprints';
 import { SiteRenderer } from '@/components/site-renderer/SiteRenderer';
+import { SemanticOutline } from '@/components/site-renderer/SemanticOutline';
 
 const CORPUS = 'scripts/fixtures/us-demo-artifacts/t0-enamel.json';
 
@@ -111,6 +112,59 @@ describe('the clinic home heading shows the practice name, not the SEO title', (
       assert.equal(subject.meta.title, title);
     });
   }
+});
+
+/**
+ * THE SAME DEFECT, ONE LAYER DOWN — the accessibility outline.
+ *
+ * `SemanticOutline` carried a byte-identical fallback chain and emits it as the page's <h1> inside
+ * a screen-reader-only wrapper. So a preview that had stopped showing the raw SEO title was still
+ * ANNOUNCING it, which is the same defect with a smaller audience rather than a different one.
+ *
+ * Its gate is the clinic pin alone. The outline has no locale branch to hang a second condition
+ * on, and it should not grow one: `TenantHeader` cleans unconditionally, so gating on
+ * `config.clinicMaster` makes the outline agree with the header on every clinic site rather than
+ * on some of them.
+ */
+function outlineHeading(config: SiteConfig): string {
+  const html = renderToStaticMarkup(createElement(SemanticOutline, { config, pageSlug: '' }));
+  const match = /<h1[^>]*>([\s\S]*?)<\/h1>/.exec(html);
+  assert.ok(match, 'the outline rendered no <h1>');
+  return match[1].replace(/<[^>]*>/gu, '').replace(/&#x27;/gu, "'").replace(/&amp;/gu, '&').trim();
+}
+
+describe('the accessibility outline announces the practice name, not the SEO title', () => {
+  for (const { name, title, address, expected } of CASES) {
+    test(name, () => {
+      const config = compiledPreview();
+      assert.equal(config.businessInfo, undefined, 'the raw-title branch must be the live one');
+      assert.ok(config.clinicMaster);
+      const subject: SiteConfig = {
+        ...config,
+        meta: { ...config.meta, title },
+        publicContact: { version: 1, address },
+      };
+      assert.equal(outlineHeading(subject), expected);
+      assert.equal(subject.meta.title, title);
+    });
+  }
+
+  /**
+   * The guard here cannot be "identical under either title" the way the visible heading's is: a
+   * non-clinic outline is SUPPOSED to print `meta.title`, so the two titles must produce two
+   * different <h1>s. What it must not do is clean one into the other.
+   */
+  test('a non-clinic outline still prints meta.title verbatim', () => {
+    const config = compiledPreview();
+    const subject = {
+      ...config,
+      clinicMaster: undefined,
+      meta: { ...config.meta, title: CASES[0].title },
+      publicContact: { version: 1, address: CASES[0].address },
+    } as SiteConfig;
+    assert.equal(subject.clinicMaster, undefined, 'this guard must run without the clinic pin');
+    assert.equal(outlineHeading(subject), CASES[0].title);
+  });
 });
 
 /**

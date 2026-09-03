@@ -8,6 +8,7 @@
  */
 import type { Section, SiteConfig } from '@/lib/types/site';
 import { findPage, homePage } from '@/lib/types/site';
+import { tenantBrandName } from './TenantHeader';
 import { testimonialSectionIsPublic } from '@/lib/content/testimonial-policy';
 
 const SR_ONLY: React.CSSProperties = {
@@ -122,8 +123,19 @@ export function SemanticOutline({ config, pageSlug = '' }: { config: SiteConfig;
   // [v4] 선택 페이지 스코프 — 홈은 <h1>=사이트 제목, 서브페이지는 <h1>=페이지 title
   const page = findPage(config, pageSlug) ?? homePage(config);
   const isHome = page.slug === '';
+  /**
+   * The same fallback chain as the visible clinic heading, and the same defect: an outreach
+   * preview has no businessInfo, so the raw SEO <title> was what a screen reader announced as the
+   * page's <h1> while the header said the practice's name. Cleaned through the header's own
+   * `tenantBrandName`, and only where the clinic pin is — the geo strip reads US state codes and
+   * ZIPs off a published address, so it has nothing to say about a KR or non-clinic site, whose
+   * outline must stay byte-identical. `meta.title` is unmodified; it remains the <title>.
+   */
   const title = isHome
-    ? info?.businessName?.trim() || config.meta.title || info?.ownerName || 'Website'
+    ? info?.businessName?.trim()
+      || (config.clinicMaster ? tenantBrandName(config) : config.meta.title)
+      || info?.ownerName
+      || 'Website'
     : page.title;
   const sections = page.sections.filter(
     (section) => !section.hidden && testimonialSectionIsPublic(config, section),
