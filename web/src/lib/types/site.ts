@@ -452,6 +452,13 @@ export type MotionIndustryClass =
   | 'fine_dining'
   | 'beauty'
   | 'medical'
+  /**
+   * 동물 진료. 'medical'(사람 진료)과 별개 값으로 둔다 — 'other'로 흡수하면 동물 건강 주장이
+   * 아무 정책 표면도 갖지 못한 채 발행되고, 'medical'로 두면 schema.org 타입이 MedicalClinic로
+   * 잘못 나간다. 광고 카피 검사는 사람 진료와 같은 레지스트리를 계속 통과시킨다
+   * (medical-ad-enforcement의 isScreenedHealthConfig 참조).
+   */
+  | 'veterinary'
   | 'remodeling'
   | 'legal'
   | 'consulting'

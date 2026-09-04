@@ -60,6 +60,7 @@ export const HERO_LAYOUT_FALLBACK_ORDER = {
   fine_dining: ['hero.fullbleed-centered', 'hero.split-right', 'hero.overlay-bottom-left', 'hero.asymmetric-offset'],
   beauty: ['hero.split-left', 'hero.fullbleed-centered', 'hero.split-right', 'hero.asymmetric-offset'],
   medical: ['hero.split-left', 'hero.text-only-bold', 'hero.image-below'],
+  veterinary: ['hero.split-left', 'hero.text-only-bold', 'hero.image-below'],
   legal: ['hero.text-only-bold', 'hero.split-left', 'hero.image-below'],
   consulting: ['hero.split-left', 'hero.text-only-bold', 'hero.split-right', 'hero.asymmetric-offset'],
   workshop: ['hero.image-below', 'hero.split-right', 'hero.fullbleed-centered', 'hero.asymmetric-offset'],
@@ -121,6 +122,9 @@ function authoredIndustry(industry: MotionIndustryClass): HeroLayoutAuthoredIndu
   switch (industry) {
     case 'remodeling':
       return 'workshop';
+    // The authored hero set has no veterinary entry; it borrows the clinical one it duplicates.
+    case 'veterinary':
+      return 'medical';
     case 'photography':
     case 'brand':
       return 'portfolio';

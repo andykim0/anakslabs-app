@@ -12,7 +12,6 @@ import {
   LAW_FIRM_WITH_MEDICAL_PRACTICE_CORPUS,
   MANUFACTURER_CORPUS,
   UNCLASSIFIABLE_CORPUS,
-  VETERINARY_CORPUS,
   syntheticArtifact,
   type SyntheticCorpus,
 } from './__fixtures__/non-medical-corpora';
@@ -229,13 +228,6 @@ describe('NON-MEDICAL — the rebuild engine opens past medicine and the medical
       );
       assert.equal(compiled.config.meta.industryClass, 'medical');
       assert.equal(compiled.config.meta.industryId, 'clinic');
-    });
-
-    test('a veterinary practice fails closed rather than borrowing a class', () => {
-      const compiled = compileSynthetic(VETERINARY_CORPUS);
-      assert.equal(compiled.audit.industry.verdict, 'medical');
-      assert.equal(compiled.audit.industry.basis, 'medical-veto');
-      assert.equal(compiled.config.meta.industryClass, 'medical');
     });
 
     test('a source with no trade vocabulary at all fails closed', () => {

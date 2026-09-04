@@ -187,9 +187,74 @@ const MEDICAL_VETO_VOCABULARY: readonly RegExp[] = Object.freeze([
   /\bsurger(?:y|ies)\b|\bsurgical\b|\bprocedures? performed\b/iu,
   /\bprescriptions?\b|\bmedications?\b|\banesthesia\b|\bsedation\b/iu,
   /\btherap(?:y|ies|ist|ists|eutic)\b/iu,
-  // Veterinary — held on the medical path on purpose; see NON_MEDICAL_INDUSTRY_CLASS.
+  // Veterinary. Still vetoes the five trades: a consultancy that talks about animal hospitals is
+  // not established as a consultancy. Which KIND of care it is gets decided below.
   /\bveterinar(?:y|ian|ians)\b|\banimal hospitals?\b|\bpet (?:care|health|owners?)\b/iu,
 ]);
+
+/**
+ * ANIMAL CARE, TOLD APART FROM HUMAN CARE.
+ *
+ * Both publish surgery, dentistry, dermatology, internal medicine, oncology, radiology, anesthesia
+ * and "patients" — vets call their animals patients. So the clinical vocabulary above cannot
+ * separate them, and any term that reads as medical on both sides is useless here by construction.
+ *
+ * What separates them is that a veterinary practice says so, constantly and unmistakably, and a
+ * human practice never says any of it.
+ */
+const VETERINARY_VOCABULARY: readonly RegExp[] = Object.freeze([
+  /\bveterinar(?:y|ian|ians|ians')\b/iu,
+  /\banimal hospitals?\b|\bpet hospitals?\b|\banimal clinics?\b/iu,
+  /\bdvm\b|\bvmd\b/iu,
+  /\bpets?\b|\bpet owners?\b/iu,
+  /\bdogs?\b|\bcats?\b|\bpupp(?:y|ies)\b|\bkittens?\b/iu,
+  /\bspay(?:ed|ing)?\b|\bneuter(?:ed|ing)?\b/iu,
+  /\bmicrochipp?(?:ed|ing)?\b/iu,
+  /\brabies\b|\bdistemper\b|\bparvo(?:virus)?\b|\bfeline leukemia\b/iu,
+  /\bheartworms?\b|\bdeworming\b|\bflea and tick\b/iu,
+  /\bpet boarding\b|\bkennels?\b|\bgrooming\b/iu,
+  /\bcanine\b|\bfeline\b|\bequine\b|\bbovine\b|\bavian\b/iu,
+  /\blivestock\b|\bherd health\b|\bexotic pets?\b/iu,
+  /\banimal (?:care|patients?|wellness)\b/iu,
+]);
+
+/**
+ * Any one of these means a human practice, whatever else the corpus says.
+ *
+ * Chosen the hard way: each term had to survive the question "would a veterinary practice ever
+ * print this?". That eliminated most of what looks human at a glance. Vets do dermatology,
+ * oncology, internal medicine, dentistry, cataract surgery and radiology, and they publish
+ * "board-certified" and "patients", so none of those can appear here. What is left is human
+ * payer language, human-only body work, and human-only clinician titles.
+ *
+ * A practice that somehow serves both lands on human medical, which is the strict side: it keeps
+ * the human registry's full treatment and the human JSON-LD identity.
+ */
+const HUMAN_ONLY_CARE_MARKERS: readonly RegExp[] = Object.freeze([
+  // Human payer and privacy regimes. There is no animal-care analogue of any of these.
+  /\bhipaa\b/iu,
+  /\bmedicare\b|\bmedicaid\b/iu,
+  /\bin[- ]network\b|\bco[- ]?pays?\b|\bdeductibles?\b/iu,
+  // Human-only clinician titles. A veterinarian is never called a physician or a dentist.
+  /\bphysicians?\b/iu,
+  /\bdentists?\b/iu,
+  /\bdds\b|\bdmd\b/iu,
+  /\bpediatric(?:s|ian|ians)?\b/iu,
+  /\bobstetric(?:s|ian|ians)?\b|\bgyn(?:ecolog(?:y|ist|ists))?\b|\bob[\s/-]?gyn\b|\bmidwi(?:fe|ves)\b/iu,
+  // Human-only body work.
+  /\borthodont(?:ic|ics|ist|ists)\b|\bbraces\b|\binvisalign\b|\bveneers?\b/iu,
+  /\blasik\b/iu,
+  /\bmammograms?\b|\bcolonoscop(?:y|ies)\b|\bpap smears?\b/iu,
+  /\bprimary care (?:physicians?|doctors?)\b|\bfamily (?:medicine|practice)\b/iu,
+  /\bchiropract(?:ic|or|ors)\b/iu,
+]);
+
+/**
+ * Four, matching the non-medical bar, and for the same reason: this decides an identity, so the
+ * source has to be unambiguous about it. A real veterinary practice clears it without trying —
+ * "veterinarian", "pet", "dog", "cat" is already four before any service is named.
+ */
+export const VETERINARY_MINIMUM_DISTINCT_TERMS = 4;
 
 /**
  * Zero. Not a tuning knob — the whole safety argument rests on it. Raising it above zero means
@@ -209,16 +274,20 @@ export const NON_MEDICAL_MINIMUM_MARGIN = 2;
 export type RobustSiteIndustryBasis =
   | 'source-vocabulary'
   | 'medical-veto'
+  | 'human-care-marker'
   | 'insufficient-evidence'
   | 'ambiguous'
   | 'jurisdiction-not-eligible';
 
 export interface RobustSiteIndustryResolution {
-  /** `'medical'` is the refusal as well as the verdict; `basis` says which one it was. */
-  verdict: 'medical' | NonMedicalIndustryId;
+  /** `'medical'` is the refusal as well as a verdict; `basis` says which one it was. */
+  verdict: 'medical' | 'veterinary' | NonMedicalIndustryId;
   basis: RobustSiteIndustryBasis;
-  /** The medical terms that vetoed, so an operator can see what was read. */
+  /** The medical terms that vetoed the five trades, so an operator can see what was read. */
   medicalTermHits: string[];
+  /** Distinct veterinary terms found, and the human-only terms that overrode them if any. */
+  veterinaryTermCount: number;
+  humanOnlyMarkerHits: string[];
   scores: Readonly<Record<NonMedicalIndustryId, number>>;
   reason: string;
 }
@@ -233,8 +302,18 @@ function medicalRefusal(
   scores: Readonly<Record<NonMedicalIndustryId, number>>,
   reason: string,
   medicalTermHits: string[] = [],
+  veterinaryTermCount = 0,
+  humanOnlyMarkerHits: string[] = [],
 ): RobustSiteIndustryResolution {
-  return { verdict: 'medical', basis, medicalTermHits, scores, reason };
+  return {
+    verdict: 'medical',
+    basis,
+    medicalTermHits,
+    veterinaryTermCount,
+    humanOnlyMarkerHits,
+    scores,
+    reason,
+  };
 }
 
 const EMPTY_SCORES: Readonly<Record<NonMedicalIndustryId, number>> = Object.freeze(
@@ -281,11 +360,38 @@ export function resolveRobustSiteIndustry(input: {
   ) as Record<NonMedicalIndustryId, number>;
 
   if (medicalTermHits.length > MEDICAL_VETO_MAXIMUM_TERMS) {
+    /**
+     * The source is care of some kind. The only remaining question is whose, and it is asked the
+     * same way as everything else here: veterinary must be positively established, and human
+     * medical is what is left. A practice serving both trips a human-only marker and lands on
+     * human medical, which keeps the stricter identity and the human registry's full treatment.
+     */
+    const veterinaryTermCount = distinctTermHits(corpus, VETERINARY_VOCABULARY);
+    const humanOnlyMarkerHits = HUMAN_ONLY_CARE_MARKERS
+      .filter((pattern) => pattern.test(corpus))
+      .map((pattern) => pattern.source);
+    if (veterinaryTermCount >= VETERINARY_MINIMUM_DISTINCT_TERMS && humanOnlyMarkerHits.length === 0) {
+      return {
+        verdict: 'veterinary',
+        basis: 'source-vocabulary',
+        medicalTermHits,
+        veterinaryTermCount,
+        humanOnlyMarkerHits,
+        scores,
+        reason: `veterinary on ${veterinaryTermCount} distinct terms with no human-only care marker`,
+      };
+    }
     return medicalRefusal(
-      'medical-veto',
+      humanOnlyMarkerHits.length > 0 && veterinaryTermCount >= VETERINARY_MINIMUM_DISTINCT_TERMS
+        ? 'human-care-marker'
+        : 'medical-veto',
       scores,
-      `${medicalTermHits.length} medical term(s) present; the source is not established as non-medical`,
+      humanOnlyMarkerHits.length > 0 && veterinaryTermCount >= VETERINARY_MINIMUM_DISTINCT_TERMS
+        ? `${veterinaryTermCount} veterinary term(s) but ${humanOnlyMarkerHits.length} human-only care marker(s); held to human medical`
+        : `${medicalTermHits.length} medical term(s) present; the source is not established as non-medical`,
       medicalTermHits,
+      veterinaryTermCount,
+      humanOnlyMarkerHits,
     );
   }
 
@@ -315,6 +421,8 @@ export function resolveRobustSiteIndustry(input: {
     verdict: winner,
     basis: 'source-vocabulary',
     medicalTermHits,
+    veterinaryTermCount: 0,
+    humanOnlyMarkerHits: [],
     scores,
     reason: `${winner} on ${top} distinct terms against ${second} for ${runnerUp}, with no medical vocabulary present`,
   };
@@ -329,11 +437,16 @@ export function resolveRobustSiteIndustry(input: {
  * firm is neither of them. Absence is what every config that is not one of those two already
  * means, and it keeps `industryId === 'clinic'` — which is a second, independent trigger for the
  * medical screen and for the MedicalClinic JSON-LD subtype — off a non-medical site.
+ *
+ * Veterinary omits `industryId` for that same second reason and NOT the first: it is still
+ * screened by the medical advertising registry, on `industryClass` (see
+ * `isScreenedHealthConfig`). What absence buys here is the JSON-LD identity — `clinic` would
+ * force MedicalClinic and call an animal practice human care.
  */
 export function industryMetaFor(
   resolution: RobustSiteIndustryResolution,
 ): { industryClass: MotionIndustryClass; industryId?: 'clinic' } {
-  return resolution.verdict === 'medical'
-    ? { industryClass: 'medical', industryId: 'clinic' }
-    : { industryClass: NON_MEDICAL_INDUSTRY_CLASS[resolution.verdict] };
+  if (resolution.verdict === 'medical') return { industryClass: 'medical', industryId: 'clinic' };
+  if (resolution.verdict === 'veterinary') return { industryClass: 'veterinary' };
+  return { industryClass: NON_MEDICAL_INDUSTRY_CLASS[resolution.verdict] };
 }

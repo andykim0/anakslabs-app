@@ -170,6 +170,13 @@ function organizationTypeFor(
     retail: 'Store',
     beauty: 'BeautySalon',
     medical: 'MedicalClinic',
+    /**
+     * A real schema.org type (LocalBusiness > VeterinaryCare), verified against the live
+     * vocabulary rather than assumed. It is deliberately NOT a MedicalBusiness subtype — animal
+     * practice is not human care, and telling a search engine a vet is a MedicalClinic is the
+     * error this value exists to end.
+     */
+    veterinary: 'VeterinaryCare',
     legal: 'LegalService',
     consulting: 'ProfessionalService',
     workshop: 'ProfessionalService',

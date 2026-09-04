@@ -670,6 +670,13 @@ export function canUseMotionSignature(
   if (!contentFits(id, context, scene)) return { allowed: false, reason: 'insufficient structured content' };
   if (id === 'before-after-scrub') {
     if (context.industryClass === 'medical') return { allowed: false, reason: 'medical before-after blocked' };
+    /**
+     * A healed wound or a cleaned set of teeth is a treatment-outcome claim whether the patient
+     * is a person or a dog. `hasVerifiedCustomerPair` would refuse this anyway — it admits only
+     * beauty and remodeling — but the medical block above is stated rather than inferred from
+     * that, and this one is the same kind of claim.
+     */
+    if (context.industryClass === 'veterinary') return { allowed: false, reason: 'veterinary before-after blocked' };
     if (context.classificationSource !== 'server') return { allowed: false, reason: 'unverified industry classification' };
     if (!hasVerifiedCustomerPair(context)) return { allowed: false, reason: 'verified customer pair required' };
     if (scene && !verifiedBeforeAfter(scene, context)) {
@@ -685,6 +692,7 @@ const RECOMMENDED: Record<MotionIndustryClass, readonly ProductionMotionSignatur
   fine_dining: ['sticky-chapters', 'horizontal-story', 'true-card-stack', 'cinematic-scrub'],
   beauty: ['before-after-scrub', 'true-card-stack', 'path-journey'],
   medical: ['path-journey', 'true-card-stack'],
+  veterinary: ['path-journey', 'true-card-stack'],
   remodeling: ['before-after-scrub', 'path-journey', 'true-card-stack'],
   legal: ['sticky-chapters', 'path-journey', 'scrollytelling-manifesto'],
   consulting: ['path-journey', 'true-card-stack'],

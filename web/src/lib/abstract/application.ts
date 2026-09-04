@@ -33,6 +33,8 @@ const MOTION_INDUSTRY_ADAPTER = Object.freeze({
   fine_dining: 'fine_dining',
   beauty: 'beauty',
   medical: 'medical',
+  // Animal practice, human clinical atmosphere. There is no separate abstract industry for it.
+  veterinary: 'medical',
   remodeling: 'workshop',
   legal: 'legal',
   consulting: 'consulting',

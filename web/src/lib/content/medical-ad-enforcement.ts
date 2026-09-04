@@ -66,8 +66,32 @@ export interface MedicalCustomerPolicyViolation {
   rationale: string;
 }
 
-function isMedicalConfig(config: SiteConfig): boolean {
-  return config.meta.industryClass === 'medical' || config.meta.industryId === 'clinic';
+/**
+ * WHICH CONFIGS THIS REGISTRY SCREENS — human care AND animal care.
+ *
+ * `MEDICAL_AD_RULES` is written about the SHAPE OF A CLAIM, not about human anatomy. Read them:
+ * "guarantee", "100%", "completely safe", "pain-free", "cure", "#1 clinic", "instant results",
+ * a treatment testimonial, a treatment-effect sentence with no material-risk statement. Every one
+ * of those is exactly as unsubstantiated on "we cure your dog's arthritis" as on the human
+ * sentence, and the statutes cited — FTC Act §§5 and 12, the FTC Health Products Compliance
+ * Guidance — are general advertising law that does not stop at the species line.
+ *
+ * So veterinary is screened here rather than given a pass while a veterinary-specific policy is
+ * written. The alternative was to leave `industryClass: 'veterinary'` outside this predicate,
+ * which would have published animal health claims through no screen at all — the registry is the
+ * only thing between a claim and the page. A veterinary-appropriate policy (AVMA advertising
+ * guidance, state veterinary board rules) is a real slice with its own statute research, and
+ * inventing it here would mean shipping rules nobody verified. Until it exists, veterinary is
+ * over-restricted on purpose: a vet loses some copy, which is recoverable, instead of a claim
+ * shipping unscreened, which is not.
+ *
+ * `MedicalSitePolicyResult.medical` therefore means "screened by this registry", not "human
+ * medicine". It is true for a veterinary config.
+ */
+function isScreenedHealthConfig(config: SiteConfig): boolean {
+  return config.meta.industryClass === 'medical'
+    || config.meta.industryClass === 'veterinary'
+    || config.meta.industryId === 'clinic';
 }
 
 function copyViolation(
@@ -116,7 +140,7 @@ function structuralSideEffectViolation(
  * 비의료 config는 수집조차 하지 않고 즉시 빈 결과를 돌려 기존 출력 바이트를 보존한다.
  */
 export function screenMedicalSiteConfig(config: SiteConfig): MedicalSitePolicyResult {
-  const medical = isMedicalConfig(config);
+  const medical = isScreenedHealthConfig(config);
   if (!medical) {
     return {
       policyVersion: MEDICAL_AD_POLICY_VERSION,
