@@ -1,9 +1,11 @@
 /**
  * POST /api/contact — anakslabs.com 문의 폼 수신.
  *
- * 정적 사이트(anakslabs.com)에서 cross-origin fetch 로 들어오므로 site-events 와
- * 같은 공개 CORS 라우트 형태다. 다만 저쪽과 달리 사람이 쓴 내용을 받으므로
- * 스팸 방어가 필요하고, 그래서 허니팟·레이트리밋·본문 크기 제한을 함께 건다.
+ * 정적 사이트(anakslabs.com)에서 cross-origin fetch 로 들어오므로 CORS 가 필요하다.
+ * 허용 출처 규칙은 `_lib/cors` 한 곳에만 있고(/api/scan 과 공유), withCors 가 바깥에서
+ * 감싸므로 성공·거절·크래시 어느 분기로 나가도 헤더가 붙는다. site-events 와 달리 `*` 가
+ * 아니라 허용목록이다 — 사람이 쓴 내용을 받는 입력구를 아무 페이지에나 열어 줄 수 없다.
+ * 그리고 저쪽과 달리 스팸 방어가 필요해 허니팟·레이트리밋·본문 크기 제한을 함께 건다.
  *
  * 저장과 알림은 분리한다. 알림 메일이 실패해도 문의는 이미 DB 에 있어야 한다 —
  * 반대로 묶으면 Resend 장애 한 번에 리드가 통째로 사라진다.
@@ -14,6 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { env } from '@/lib/env';
 import { withApiHandler } from '@/app/api/_lib/http';
+import { corsPreflight, withCors } from '@/app/api/_lib/cors';
 
 const MAX_BODY_BYTES = 8_192;
 const WINDOW_MS = 60 * 60 * 1000;
@@ -44,22 +47,7 @@ const payloadSchema = z
   })
   .strict();
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': 'https://anakslabs.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Cache-Control': 'no-store',
-} as const;
-
-function cors(body: unknown, status: number): NextResponse {
-  const response = NextResponse.json(body, { status });
-  for (const [name, value] of Object.entries(CORS_HEADERS)) response.headers.set(name, value);
-  return response;
-}
-
-export function OPTIONS(): Response {
-  return new Response(null, { status: 204, headers: CORS_HEADERS });
-}
+export const OPTIONS = corsPreflight();
 
 /** 원문 IP·UA 는 저장도 로그도 하지 않는다. 여기서 해시로 바꾸고 버린다. */
 function clientHash(request: NextRequest): string {
@@ -88,30 +76,30 @@ async function notify(subject: string, email: string, note: string): Promise<voi
   });
 }
 
-export const POST = withApiHandler(async (request: NextRequest) => {
+export const POST = withCors(withApiHandler(async (request: NextRequest) => {
   const raw = await request.text();
   if (new TextEncoder().encode(raw).byteLength > MAX_BODY_BYTES) {
-    return cors({ error: { code: 'PAYLOAD_TOO_LARGE', message: 'Message is too long.' } }, 413);
+    return NextResponse.json({ error: { code: 'PAYLOAD_TOO_LARGE', message: 'Message is too long.' } }, { status: 413 });
   }
 
   let json: unknown;
   try {
     json = JSON.parse(raw);
   } catch {
-    return cors({ error: { code: 'INVALID_JSON', message: 'This is not valid JSON.' } }, 400);
+    return NextResponse.json({ error: { code: 'INVALID_JSON', message: 'This is not valid JSON.' } }, { status: 400 });
   }
 
   const parsed = payloadSchema.safeParse(json);
   if (!parsed.success) {
-    return cors({ error: { code: 'VALIDATION_ERROR', message: 'Check the fields and try again.' } }, 400);
+    return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'Check the fields and try again.' } }, { status: 400 });
   }
 
   // 봇에게는 성공을 돌려준다. 거절을 알려주면 허니팟의 위치가 드러난다.
-  if (parsed.data.company.trim() !== '') return cors({ ok: true }, 202);
+  if (parsed.data.company.trim() !== '') return NextResponse.json({ ok: true }, { status: 202 });
 
   const hash = clientHash(request);
   if (!allow(hash)) {
-    return cors({ error: { code: 'RATE_LIMITED', message: 'Too many requests.' } }, 429);
+    return NextResponse.json({ error: { code: 'RATE_LIMITED', message: 'Too many requests.' } }, { status: 429 });
   }
 
   const supabase = createClient(env.supabaseUrl, env.supabaseServiceRoleKey, {
@@ -125,7 +113,7 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     client_hash: hash,
   });
   if (error) {
-    return cors({ error: { code: 'STORE_FAILED', message: 'Could not record that. Try again.' } }, 500);
+    return NextResponse.json({ error: { code: 'STORE_FAILED', message: 'Could not record that. Try again.' } }, { status: 500 });
   }
 
   // 저장이 끝난 뒤에 알린다. 여기서 실패해도 문의는 이미 남아 있다.
@@ -135,5 +123,5 @@ export const POST = withApiHandler(async (request: NextRequest) => {
     /* 알림은 부가 기능이다. 실패를 제출자에게 전가하지 않는다. */
   }
 
-  return cors({ ok: true }, 201);
-});
+  return NextResponse.json({ ok: true }, { status: 201 });
+}));

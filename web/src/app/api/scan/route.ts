@@ -2,6 +2,10 @@
  * [v3 Phase 6] POST /api/scan — SEO/AEO/GEO 무료 진단 (비로그인 허용).
  * body: { url } → ScanResult (저장 후 scanId 포함 — 클라이언트가 쿠키 anaks_scan_id 저장)
  *
+ * 호출자는 대부분 정적 사이트(anakslabs.com)의 /check/ 페이지다 — cross-origin 이므로
+ * 프리플라이트와 모든 응답이 CORS 헤더를 달아야 한다. 규칙은 `_lib/cors` 의 허용목록 하나뿐이고,
+ * withCors 가 바깥에서 감싸므로 400/429/500 을 포함한 모든 분기가 헤더를 갖는다.
+ *
  * 남용 방어: IP당 분당 3회 / 일 20회 (인메모리 — 실배포 스케일아웃 시 upstash 교체 지점).
  * MOCK_MODE=1 + demo. 프리픽스 URL → 고정 픽스처(34점·이슈 12개) — 오프라인 데모 보장.
  */
@@ -12,6 +16,7 @@ import { getDataServices } from '@/lib/data';
 import { demoFixture, normalizeScanUrl, runScan, ScanError } from '@/lib/scan';
 import { SCAN_COMPARISON_LIMIT, toComparisonResult } from '@/lib/scan/comparison';
 import { apiError, parseBody, withApiHandler } from '@/app/api/_lib/http';
+import { corsPreflight, withCors } from '@/app/api/_lib/cors';
 import { getAuthedClient } from '@/app/api/_lib/guards';
 
 export const runtime = 'nodejs';
@@ -41,6 +46,8 @@ function rateLimited(ip: string): boolean {
   return false;
 }
 
+export const OPTIONS = corsPreflight();
+
 const bodySchema = z.object({
   url: z.string().min(1, '진단할 주소를 입력해 주세요.').max(2000),
   competitorUrls: z.array(z.string().min(1).max(2000)).max(SCAN_COMPARISON_LIMIT).optional(),
@@ -52,7 +59,7 @@ async function scanOne(normalized: string) {
   return runScan(normalized);
 }
 
-export const POST = withApiHandler(async (request: NextRequest) => {
+export const POST = withCors(withApiHandler(async (request: NextRequest) => {
   const ip = (request.headers.get('x-forwarded-for') ?? 'local').split(',')[0].trim() || 'local';
   if (rateLimited(ip)) {
     return apiError(429, 'RATE_LIMITED', 'Too many scan requests. Try again in a moment.');
@@ -81,4 +88,4 @@ export const POST = withApiHandler(async (request: NextRequest) => {
 
   const scan = await getDataServices().scans.create({ ...core, clientId: client?.id ?? null });
   return NextResponse.json({ scan }, { status: 201 });
-});
+}));
