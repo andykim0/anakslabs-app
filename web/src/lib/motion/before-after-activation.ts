@@ -10,6 +10,7 @@ import {
 } from '@/lib/uploads/asset-registry';
 import { assetProvenanceConfig } from '@/lib/assets/provenance-flags';
 import { resolveBeforeAfterFeatureDecision } from '@/lib/assets/provenance-flags-core';
+import { isScreenedHealthIndustryClass } from '@/lib/content/screened-health-industry';
 
 export interface ResolveBeforeAfterOptionsInput {
   survey: SurveyInput;
@@ -58,7 +59,7 @@ export async function resolveBeforeAfterMotionOptions(
     options: { ownerId: input.clientId, siteId: input.siteId },
   };
   // 의료 차단은 어떤 feature flag보다 우선한다. 그 외 업종도 법무 승인 전 kill switch 기본 OFF다.
-  const feature = input.industryClass === 'medical'
+  const feature = isScreenedHealthIndustryClass(input.industryClass)
     ? resolveBeforeAfterFeatureDecision({
         medical: true,
         industryClass: input.industryClass,
@@ -135,7 +136,7 @@ export async function resolveStoredBeforeAfterMotionOptions(input: {
     options: { ownerId: input.clientId, siteId: input.siteId },
   };
   const industryClass = input.config.meta.industryClass ?? 'other';
-  const feature = industryClass === 'medical'
+  const feature = isScreenedHealthIndustryClass(industryClass)
     ? resolveBeforeAfterFeatureDecision({
         medical: true,
         industryClass,

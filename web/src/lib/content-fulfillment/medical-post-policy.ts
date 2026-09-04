@@ -7,6 +7,7 @@ import {
   type MedicalCopyScope,
   type MedicalStatuteRef,
 } from '@/lib/content/medical-ad-policy';
+import { isScreenedHealthConfig } from '@/lib/content/screened-health-industry';
 import { clinicAvailability } from '@/lib/industry/clinic-availability';
 import type { SiteConfig } from '@/lib/types/site';
 import type { GeneratedContentPost } from './honesty';
@@ -126,8 +127,13 @@ export function screenMedicalContentPost(input: {
   config: SiteConfig;
   clinicFlagValue?: string;
 }): MedicalPostPolicyResult {
-  const medical = input.config.meta.industryClass === 'medical'
-    || input.config.meta.industryId === 'clinic';
+  /**
+   * The same predicate the site screen uses. It carried its own copy of the list until
+   * veterinary became a class, at which point a vet's site copy was screened and that same vet's
+   * generated posts were not — the exemption we spent the previous slice saying we were not
+   * granting, reachable the moment monthly content ran.
+   */
+  const medical = isScreenedHealthConfig(input.config);
   if (!medical) {
     return {
       medical: false,

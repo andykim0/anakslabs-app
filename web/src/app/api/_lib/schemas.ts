@@ -66,6 +66,7 @@ import {
 } from '@/lib/fonts/types';
 import { SITE_INDUSTRY_IDS } from '@/lib/industry/profiles';
 import { MEDICAL_AD_POLICY_VERSION } from '@/lib/content/medical-ad-policy';
+import { isScreenedHealthIndustryClass } from '@/lib/content/screened-health-industry';
 
 // ---------- URL 안전성 (저장형 XSS 방어 — site-renderer와 동일 규칙 공유) ----------
 
@@ -1213,7 +1214,7 @@ export const siteConfigSchema = z
       const page = pageIndex >= 0 ? cfg.pages[pageIndex] : undefined;
       const sectionIndex = page?.sections.findIndex((section) => section.id === scene.sectionId) ?? -1;
       const section = sectionIndex >= 0 ? page!.sections[sectionIndex] : undefined;
-      if (scene.signatureId === 'before-after-scrub' && cfg.meta.industryClass === 'medical') {
+      if (scene.signatureId === 'before-after-scrub' && isScreenedHealthIndustryClass(cfg.meta.industryClass)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['motion', 'signatures', sceneIndex],

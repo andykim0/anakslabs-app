@@ -12,6 +12,10 @@ import {
   screenMedicalCopy,
 } from './medical-ad-policy';
 import type { SiteConfig } from '@/lib/types/site';
+import {
+  isScreenedHealthConfig,
+  isScreenedHealthIndustryClass,
+} from './screened-health-industry';
 
 export const MEDICAL_AD_COPY_BLOCKED = 'MEDICAL_AD_COPY_BLOCKED' as const;
 export const MEDICAL_CLASSIFICATION_MISMATCH = 'MEDICAL_CLASSIFICATION_MISMATCH' as const;
@@ -87,12 +91,11 @@ export interface MedicalCustomerPolicyViolation {
  *
  * `MedicalSitePolicyResult.medical` therefore means "screened by this registry", not "human
  * medicine". It is true for a veterinary config.
+ *
+ * The predicate itself lives in `screened-health-industry` so that the other surfaces enforcing
+ * this registry — generated content posts, customer edit copy, the motion storage barrier, the
+ * before/after block — read the same answer instead of each keeping a list.
  */
-function isScreenedHealthConfig(config: SiteConfig): boolean {
-  return config.meta.industryClass === 'medical'
-    || config.meta.industryClass === 'veterinary'
-    || config.meta.industryId === 'clinic';
-}
 
 function copyViolation(
   path: string,
@@ -397,7 +400,7 @@ export async function generateMedicalSafeCopy(input: {
   generate: (prompt: string) => Promise<string>;
 }): Promise<{ text: string; resolution: 'original' | 'constrained-retry' | 'catalog-fallback' }> {
   const first = await input.generate(input.prompt);
-  if (input.industryClass !== 'medical') return { text: first, resolution: 'original' };
+  if (!isScreenedHealthIndustryClass(input.industryClass)) return { text: first, resolution: 'original' };
   const firstScreen = screenMedicalCopy(first, { scope: input.scope });
   if (!firstScreen.violations.length) return { text: first, resolution: 'original' };
 

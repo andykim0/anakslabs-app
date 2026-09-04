@@ -35,6 +35,7 @@ import {
   screenMedicalCopy,
 } from '@/lib/content/medical-ad-policy';
 import { aiEditEnabled } from '@/lib/product/flags';
+import { isScreenedHealthIndustryClass } from '@/lib/content/screened-health-industry';
 
 const EDIT_REASONS: Record<EditType, CreditReason> = {
   text: 'edit_text',
@@ -90,7 +91,7 @@ export const POST = withApiHandler(async (request) => {
 
   const creditCost = CREDIT_COSTS[type];
   const industryClass = site.draftConfig?.meta.industryClass ?? site.siteConfig?.meta.industryClass;
-  if (industryClass === 'medical' && (type === 'text' || type === 'structure')) {
+  if (isScreenedHealthIndustryClass(industryClass) && (type === 'text' || type === 'structure')) {
     const customerCopy = screenMedicalCopy(requestedContent, { scope: 'body' });
     if (customerCopy.violations.length) {
       return apiError(
