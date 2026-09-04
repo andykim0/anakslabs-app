@@ -27,6 +27,19 @@ export function testimonialExposurePolicy(
   if (industryClass === 'legal') {
     return { allowed: false, reason: 'legal-review-state-unavailable' };
   }
+  /**
+   * 수의(veterinary)는 여기서 막지 않는다 — 빠뜨린 게 아니라 판단이다.
+   *
+   * 사람 진료의 후기 차단은 환자 프라이버시와 의료광고 규제(환자 후기 = 치료경험 광고)에서
+   * 온다. 동물 진료에는 그 두 축의 대응물이 없다: 보호자는 환자가 아니고, HIPAA에 해당하는
+   * 동물 진료 프라이버시법이 없으며, 주 수의사회 광고규정 대부분이 후기 자체를 금하지 않는다.
+   * 보호자 후기는 이 업종에서 보편적인 일반 마케팅이다.
+   *
+   * 그렇다고 무검사로 나가지는 않는다. "우리 강아지 암을 완치시켜 줬어요" 같은 치료성과
+   * 주장은 카피 레벨에서 medical-treatment-testimonial 규칙이 그대로 잡는다 —
+   * 수의 config도 같은 레지스트리를 통과한다(medical-ad-enforcement의 isScreenedHealthConfig).
+   * 즉 섹션 노출은 열고, 문장은 계속 검사한다.
+   */
   return { allowed: true };
 }
 
