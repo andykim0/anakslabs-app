@@ -16,7 +16,17 @@ import {
  */
 export const SITE_EVENT_INGEST_PATH = '/api/site-events' as const;
 export const SITE_FORM_SUCCESS_EVENT = 'daboim:form-success' as const;
-export const SITE_BEACON_MAX_BYTES = 2_048 as const;
+/**
+ * Byte budget for the inlined runtime. This is our own guard, not a wire limit, and it
+ * is kept deliberately tight so the runtime cannot drift into a script.
+ *
+ * Raised from 2_048 when the US runtime gained the AI-assistant host table, which costs
+ * 185 bytes. Measured at the worst ACCEPTED input — an 80-character site id (the ceiling
+ * `safePublicSiteId` allows), an absolute cross-origin endpoint, and a 200-character
+ * booking target — the runtime went from 1_966 to 2_151 bytes. 2_240 leaves 89 bytes of
+ * headroom, which is the 82 bytes the previous budget left, not a fresh allowance.
+ */
+export const SITE_BEACON_MAX_BYTES = 2_240 as const;
 
 export const SITE_EVENT_NAMES = [
   'pageview',
@@ -35,10 +45,35 @@ export const SITE_REFERRER_SOURCES = [
   'instagram',
   'direct',
   'other',
+  /** Appended, never inserted: the wire contract's existing values keep their order. */
+  'ai',
 ] as const;
 export type SiteReferrerSource = (typeof SITE_REFERRER_SOURCES)[number];
 
-/** Raw referrers are classified in-browser and are never placed in a beacon. */
+/**
+ * Hosts whose referrals mean "a person arrived from an AI assistant's answer".
+ *
+ * Subdomains count (`chat.openai.com`, `www.perplexity.ai`). Deliberately NOT here:
+ * duckduckgo.com, whose AI feature lives behind a normal search referrer, so counting it
+ * would inflate the one exposure number we can honestly report.
+ */
+export const AI_ASSISTANT_HOSTS = [
+  'chatgpt.com',
+  'chat.openai.com',
+  'perplexity.ai',
+  'gemini.google.com',
+  'bard.google.com',
+  'copilot.microsoft.com',
+  'claude.ai',
+  'you.com',
+] as const;
+
+/**
+ * Raw referrers are classified in-browser and are never placed in a beacon.
+ *
+ * The AI check runs FIRST, because `gemini.google.com` and `bard.google.com` would
+ * otherwise be swallowed by the google pattern and reported as search traffic.
+ */
 export function classifySiteReferrer(
   rawReferrer: string,
   currentHostname: string,
@@ -48,6 +83,7 @@ export function classifySiteReferrer(
     const hostname = new URL(rawReferrer).hostname.toLowerCase();
     const ownHost = currentHostname.trim().toLowerCase();
     if (hostname === ownHost) return 'direct';
+    if (AI_ASSISTANT_HOSTS.some((host) => isHostOrSubdomain(hostname, host))) return 'ai';
     if (isHostOrSubdomain(hostname, 'naver.com')) return 'naver';
     if (/^(?:.+\.)?google\.[a-z.]+$/.test(hostname)) return 'google';
     if (isHostOrSubdomain(hostname, 'instagram.com')) return 'instagram';
@@ -123,6 +159,7 @@ function buildUsSiteBeaconRuntime(siteId: string, endpoint: string, bookingHref?
     DIRECTIONS_HOSTS.filter((host) => host === 'maps.google.com' || host === 'maps.app.goo.gl'),
   );
   const instagramHosts = JSON.stringify(INSTAGRAM_HOSTS);
+  const aiHosts = JSON.stringify(AI_ASSISTANT_HOSTS);
   const bookingTarget = usBookingMatchTarget(bookingHref);
   const bookingVariable = bookingTarget
     ? `,B=${JSON.stringify(bookingTarget).replace(/</g, '\\u003c')}`
@@ -131,7 +168,9 @@ function buildUsSiteBeaconRuntime(siteId: string, endpoint: string, bookingHref?
     ? "else if(u.origin!==l.origin&&(z=u.origin+q+u.search).indexOf(B)===0&&(!(w=z.slice(B.length))||w[0]==='/'||w[0]==='?'))t='reserve';"
     : '';
 
-  return `!function(d,l,n){var I=${siteId},U=${endpoint},D=${directionsHosts},G=${instagramHosts}${bookingVariable},S='direct';function h(x,a){return x===a||x.endsWith('.'+a)}function r(x){if(!x)return'direct';try{var a=new URL(x).hostname.toLowerCase();if(a===l.hostname)return'direct';if(/(^|\\.)google\\.[a-z.]+$/.test(a))return'google';if(h(a,'instagram.com'))return'instagram'}catch(e){}return'other'}function p(e){var v={siteId:I,event:e,source:S},k=globalThis.crypto&&globalThis.crypto.randomUUID&&globalThis.crypto.randomUUID();if(k)v.eventId=k;var b=JSON.stringify(v);try{if(n.sendBeacon&&n.sendBeacon(U,new Blob([b],{type:'text/plain;charset=UTF-8'})))return}catch(a){}try{fetch(U,{method:'POST',headers:{'content-type':'text/plain;charset=UTF-8'},body:b,keepalive:true,credentials:'omit',mode:'cors'}).catch(function(){})}catch(a){}}function c(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var t,x=a.getAttribute('href');if(!x)return;try{var u=new URL(x,l.href),o=u.hostname.toLowerCase(),q=u.pathname,z,w;if(u.protocol==='tel:')t='tel';else if(D.some(function(v){return h(o,v)})||/(^|\\.)google\\.[a-z.]+$/.test(o)&&q.indexOf('/maps')===0)t='directions';${bookingBranch}else if(G.some(function(v){return h(o,v)}))t='instagram';if(t)p(t)}catch(v){}}function i(){S=r(d.referrer);p('pageview');d.addEventListener('click',c,true);d.addEventListener(${JSON.stringify(SITE_FORM_SUCCESS_EVENT)},function(){p('form')})}d.readyState==='complete'?setTimeout(i,0):d.addEventListener('DOMContentLoaded',i,{once:true})}(document,location,navigator);`;
+  // The AI host test runs before the google pattern: gemini.google.com and
+  // bard.google.com are assistants, not search, and would otherwise be counted as google.
+  return `!function(d,l,n){var I=${siteId},U=${endpoint},D=${directionsHosts},G=${instagramHosts},A=${aiHosts}${bookingVariable},S='direct';function h(x,a){return x===a||x.endsWith('.'+a)}function r(x){if(!x)return'direct';try{var a=new URL(x).hostname.toLowerCase();if(a===l.hostname)return'direct';if(A.some(function(v){return h(a,v)}))return'ai';if(/(^|\\.)google\\.[a-z.]+$/.test(a))return'google';if(h(a,'instagram.com'))return'instagram'}catch(e){}return'other'}function p(e){var v={siteId:I,event:e,source:S},k=globalThis.crypto&&globalThis.crypto.randomUUID&&globalThis.crypto.randomUUID();if(k)v.eventId=k;var b=JSON.stringify(v);try{if(n.sendBeacon&&n.sendBeacon(U,new Blob([b],{type:'text/plain;charset=UTF-8'})))return}catch(a){}try{fetch(U,{method:'POST',headers:{'content-type':'text/plain;charset=UTF-8'},body:b,keepalive:true,credentials:'omit',mode:'cors'}).catch(function(){})}catch(a){}}function c(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;var t,x=a.getAttribute('href');if(!x)return;try{var u=new URL(x,l.href),o=u.hostname.toLowerCase(),q=u.pathname,z,w;if(u.protocol==='tel:')t='tel';else if(D.some(function(v){return h(o,v)})||/(^|\\.)google\\.[a-z.]+$/.test(o)&&q.indexOf('/maps')===0)t='directions';${bookingBranch}else if(G.some(function(v){return h(o,v)}))t='instagram';if(t)p(t)}catch(v){}}function i(){S=r(d.referrer);p('pageview');d.addEventListener('click',c,true);d.addEventListener(${JSON.stringify(SITE_FORM_SUCCESS_EVENT)},function(){p('form')})}d.readyState==='complete'?setTimeout(i,0):d.addEventListener('DOMContentLoaded',i,{once:true})}(document,location,navigator);`;
 }
 
 /**
@@ -143,6 +182,9 @@ export function buildSiteBeaconRuntime(input: SiteBeaconRuntimeInput): string {
   const endpoint = JSON.stringify(safeBeaconEndpoint(input.endpoint ?? SITE_EVENT_INGEST_PATH)).replace(/</g, '\\u003c');
   const runtime = input.locale === 'en-US'
     ? buildUsSiteBeaconRuntime(siteId, endpoint, input.bookingHref)
+    // The legacy/KR runtime is deliberately left byte-for-byte unchanged. The KR report
+    // keeps its five-row source order, so a KR site emitting `ai` would have those
+    // pageviews vanish from the displayed composition rather than appear anywhere.
     : (() => {
         const reserveHosts = JSON.stringify(RESERVATION_HOSTS);
         const directionsHosts = JSON.stringify(DIRECTIONS_HOSTS);

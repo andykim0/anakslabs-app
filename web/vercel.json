@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/monthly-reports",
       "schedule": "15 0 * * *"
+    },
+    {
+      "path": "/api/cron/citation-checks",
+      "schedule": "45 23 * * *"
     }
   ]
 }

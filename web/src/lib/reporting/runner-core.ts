@@ -9,6 +9,7 @@ import type {
   MonthlyReportsRepository,
 } from './repository-core';
 import type { ReportEmailSendResult } from './resend-core';
+import type { ReportAiAnswersSection } from './types';
 import {
   createReportEmailStartRateGate,
   type ReportEmailRateGateTiming,
@@ -31,6 +32,15 @@ export interface MonthlyReportRunnerDependencies {
     idempotencyKey: string;
   }): Promise<ReportEmailSendResult>;
   dashboardUrl: string;
+  /**
+   * [CITE$] Stored citation probes for THIS report's period — the previous month, not
+   * the current one. Optional: a deployment without it produces exactly the report it
+   * produced before the feature existed. Never makes a live call.
+   */
+  loadAiAnswers?(input: {
+    siteId: string;
+    periodMonth: string;
+  }): Promise<ReportAiAnswersSection | null>;
 }
 
 export interface MonthlyReportRunSummary {
@@ -179,7 +189,8 @@ async function deliverReport(input: {
   return marked ? failure.status : 'pipeline_error';
 }
 
-async function runWithConcurrency<T>(
+/** Shared by the citation-check runner, which needs the identical bounded fan-out. */
+export async function runWithConcurrency<T>(
   items: readonly T[],
   concurrency: number,
   task: (item: T) => Promise<void>,
@@ -269,6 +280,22 @@ export async function runMonthlyReportsCore(
           toDate: periods.comparison.endExclusiveDate,
         }),
       ]);
+      // The report for month M is built on the 1st of M+1 and is insert-once, so the
+      // probes it must quote are the ones stored under M — its own period — never the
+      // month the cron happens to be running in.
+      let aiAnswers: ReportAiAnswersSection | null = null;
+      if (dependencies.loadAiAnswers) {
+        try {
+          aiAnswers = await dependencies.loadAiAnswers({
+            siteId: site.id,
+            periodMonth: periods.report.month,
+          });
+        } catch {
+          // A missing citation section must never cost the customer their report.
+          aiAnswers = null;
+        }
+      }
+
       const report = buildMonthlyPerformanceReport({
         siteId: site.id,
         period: periods.report,
@@ -276,6 +303,7 @@ export async function runMonthlyReportsCore(
         current: reportAggregates(current),
         previous: reportAggregates(previous),
         locale: site.siteConfig?.meta.locale,
+        ...(aiAnswers ? { aiAnswers } : {}),
       });
       const inserted = await dependencies.reports.insertIfAbsent({
         siteId: site.id,

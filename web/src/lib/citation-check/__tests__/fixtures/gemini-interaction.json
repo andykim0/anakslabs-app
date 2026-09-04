@@ -1,0 +1,40 @@
+{
+  "steps": [
+    {
+      "type": "thought",
+      "summary": [{ "type": "text", "text": "The user wants a local dentist recommendation." }],
+      "signature": "REDACTED_FIXTURE_SIGNATURE"
+    },
+    { "type": "google_search_call", "arguments": { "queries": ["dentist lincoln park new patients"] } },
+    {
+      "type": "google_search_result",
+      "call_id": "search_001",
+      "result": [{ "search_suggestions": "<!-- widget markup -->" }]
+    },
+    {
+      "type": "model_output",
+      "content": [
+        {
+          "type": "text",
+          "text": "Specimen Dental in Lincoln Park lists openings for new patients this week.",
+          "annotations": [
+            {
+              "type": "url_citation",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/REDACTED_FIXTURE_TOKEN_1",
+              "title": "specimendental.com",
+              "start_index": 0,
+              "end_index": 40
+            },
+            {
+              "type": "url_citation",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/REDACTED_FIXTURE_TOKEN_2",
+              "title": "directory.example.test",
+              "start_index": 41,
+              "end_index": 73
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -16,7 +16,11 @@ import type {
   MonthlyReportDeliveryStatus,
   MonthlyReportRecord,
 } from '@/lib/reporting/repository-core';
-import { v2Metrics, type ReportMetric } from '@/lib/reporting/types';
+import {
+  v2Metrics,
+  type ReportAiAnswersSection,
+  type ReportMetric,
+} from '@/lib/reporting/types';
 import { getCurrentClient } from '@/lib/services/auth';
 import { Badge, Card, EmptyState, PageHeader, cn, formatDate } from '@/components/dashboard/ui';
 
@@ -91,6 +95,90 @@ function MetricCard({
   );
 }
 
+const ENGINE_DISPLAY_NAMES: Record<string, string> = {
+  openai: 'ChatGPT',
+  anthropic: 'Claude',
+  gemini: 'Gemini',
+  perplexity: 'Perplexity',
+};
+
+function engineName(engine: string): string {
+  return ENGINE_DISPLAY_NAMES[engine] ?? engine;
+}
+
+/**
+ * [CITE$] "Who got named in AI answers". Rendered only when the period has probes, so a
+ * report without them looks exactly as it did before the feature existed.
+ *
+ * The copy states the basis in plain words. These are API probes: no personalization, no
+ * memory, no location history, and Google Search's AI answers have no API to ask at all.
+ */
+function AiAnswersSection({
+  section,
+  headingId,
+}: {
+  section: ReportAiAnswersSection;
+  headingId: string;
+}) {
+  return (
+    <section
+      aria-labelledby={`${headingId}-ai`}
+      className="rounded-xl border border-[#DFE1E6] p-4"
+    >
+      <h3 id={`${headingId}-ai`} className="text-sm font-semibold text-[#232C52]">
+        Who got named in AI answers
+      </h3>
+      <p className="mt-1 text-[11px] text-[#6a7286]">
+        We asked each engine your customers&rsquo; key questions through its API.
+      </p>
+      <table className="mt-3 w-full text-xs">
+        <thead>
+          <tr className="text-left text-[#6a7286]">
+            <th scope="col" className="pb-1.5 font-medium">Engine</th>
+            <th scope="col" className="pb-1.5 text-right font-medium">Asked</th>
+            <th scope="col" className="pb-1.5 text-right font-medium">Named</th>
+            <th scope="col" className="pb-1.5 text-right font-medium">Linked</th>
+          </tr>
+        </thead>
+        <tbody>
+          {section.engines.map((engine) => (
+            <tr key={engine.engine} className="border-t border-[#EEF1F5]">
+              <td className="py-1.5 font-medium text-[#475467]">{engineName(engine.engine)}</td>
+              {engine.status === 'not_configured' ? (
+                <td colSpan={3} className="py-1.5 text-right text-[#8B9AB0]">Not connected</td>
+              ) : (
+                <>
+                  <td className="py-1.5 text-right text-[#6a7286]">{formatCount(engine.asked)}</td>
+                  <td className="py-1.5 text-right text-[#141A3A]">{formatCount(engine.named)}</td>
+                  <td className="py-1.5 text-right text-[#141A3A]">{formatCount(engine.linked)}</td>
+                </>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {section.questions.length > 0 ? (
+        <ul className="mt-4 space-y-2">
+          {section.questions.map((question) => (
+            <li key={question.question} className="text-xs text-[#475467]">
+              {question.question}
+              <div className="text-[11px] text-[#6a7286]">
+                {question.namedBy.length > 0
+                  ? `Named by ${question.namedBy.map(engineName).join(', ')}`
+                  : 'Not named'}
+                {question.linkedBy.length > 0
+                  ? ` · Linked by ${question.linkedBy.map(engineName).join(', ')}`
+                  : ''}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <p className="mt-3 text-[11px] leading-5 text-[#6a7286]">{section.footnote}</p>
+    </section>
+  );
+}
+
 function DeliveryBadge({ record }: { record: MonthlyReportRecord }) {
   const state = DELIVERY_STATE[record.deliveryStatus];
   return <Badge tone={state.tone}>{state.label}</Badge>;
@@ -106,6 +194,7 @@ function ReportCard({
   const { report } = record;
   const sourcesWithTraffic = report.sources.filter((source) => source.count > 0);
   const connectorMetrics = v2Metrics(report);
+  const aiAnswers = report.schemaVersion === 2 ? report.aiAnswers : undefined;
   const headingId = `report-${record.id}`;
 
   return (
@@ -238,6 +327,8 @@ function ReportCard({
               </p>
             </section>
           </div>
+
+          {aiAnswers ? <AiAnswersSection section={aiAnswers} headingId={headingId} /> : null}
         </div>
       </Card>
     </article>

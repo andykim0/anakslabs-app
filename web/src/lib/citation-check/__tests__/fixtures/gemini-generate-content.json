@@ -1,0 +1,27 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [{ "text": "Specimen Dental is one option in Lincoln Park." }]
+      },
+      "groundingMetadata": {
+        "webSearchQueries": ["dentist lincoln park"],
+        "groundingChunks": [
+          {
+            "web": {
+              "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/REDACTED_FIXTURE_TOKEN_3",
+              "title": "specimendental.com"
+            }
+          },
+          {
+            "web": {
+              "uri": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/REDACTED_FIXTURE_TOKEN_4",
+              "title": "directory.example.test"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

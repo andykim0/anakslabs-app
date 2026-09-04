@@ -1,0 +1,51 @@
+{
+  "id": "resp_fixture_openai",
+  "object": "response",
+  "model": "gpt-5.5",
+  "output_text": "Specimen Dental in Lincoln Park is accepting new patients and lists same-week openings.",
+  "output": [
+    {
+      "id": "ws_fixture_1",
+      "type": "web_search_call",
+      "status": "completed",
+      "action": {
+        "type": "search",
+        "queries": ["dentist accepting new patients lincoln park"],
+        "sources": [
+          { "type": "url", "url": "https://specimendental.com/appointments" },
+          { "type": "url", "url": "https://directory.example.test/lincoln-park/dentists" },
+          { "type": "url", "url": "https://reviews.example.test/specimen-dental" }
+        ]
+      }
+    },
+    {
+      "id": "msg_fixture_1",
+      "type": "message",
+      "role": "assistant",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "Specimen Dental in Lincoln Park is accepting new patients and lists same-week openings.",
+          "annotations": [
+            {
+              "type": "url_citation",
+              "start_index": 0,
+              "end_index": 63,
+              "title": "Specimen Dental — Appointments",
+              "url": "https://specimendental.com/appointments"
+            },
+            {
+              "type": "url_citation",
+              "start_index": 64,
+              "end_index": 86,
+              "title": "Lincoln Park dentists",
+              "url": "https://directory.example.test/lincoln-park/dentists"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "usage": { "input_tokens": 812, "output_tokens": 96 }
+}

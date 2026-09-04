@@ -1,0 +1,53 @@
+{
+  "id": "msg_fixture_anthropic",
+  "role": "assistant",
+  "model": "claude-opus-4-8",
+  "stop_reason": "end_turn",
+  "content": [
+    { "type": "text", "text": "Let me look that up. " },
+    {
+      "type": "server_tool_use",
+      "id": "srvtoolu_fixture_1",
+      "name": "web_search",
+      "input": { "query": "dentist lincoln park accepting new patients" }
+    },
+    {
+      "type": "web_search_tool_result",
+      "tool_use_id": "srvtoolu_fixture_1",
+      "content": [
+        {
+          "type": "web_search_result",
+          "url": "https://specimendental.com/appointments",
+          "title": "Specimen Dental — Appointments",
+          "encrypted_content": "REDACTED_FIXTURE_CONTENT",
+          "page_age": "August 12, 2026"
+        },
+        {
+          "type": "web_search_result",
+          "url": "https://directory.example.test/lincoln-park",
+          "title": "Lincoln Park directory",
+          "encrypted_content": "REDACTED_FIXTURE_CONTENT",
+          "page_age": "July 3, 2026"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Specimen Dental is taking new patients in Lincoln Park.",
+      "citations": [
+        {
+          "type": "web_search_result_location",
+          "url": "https://reviews.example.test/specimen-dental",
+          "title": "Reviews",
+          "encrypted_index": "REDACTED_FIXTURE_INDEX",
+          "cited_text": "accepting new patients"
+        }
+      ]
+    }
+  ],
+  "usage": {
+    "input_tokens": 6039,
+    "output_tokens": 931,
+    "server_tool_use": { "web_search_requests": 1 }
+  }
+}

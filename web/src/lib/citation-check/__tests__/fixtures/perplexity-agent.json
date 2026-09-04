@@ -1,0 +1,39 @@
+{
+  "id": "agent_fixture_pplx",
+  "model": "sonar",
+  "output": [
+    {
+      "id": "msg_fixture_pplx",
+      "type": "message",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "Two Lincoln Park practices are taking new patients this week, including Specimen Dental.",
+          "annotations": [
+            {
+              "type": "citation",
+              "url": "https://www.specimendental.com/",
+              "title": "Specimen Dental"
+            },
+            {
+              "type": "citation",
+              "url": "https://directory.example.test/lincoln-park",
+              "title": "Lincoln Park directory"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "usage": {
+    "input_tokens": 402,
+    "output_tokens": 71,
+    "cost": {
+      "currency": "USD",
+      "input_cost": 0.0012,
+      "output_cost": 0.0009,
+      "total_cost": 0.0021
+    }
+  }
+}

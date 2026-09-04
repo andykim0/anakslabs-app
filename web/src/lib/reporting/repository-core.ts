@@ -41,12 +41,44 @@ const metricSchema = z
 
 const reportSourceSchema = z
   .object({
-    source: z.enum(['naver', 'google', 'instagram', 'direct', 'other']),
+    // `ai` is additive: payloads stored before it existed still parse.
+    source: z.enum(['naver', 'google', 'instagram', 'direct', 'other', 'ai']),
     label: z.string().min(1),
     count: COUNT,
     previousCount: COUNT,
     sharePercent: z.number().int().min(0).max(100),
     changePercent: z.number().int().nullable(),
+  })
+  .strict();
+
+/**
+ * [CITE$] The optional citation-check section. This schema is `.strict()` and is applied
+ * on insert AND on read-back, so extending the TypeScript type alone would make every
+ * report carrying the section unreadable. `probeBasis` is pinned to the literal 'api'
+ * because a stored number that does not say how it was measured is a number we cannot
+ * honestly show a customer.
+ */
+const reportAiAnswersSchema = z
+  .object({
+    probeBasis: z.literal('api'),
+    engines: z.array(
+      z.object({
+        engine: z.string().trim().min(1).max(40),
+        asked: COUNT,
+        named: COUNT,
+        linked: COUNT,
+        status: z.enum(['ok', 'not_configured', 'partial']),
+        measuredOn: z.string().date(),
+      }).strict(),
+    ).max(20),
+    questions: z.array(
+      z.object({
+        question: z.string().trim().min(1).max(300),
+        namedBy: z.array(z.string().trim().min(1).max(40)).max(20),
+        linkedBy: z.array(z.string().trim().min(1).max(40)).max(20),
+      }).strict(),
+    ).max(50),
+    footnote: z.string().trim().min(1).max(500),
   })
   .strict();
 
@@ -87,6 +119,7 @@ const monthlyPerformanceReportV2Schema = z
       instagramClicks: metricSchema,
       consultationActions: metricSchema,
     }).strict(),
+    aiAnswers: z.optional(reportAiAnswersSchema),
   })
   .strict();
 

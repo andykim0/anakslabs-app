@@ -10,12 +10,24 @@ export const REPORT_EVENT_TYPES = [
 
 export type ReportEventType = (typeof REPORT_EVENT_TYPES)[number];
 
+/**
+ * The closed set of referrer buckets, and the canonical order used for percentage
+ * tie-breaking. `ai` is APPENDED, never inserted: the first five keep their exact
+ * positions so the largest-remainder allocation breaks ties the way it always has.
+ * Display order is a separate, per-locale concern (see REPORT_SOURCE_ORDER_BY_LOCALE).
+ */
 export const REPORT_REFERRER_SOURCES = [
   'naver',
   'google',
   'instagram',
   'direct',
   'other',
+  /**
+   * A visitor who arrived from an AI assistant. No provider publishes how often a site
+   * appears inside an answer, so this referral is the only REAL exposure number we can
+   * show; the citation probes are sampled mystery-shopping alongside it.
+   */
+  'ai',
 ] as const;
 
 export type ReportReferrerSource = (typeof REPORT_REFERRER_SOURCES)[number];
@@ -83,6 +95,40 @@ export interface ReportSourceComposition {
   changePercent: number | null;
 }
 
+/**
+ * [CITE$] "Who got named in AI answers" — the optional citation-check section.
+ *
+ * `probeBasis: 'api'` is load-bearing honesty, not decoration. Every number here comes
+ * from asking a provider's API, which has no personalization, memory, or location
+ * history, so it is a close cousin of the answer a person sees in the app rather than
+ * the same answer. Google Search's AI Overviews / AI Mode have no API at all and are
+ * not probed; the footnote says so.
+ */
+export interface ReportAiAnswerEngine {
+  engine: string;
+  asked: number;
+  named: number;
+  linked: number;
+  status: 'ok' | 'not_configured' | 'partial';
+  /** ISO date (YYYY-MM-DD) of the newest probe stored for this engine. */
+  measuredOn: string;
+}
+
+export interface ReportAiAnswerQuestion {
+  question: string;
+  /** Engine names whose answer named the business. */
+  namedBy: readonly string[];
+  /** Engine names whose answer cited the site's domain. */
+  linkedBy: readonly string[];
+}
+
+export interface ReportAiAnswersSection {
+  probeBasis: 'api';
+  engines: readonly ReportAiAnswerEngine[];
+  questions: readonly ReportAiAnswerQuestion[];
+  footnote: string;
+}
+
 interface MonthlyPerformanceReportBase {
   siteId: string;
   period: KstMonthRange;
@@ -103,6 +149,12 @@ export interface MonthlyPerformanceReportV1 extends MonthlyPerformanceReportBase
 export interface MonthlyPerformanceReportV2 extends MonthlyPerformanceReportBase {
   schemaVersion: 2;
   metrics: MonthlyReportMetricsV2;
+  /**
+   * Present only when this site had citation probes for the period. Absent is the
+   * normal state, and an absent section renders byte-for-byte the pre-CITE$ report.
+   * The schema version stays 2: this is additive and old payloads still parse.
+   */
+  aiAnswers?: ReportAiAnswersSection;
 }
 
 /** 저장소는 v1을 계속 읽고, 신규 생성은 v2를 쓴다. */

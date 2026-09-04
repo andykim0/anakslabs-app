@@ -1,0 +1,17 @@
+{
+  "id": "msg_fixture_anthropic_error",
+  "role": "assistant",
+  "model": "claude-opus-4-8",
+  "stop_reason": "end_turn",
+  "content": [
+    {
+      "type": "web_search_tool_result",
+      "tool_use_id": "srvtoolu_fixture_err",
+      "content": {
+        "type": "web_search_tool_result_error",
+        "error_code": "max_uses_exceeded"
+      }
+    }
+  ],
+  "usage": { "input_tokens": 40, "output_tokens": 3, "server_tool_use": { "web_search_requests": 2 } }
+}

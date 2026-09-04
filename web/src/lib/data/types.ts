@@ -353,8 +353,13 @@ export type SiteEventType =
   | 'form'
   | 'chat'
   | 'instagram';
-/** raw referrer 대신 저장하는 고정 유입 분류. */
-export type TrafficSource = 'naver' | 'google' | 'instagram' | 'direct' | 'other';
+/**
+ * raw referrer 대신 저장하는 고정 유입 분류.
+ * `ai` = AI 어시스턴트(ChatGPT/Perplexity/Gemini/Copilot/Claude 등)에서 넘어온 방문.
+ * 어떤 제공자도 "답변에 몇 번 등장했는지"를 공개하지 않으므로, 이 유입이 우리가 정직하게
+ * 보여줄 수 있는 유일한 실제 노출 신호다.
+ */
+export type TrafficSource = 'naver' | 'google' | 'instagram' | 'direct' | 'other' | 'ai';
 
 /** 방문자 단위 행이 아닌 site/date/event/source별 누적 카운트. */
 export interface SiteEventAggregate {

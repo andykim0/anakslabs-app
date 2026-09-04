@@ -46,7 +46,9 @@ describe('RPT1 site event ingest invariants', () => {
       'chat',
       'instagram',
     ]);
-    assert.deepEqual(TRAFFIC_SOURCES, ['naver', 'google', 'instagram', 'direct', 'other']);
+    // [CITE$] `ai` is APPENDED, never inserted: the existing wire values keep their
+    // order so a published beacon and this ingest enum can never disagree.
+    assert.deepEqual(TRAFFIC_SOURCES, ['naver', 'google', 'instagram', 'direct', 'other', 'ai']);
     const serialized = JSON.stringify({ SITE_EVENT_TYPES, TRAFFIC_SOURCES });
     assert.doesNotMatch(serialized, /ip|email|phone|name|session|cookie|referrerUrl/i);
   });

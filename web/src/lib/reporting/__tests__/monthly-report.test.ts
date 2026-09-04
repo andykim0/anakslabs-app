@@ -112,11 +112,47 @@ describe('RPT2 monthly report core', () => {
     assert.deepEqual(legacy.sources.map((source) => source.source), [
       'naver', 'google', 'instagram', 'direct', 'other',
     ]);
+    // [CITE$] `ai` joins the US order directly after google, and stays OUT of the
+    // legacy order, which must remain byte-for-byte the five it has always been.
     assert.deepEqual(us.sources.map((source) => source.source), [
-      'google', 'direct', 'instagram', 'other', 'naver',
+      'google', 'ai', 'direct', 'instagram', 'other', 'naver',
     ]);
     assert.equal(us.sources[0].label, 'Google');
+    assert.equal(us.sources[1].label, 'AI assistants');
     assert.equal(us.sources.at(-1)?.label, 'Naver');
+  });
+
+  test('[CITE$] an AI-assistant referral is a first-class US source and legacy shares still total 100', () => {
+    const periods = previousMonthRangesKst(new Date('2026-07-17T00:00:00.000Z'));
+    const base = {
+      siteId: 'ai-source',
+      period: periods.report,
+      comparisonPeriod: periods.comparison,
+      previous: [] as SiteEventAggregate[],
+    };
+    const us = buildMonthlyPerformanceReport({
+      ...base,
+      locale: 'en-US',
+      current: [
+        { eventType: 'pageview', source: 'google', count: 3 },
+        { eventType: 'pageview', source: 'ai', count: 1 },
+      ],
+    });
+    const ai = us.sources.find((source) => source.source === 'ai');
+    assert.equal(ai?.count, 1);
+    assert.equal(ai?.sharePercent, 25);
+    assert.equal(us.sources.reduce((sum, source) => sum + source.sharePercent, 0), 100);
+
+    // The legacy renderer shows five rows; its displayed shares must still total 100.
+    const legacy = buildMonthlyPerformanceReport({
+      ...base,
+      current: [
+        { eventType: 'pageview', source: 'naver', count: 3 },
+        { eventType: 'pageview', source: 'google', count: 1 },
+      ],
+    });
+    assert.equal(legacy.sources.length, 5);
+    assert.equal(legacy.sources.reduce((sum, source) => sum + source.sharePercent, 0), 100);
   });
 
   test('reads legacy v1 reports without inventing connector metrics', () => {

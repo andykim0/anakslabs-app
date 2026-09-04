@@ -3,6 +3,9 @@ import 'server-only';
 import { ROOT_DOMAIN } from '@/lib/env';
 import { getDataServices } from '@/lib/data';
 import { resolveSiteSubscription } from '@/lib/subscriptions/service';
+import { buildCitationReportSection } from '@/lib/citation-check/report-section';
+import { citationPeriodToRunMonth } from '@/lib/citation-check/repository-core';
+import { getCitationCheckRepository } from '@/lib/citation-check/repository';
 import { sendMonthlyReportEmail } from './resend';
 import { getMonthlyReportsRepository } from './repository';
 import {
@@ -28,6 +31,17 @@ function dependencies(): MonthlyReportRunnerDependencies {
     reports: getMonthlyReportsRepository(),
     sendEmail: sendMonthlyReportEmail,
     dashboardUrl: dashboardUrl(),
+    loadAiAnswers: async ({ siteId, periodMonth }) => {
+      // Reads only. The probes were paid for by the citation-check cron; report
+      // generation never calls an engine.
+      const repository = getCitationCheckRepository();
+      const runMonth = citationPeriodToRunMonth(periodMonth);
+      const [questions, probes] = await Promise.all([
+        repository.listQuestions(siteId),
+        repository.listProbes({ siteId, runMonth }),
+      ]);
+      return buildCitationReportSection({ questions, probes });
+    },
   };
 }
 

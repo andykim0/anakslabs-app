@@ -88,6 +88,51 @@ export function menuOcrConfig(): { enabled: boolean; maxPerClient: number } {
   };
 }
 
+/**
+ * [CITE$] Monthly citation check — we ask each answer engine a small fixed set of the
+ * customer's discovery questions through its API and record whether the customer was
+ * named or linked. Every knob here is a cost guard, because every probe is real money.
+ *
+ *  - enabled: CITATION_CHECK_ENABLED, default on. '0' is the kill switch.
+ *  - engines: CITATION_ENGINES, comma separated. Unknown names are dropped.
+ *  - maxQuestionsPerSite: how many questions we keep per site (the probe fan-out multiplier).
+ *  - maxCallsPerRun: per-invocation ceiling, so one cron run cannot empty the budget.
+ *  - maxCallsPerMonth: the real cost cap. Counted from stored `citation_probes` rows for
+ *    the month across ALL sites before each call, so a restart cannot double-spend it.
+ *  - concurrency: worker count for the probe fan-out.
+ */
+export function citationCheckConfig(): {
+  engines: string[];
+  maxQuestionsPerSite: number;
+  maxCallsPerRun: number;
+  maxCallsPerMonth: number;
+  concurrency: number;
+  enabled: boolean;
+} {
+  const positiveInt = (raw: string | undefined, fallback: number): number => {
+    if (raw === undefined || raw === '') return fallback;
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value < 0) return fallback;
+    return Math.floor(value);
+  };
+  const rawEngines = process.env.CITATION_ENGINES;
+  const engines = (rawEngines === undefined || rawEngines.trim() === ''
+    ? 'openai,anthropic,gemini,perplexity'
+    : rawEngines)
+    .split(',')
+    .map((engine) => engine.trim().toLowerCase())
+    .filter((engine) => engine !== '');
+  return {
+    engines: [...new Set(engines)],
+    maxQuestionsPerSite: Math.max(0, positiveInt(process.env.CITATION_MAX_QUESTIONS_PER_SITE, 8)),
+    maxCallsPerRun: Math.max(0, positiveInt(process.env.CITATION_MAX_CALLS_PER_RUN, 120)),
+    maxCallsPerMonth: Math.max(0, positiveInt(process.env.CITATION_MAX_CALLS_PER_MONTH, 2_000)),
+    concurrency: Math.max(1, positiveInt(process.env.CITATION_CONCURRENCY, 4)),
+    // 기본 on(저비용 상한 안에서만 동작), '0'이면 킬스위치
+    enabled: process.env.CITATION_CHECK_ENABLED !== '0',
+  };
+}
+
 export const env = {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
@@ -98,6 +143,10 @@ export const env = {
   anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
   /** (레거시) GLM 키 — 현재 미사용, 실연동은 anthropicApiKey 사용 */
   glmApiKey: process.env.GLM_API_KEY ?? '',
+  /** [CITE$] Citation check only. Absent today; every path degrades to not_configured. */
+  openaiApiKey: process.env.OPENAI_API_KEY ?? '',
+  /** [CITE$] Citation check only. Absent today; every path degrades to not_configured. */
+  perplexityApiKey: process.env.PERPLEXITY_API_KEY ?? '',
   cloudflareApiToken: process.env.CLOUDFLARE_API_TOKEN ?? '',
   cloudflareZoneId: process.env.CLOUDFLARE_ZONE_ID ?? '',
   /** 크론 라우트 보호용 시크릿 */
