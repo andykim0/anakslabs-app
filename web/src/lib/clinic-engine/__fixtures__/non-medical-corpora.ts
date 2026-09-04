@@ -206,8 +206,10 @@ export const LAW_FIRM_WITH_MEDICAL_PRACTICE_CORPUS: SyntheticCorpus = {
 };
 
 /**
- * A veterinary practice. It is not human medicine and it is not one of the trades this module
- * classifies, so it must fail closed rather than be routed past the screen on a borrowed class.
+ * A veterinary practice, written the way one actually writes. It publishes a great deal of
+ * clinical vocabulary — surgery, dentistry, anesthesia, diagnostics, "patients" — which is why
+ * the clinical terms alone can never separate animal care from human care, and why the
+ * separation is carried by the words only an animal practice prints.
  */
 export const VETERINARY_CORPUS: SyntheticCorpus = {
   origin: 'https://cedarcreekvet.example',
@@ -219,6 +221,7 @@ export const VETERINARY_CORPUS: SyntheticCorpus = {
       body: [
         'Cedar Creek Veterinary is a small animal practice serving the surrounding county.',
         'Our veterinarians provide wellness visits, dentistry, and soft tissue surgery.',
+        'Dr. Alice Reyn, DVM, has cared for patients here since 2009.',
       ],
     },
     {
@@ -226,8 +229,97 @@ export const VETERINARY_CORPUS: SyntheticCorpus = {
       title: 'Services - Cedar Creek Veterinary',
       h1: 'Services',
       body: [
-        'We offer preventive care plans for dogs and cats.',
-        'Our animal hospital is equipped for in-house diagnostics.',
+        'We offer preventive care plans for dogs and cats, including annual wellness exams.',
+        'Our animal hospital is equipped for in-house diagnostics, radiology, and anesthesia.',
+        'Spay and neuter surgery is scheduled on weekday mornings.',
+        'We provide rabies and distemper vaccination, microchipping, and heartworm testing.',
+      ],
+    },
+    {
+      path: '/boarding/',
+      title: 'Boarding and Grooming - Cedar Creek Veterinary',
+      h1: 'Boarding and Grooming',
+      body: [
+        'Pet boarding is available for established clients, with kennels attended overnight.',
+        'Grooming appointments can be added to any boarding stay.',
+      ],
+    },
+  ],
+};
+
+/**
+ * The same practice making the claim the whole screen decision turns on. "We cure your dog's
+ * arthritis" and "guaranteed" are unsubstantiated health claims whether the patient is a person
+ * or a dog, and the registry's matchers are written about the shape of the claim, so they catch
+ * this. Exists to prove veterinary is screened rather than merely reclassified.
+ */
+export const VETERINARY_WITH_HEALTH_CLAIM_CORPUS: SyntheticCorpus = {
+  ...VETERINARY_CORPUS,
+  origin: 'https://cedarcreekvetclaims.example',
+  pages: VETERINARY_CORPUS.pages.map((page) => (page.path === '/' ? {
+    ...page,
+    body: [
+      ...page.body,
+      'Our joint therapy will cure your dog of arthritis, with guaranteed results in one visit.',
+    ],
+  } : page)),
+};
+
+/**
+ * The same practice with almost nothing on the page. It is a veterinary site and it still fails
+ * closed, because three terms is not an identity — it is a guess that happened to be right. Pins
+ * the threshold: if `VETERINARY_MINIMUM_DISTINCT_TERMS` were lowered, this would start passing.
+ */
+export const VETERINARY_THIN_CORPUS: SyntheticCorpus = {
+  origin: 'https://mapleridgevet.example',
+  pages: [
+    {
+      path: '/',
+      title: 'Maple Ridge Animal Clinic',
+      h1: 'Maple Ridge Animal Clinic',
+      body: [
+        'Maple Ridge is a small practice serving the surrounding county.',
+        'Our veterinarians provide wellness visits and soft tissue surgery.',
+      ],
+    },
+  ],
+};
+
+/**
+ * A rural practice running human family medicine and an animal clinic under one brand. Rare, but
+ * real. It scores well above the veterinary bar AND prints human-only markers, and it must land
+ * on human medical: that is the strict side, keeping the human JSON-LD identity and the human
+ * registry's full treatment rather than describing a family practice as VeterinaryCare.
+ */
+export const MIXED_HUMAN_AND_ANIMAL_CORPUS: SyntheticCorpus = {
+  origin: 'https://twinforkshealth.example',
+  pages: [
+    {
+      path: '/',
+      title: 'Twin Forks Health - Family Medicine and Animal Clinic',
+      h1: 'Twin Forks Health',
+      body: [
+        'Twin Forks Health serves our county with family medicine for people and an animal clinic for their companions.',
+        'Both practices operate from the same building on Route 12.',
+      ],
+    },
+    {
+      path: '/animal-clinic/',
+      title: 'Animal Clinic - Twin Forks Health',
+      h1: 'Animal Clinic',
+      body: [
+        'Our veterinarians see dogs, cats, and livestock.',
+        'We provide rabies vaccination, spay and neuter surgery, and microchipping.',
+        'Pet boarding and grooming are available to established clients.',
+      ],
+    },
+    {
+      path: '/family-medicine/',
+      title: 'Family Medicine - Twin Forks Health',
+      h1: 'Family Medicine',
+      body: [
+        'Our physicians provide primary care for adults and pediatrics for children.',
+        'We accept Medicare and most in-network plans.',
       ],
     },
   ],
