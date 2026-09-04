@@ -38,6 +38,11 @@ import {
   type RobustClinicSourcePage,
   type RobustClinicSourcePlan,
 } from './robust-source';
+import {
+  industryMetaFor,
+  resolveRobustSiteIndustry,
+  type RobustSiteIndustryResolution,
+} from './industry-classification';
 import { sourceTextIsOperationalBlob } from './source-text-gates';
 import {
   clinicMaterialAxesForUnit,
@@ -51,6 +56,12 @@ import {
 const FEATURE_SECTION_MAXIMUM_UNITS = 100;
 
 export interface RobustClinicCompilationAudit {
+  /**
+   * Which trade the source was read as, and — when it was read as medical — whether that was a
+   * verdict or a refusal. An operator arguing with a withheld site needs to see the term that
+   * vetoed, not just that the answer was medical.
+   */
+  industry: RobustSiteIndustryResolution;
   sourceBlockCount: number;
   targetBlockCount: number;
   excludedBlockCount: number;
@@ -1060,6 +1071,17 @@ function compilePagePlan(input: {
 }): RobustClinicCompilation {
   const pin = masterPin(input.plan.profile, input.artifact, input.variant);
   const theme = themeFor(input.plan.profile, input.artifact, pin, input.variant);
+  /**
+   * Decided once, here, and then only read — the same contract the specialty pin lives under.
+   * Previews are force-dynamic, so a renderer that classified the source itself could reach a
+   * different answer than the compile did, and the difference would be a page shown to a
+   * prospect while a search engine was told something else about it.
+   */
+  const industry = resolveRobustSiteIndustry({
+    artifact: input.artifact,
+    blocks: input.plan.targetBlocks,
+    profile: input.plan.profile,
+  });
   const claimedSlugs = new Set<string>();
   const pages: SitePage[] = [];
   const auditPages: RobustClinicCompilationAudit['pages'] = [];
@@ -1165,8 +1187,12 @@ function compilePagePlan(input: {
       title,
       purposeId: 'booking_service',
       templateId: 'booking_service.clinic',
-      industryClass: 'medical',
-      industryId: 'clinic',
+      /**
+       * Spread in the same position the two literal keys occupied, so a medical compile — which
+       * is every compile whose source is not positively established as some other trade — emits
+       * the same keys in the same order with the same values, and its stored bytes do not move.
+       */
+      ...industryMetaFor(industry),
       ...(input.plan.profile.locale === 'en-US'
         ? { locale: 'en-US', jurisdiction: 'US' }
         : {}),
@@ -1187,6 +1213,7 @@ function compilePagePlan(input: {
       .filter((page) => page.slug !== null)
       .map((page) => page.sourceUrl),
     audit: {
+      industry,
       sourceBlockCount: input.plan.blocks.length,
       targetBlockCount: input.plan.targetBlocks.length,
       excludedBlockCount: input.plan.excludedBlocks.length,
