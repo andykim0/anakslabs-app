@@ -51,10 +51,6 @@ export function atelierRootStyle(pin: ClinicMasterPin): Record<string, string> {
   };
 }
 
-export function atelierSiteAttributes(config: SiteConfig): Record<string, string> {
-  return atelierIsActive(config) ? { 'data-clinic-design-language': 'atelier' } : {};
-}
-
 /**
  * THE HEADER'S TWO STATES, and the one piece of client behaviour this language adds.
  *

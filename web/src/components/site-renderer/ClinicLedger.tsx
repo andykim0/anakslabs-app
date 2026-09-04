@@ -59,10 +59,6 @@ export function ledgerRootStyle(pin: ClinicMasterPin): Record<string, string> {
   };
 }
 
-export function ledgerSiteAttributes(config: SiteConfig): Record<string, string> {
-  return ledgerIsActive(config) ? { 'data-clinic-design-language': 'ledger' } : {};
-}
-
 /**
  * The header's sibling: the board's 38px `--panel` micro-bar, carrying the practice's own published
  * contact line in mono above the white sticky bar.

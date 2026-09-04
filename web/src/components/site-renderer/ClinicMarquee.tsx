@@ -106,16 +106,6 @@ export function MarqueeUtilityStrip({
   );
 }
 
-export function marqueeSiteAttributes(config: SiteConfig): Record<string, string> {
-  return marqueeIsActive(config) ? { 'data-clinic-design-language': 'marquee' } : {};
-}
-
-export function marqueeStyle(config: SiteConfig): CSSProperties {
-  return (marqueeIsActive(config) && config.clinicMaster
-    ? marqueeRootStyle(config.clinicMaster)
-    : {}) as CSSProperties;
-}
-
 const S = '.anaks-site[data-clinic-design-language="marquee"]';
 
 /**
