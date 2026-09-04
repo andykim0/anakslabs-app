@@ -60,7 +60,7 @@ export function SitePreview({
   className?: string;
   /**
    * [F2b] 대화형 프리뷰 — 내부 링크(페이지 전환·앵커)·CTA·외부 링크(새 탭)·tel/mailto 동작 +
-   * 멀티페이지 헤더 내비. 기본 false(썸네일). site-card 썸네일은 카드 <a> 안이라 반드시 false
+   * 멀티페이지 헤더 내비. 기본 false(썸네일). 카드 썸네일은 카드 <a> 안이라 반드시 false
    * (버튼이 <a>면 앵커 중첩 하이드레이션 에러) — site-detail 큰 프리뷰에서만 opt-in.
    */
   interactive?: boolean;
