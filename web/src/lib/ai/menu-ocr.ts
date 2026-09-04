@@ -2,6 +2,10 @@
  * [G3c] 메뉴판 사진 OCR 실행부 (server-only). Gemini vision(gemini-2.5-flash)으로 이미지의 메뉴·가격을
  * 구조화 추출한다. mock 모드는 결정적 샘플(실호출·실비용 없음). 추출 결과는 고객이 확인·수정한다
  * (자동 확정 금지 — 라우트/UI가 보장). 비용 가드는 라우트(assertMenuOcrAllowed 대체=rate limit)에서.
+ *
+ * DORMANT, ON PURPOSE — 현재 호출자 없음. pay-at-publish 표준 빌드는 vision 공급자를 호출하지
+ * 않기로 했고(app/api/onboarding/menu-ocr/route.ts), 그 결정은 pay-at-publish.test.ts 가
+ * `doesNotMatch(menuOcr, /extractMenuFromImageUrl/)` 로 고정한다. vision 재개 시 여기로 되돌아온다.
  */
 import 'server-only';
 import { env, isMockMode } from '@/lib/env';
