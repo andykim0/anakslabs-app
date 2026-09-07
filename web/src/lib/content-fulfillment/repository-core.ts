@@ -1,4 +1,5 @@
 import type {
+  ContentPostCoverAsset,
   ContentPostRow,
   ContentPostVersionRow,
   PublishedContentPost,
@@ -13,13 +14,18 @@ export interface PublishedContentPostsRepository {
 export function projectPublishedRows(
   posts: readonly ContentPostRow[],
   versions: readonly ContentPostVersionRow[],
+  /** Resolved cover assets keyed by `asset_records.id`; absent for every caller without covers. */
+  coverAssets: readonly ContentPostCoverAsset[] = [],
 ): PublishedContentPost[] {
   const byId = new Map(versions.map((version) => [version.id, version] as const));
+  const coversById = new Map(coverAssets.map((asset) => [asset.assetId, asset] as const));
   return posts
     .flatMap((post) => {
+      const version = post.published_version_id ? byId.get(post.published_version_id) : undefined;
       const projected = projectPublishedContentPost(
         post,
-        post.published_version_id ? byId.get(post.published_version_id) : undefined,
+        version,
+        version?.cover_asset_id ? coversById.get(version.cover_asset_id) : null,
       );
       return projected ? [projected] : [];
     })

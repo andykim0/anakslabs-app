@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { projectContentPostCover, type ContentPostCover } from './cover-image-core';
 
 export const CONTENT_POST_STATUSES = [
   'draft',
@@ -126,6 +127,13 @@ export interface PublishedContentPost {
   document: ContentPostDocument;
   publishedAt: string;
   updatedAt: string;
+  /**
+   * The generated hero image, when this version stored one. Absent is the ordinary case — cover
+   * generation is off by default — and the template paints a tokenised plate instead. It is not
+   * part of the honesty hash: `validatedDocumentSha256` covers slug/title/summary/tags/document
+   * only, so attaching a cover cannot unpublish an already-validated version.
+   */
+  cover?: ContentPostCover;
   /** P2+ immutable versions carry enough evidence for current-policy tenant/export revalidation. */
   integrity?: {
     sourceSnapshot: ContentSourceSnapshot;
@@ -161,6 +169,20 @@ export interface ContentPostVersionRow {
   policy_versions?: unknown;
   validation_evidence?: unknown;
   generation_metadata?: unknown;
+  /** 0049 shipped the column; nothing wrote it until the cover pipeline landed. */
+  cover_asset_id?: string | null;
+}
+
+/**
+ * A resolved `asset_records` row for one version's cover. The repositories join it; the projection
+ * only ever validates what it is handed, so no layer below the boundary has to know how the
+ * registry is queried.
+ */
+export interface ContentPostCoverAsset {
+  assetId: string;
+  url: string;
+  width?: number | null;
+  height?: number | null;
 }
 
 const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(120);
@@ -174,6 +196,7 @@ const tagsSchema = z.array(z.string().trim().min(1).max(60)).max(12);
 export function projectPublishedContentPost(
   post: ContentPostRow,
   version: ContentPostVersionRow | undefined,
+  coverAsset?: ContentPostCoverAsset | null,
 ): PublishedContentPost | null {
   if (
     post.status !== 'published'
@@ -214,6 +237,12 @@ export function projectPublishedContentPost(
   });
 
   if (!parsed.success) return null;
+  // Only a cover the version actually points at. A joined row that does not match the stored
+  // pointer is someone else's asset, and is dropped rather than shown on this article.
+  const cover = coverAsset && coverAsset.assetId === version.cover_asset_id
+    ? projectContentPostCover(coverAsset)
+    : null;
+  const withCover = cover ? { ...parsed.data, cover } : parsed.data;
   const metadata = version.generation_metadata;
   if (
     !metadata
@@ -221,7 +250,7 @@ export function projectPublishedContentPost(
     || Array.isArray(metadata)
     || (metadata as { pipelineVersion?: unknown }).pipelineVersion !== 'content-post-generator-2026-07-v1'
   ) {
-    return parsed.data;
+    return withCover;
   }
   const integrity = z.object({
     sourceSnapshot: contentSourceSnapshotSchema,
@@ -236,5 +265,5 @@ export function projectPublishedContentPost(
     validationEvidence: version.validation_evidence,
     generationMetadata: metadata,
   });
-  return integrity.success ? { ...parsed.data, integrity: integrity.data } : null;
+  return integrity.success ? { ...withCover, integrity: integrity.data } : null;
 }

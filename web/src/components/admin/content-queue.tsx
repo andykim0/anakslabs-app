@@ -26,6 +26,7 @@ import {
   runAdminContentMonth,
   type AdminContentBatchResponse,
   type AdminContentFulfillmentSite,
+  type AdminContentQueueCover,
   type AdminContentQueueItem,
   type AdminContentQueueStatus,
 } from './api';
@@ -197,6 +198,41 @@ function FulfillmentPanel({ sites }: { sites: readonly AdminContentFulfillmentSi
   );
 }
 
+/**
+ * The hero image a version carries, so approval covers the picture and not only the copy.
+ *
+ * Rendered at the same 21:9 the tenant template reserves, which is the point: an operator who
+ * approves here has seen the crop the reader will see. A version without a cover prints one line
+ * of prose instead of a placeholder box, because no cover is the ordinary, finished state — the
+ * article page paints a brand plate from the practice's own tokens.
+ */
+function CoverPreview({ cover }: { cover?: AdminContentQueueCover }) {
+  if (!cover) {
+    return (
+      <p className="mb-2 text-[11px] text-slate-500">
+        No generated cover. The blog paints this practice&apos;s brand plate instead.
+      </p>
+    );
+  }
+  return (
+    <figure className="mb-3">
+      {/* eslint-disable-next-line @next/next/no-img-element -- a registry-canonical Storage URL,
+          not a configured Next image domain, and this console never optimizes admin thumbnails. */}
+      <img
+        src={cover.url}
+        alt=""
+        loading="lazy"
+        className="block aspect-[21/9] w-full rounded border border-slate-200 object-cover"
+        {...(cover.width ? { width: cover.width } : {})}
+        {...(cover.height ? { height: cover.height } : {})}
+      />
+      <figcaption className="mt-1 text-[11px] text-slate-500">
+        Generated cover · publishes with this version
+      </figcaption>
+    </figure>
+  );
+}
+
 function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
   const queryClient = useQueryClient();
   const [topic, setTopic] = useState(DEFAULT_TOPIC);
@@ -265,6 +301,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
 
       {version ? (
         <div className="mt-3 rounded-md border border-slate-100 bg-slate-50 p-3">
+          <CoverPreview cover={version.cover} />
           <p className="text-sm leading-6 text-slate-700">{version.summary}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {version.tags.map((tag) => <Badge key={tag}>{tag}</Badge>)}
@@ -287,6 +324,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
             <Badge tone="blue">Staged replacement</Badge>
             <p className="text-sm font-semibold text-slate-900">{staged.title}</p>
           </div>
+          <CoverPreview cover={staged.cover} />
           <p className="mt-1 text-sm leading-6 text-slate-700">{staged.summary}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {staged.tags.map((tag) => <Badge key={tag}>{tag}</Badge>)}

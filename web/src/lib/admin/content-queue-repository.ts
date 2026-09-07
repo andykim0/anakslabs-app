@@ -2,6 +2,7 @@ import 'server-only';
 import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import { isMockMode } from '@/lib/env';
 import type {
+  ContentPostCoverAsset,
   ContentPostRow,
   ContentPostVersionRow,
 } from '@/lib/content-fulfillment/contracts';
@@ -63,6 +64,7 @@ const VERSION_COLUMNS = [
   'policy_versions',
   'validation_evidence',
   'generation_metadata',
+  'cover_asset_id',
   'created_at',
 ].join(',');
 
@@ -131,6 +133,34 @@ function parseRpcObject(
 }
 
 export class SupabaseContentQueueRepository implements ContentQueueRepository {
+  /**
+   * Cover rows for the versions being projected. Read separately for the same reason the public
+   * repository does it: 0049's foreign key is unnamed, so an embed would ride on an auto-generated
+   * constraint name. A failed read costs the thumbnail, never the queue.
+   */
+  private async coverAssetsFor(
+    rows: readonly AdminVersionRow[],
+  ): Promise<Map<string, ContentPostCoverAsset>> {
+    const ids = [...new Set(rows.flatMap((row) => row.cover_asset_id ? [row.cover_asset_id] : []))];
+    if (ids.length === 0) return new Map();
+    const { data, error } = await getServiceRoleClient()
+      .from('asset_records')
+      .select('id,canonical_url,width,height')
+      .in('id', ids);
+    if (error || !data) return new Map();
+    return new Map((data as unknown as {
+      id: string;
+      canonical_url: string;
+      width: number | null;
+      height: number | null;
+    }[]).map((row) => [row.id, {
+      assetId: row.id,
+      url: row.canonical_url,
+      width: row.width,
+      height: row.height,
+    }] as const));
+  }
+
   private async versionsFor(
     versionIds: readonly string[],
   ): Promise<Map<string, ReturnType<typeof projectAdminContentVersion>>> {
@@ -140,10 +170,15 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
       .select(VERSION_COLUMNS)
       .in('id', [...versionIds]);
     if (error) throw new Error(`content queue version lookup failed: ${error.message}`);
+    const rows = (data ?? []) as unknown as AdminVersionRow[];
+    const covers = await this.coverAssetsFor(rows);
     return new Map(
-      ((data ?? []) as unknown as AdminVersionRow[]).map((row) => [
+      rows.map((row) => [
         row.id,
-        projectAdminContentVersion(row),
+        projectAdminContentVersion(
+          row,
+          row.cover_asset_id ? covers.get(row.cover_asset_id) ?? null : null,
+        ),
       ]),
     );
   }
@@ -320,6 +355,12 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
       p_policy_versions: generated.policyVersions,
       p_validation_evidence: generated.validationEvidence,
       p_generation_metadata: generated.generationMetadata,
+      // Deployment ordering, deliberately: the parameter is only sent once a cover actually
+      // exists. `CONTENT_COVER_IMAGES_ENABLED` is off by default, so on a database that has not
+      // taken migration 0067 the payload stays byte-identical to the pre-cover call and the RPC
+      // signature still resolves. Enabling the flag without the migration is what fails, loudly,
+      // rather than silently discarding an image the run already paid for.
+      ...(generated.cover ? { p_cover_asset_id: generated.cover.assetId } : {}),
     });
     if (error) throw queueError(error, 'content generated version store');
     const item = await this.getById(input.id);

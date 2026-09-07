@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { Site } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
 import type { PublishedContentPost } from './contracts';
+import { articleKeyFacts } from './article-structure';
 
 export const CONTENT_BLOG_NAV_ITEM = {
   id: 'content-blog',
@@ -172,10 +173,41 @@ export function contentPostJsonLd(
     dateModified: post.updatedAt,
     mainEntityOfPage: url,
     url,
+    // The cover slot 0049 shipped, finally reaching the markup. Absent when the version stored no
+    // cover; the template's tokenised plate is a CSS paint, not a file, so there is nothing
+    // honest to advertise here in that case.
+    ...(post.cover ? { image: post.cover.url } : {}),
     publisher: {
       '@type': 'Organization',
       name: publisher,
       url: `https://${site.domain}`,
     },
+  }).replace(/</g, '\\u003c');
+}
+
+/**
+ * The article's question set as `FAQPage`, or null.
+ *
+ * Emitted as a second script rather than folded into the BlogPosting graph, so the shape every
+ * existing consumer branches on is untouched. It reads the same `articleKeyFacts` the template
+ * renders its key-facts box from, which is the point: the answers an assistant quotes are, by
+ * construction, the answers printed on the page. A question set the reader cannot see would be
+ * exactly the hidden structured data this product exists to argue against.
+ */
+export function contentPostFaqJsonLd(
+  site: Site,
+  post: PublishedContentPost,
+): string | null {
+  const facts = articleKeyFacts(post.document);
+  if (!facts) return null;
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntityOfPage: contentPostUrl(`https://${site.domain}`, post.slug),
+    mainEntity: facts.facts.map((fact) => ({
+      '@type': 'Question',
+      name: fact.question,
+      acceptedAnswer: { '@type': 'Answer', text: fact.answer },
+    })),
   }).replace(/</g, '\\u003c');
 }

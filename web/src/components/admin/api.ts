@@ -405,6 +405,14 @@ export type AdminContentQueueStatus =
   | 'rejected'
   | 'published';
 
+/** The generated hero image a version stored, as the queue boundary projects it. */
+export interface AdminContentQueueCover {
+  assetId: string;
+  url: string;
+  width?: number;
+  height?: number;
+}
+
 export interface AdminContentQueueVersion {
   id: string;
   versionNumber: number;
@@ -414,6 +422,8 @@ export interface AdminContentQueueVersion {
   sourceRefs: string[];
   policyVersions: Record<string, unknown>;
   generationMetadata: Record<string, unknown>;
+  /** Absent on every version generated with cover images switched off, which is the default. */
+  cover?: AdminContentQueueCover;
   createdAt: string;
 }
 
