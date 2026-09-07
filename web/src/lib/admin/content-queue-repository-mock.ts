@@ -163,6 +163,19 @@ export class MockContentQueueRepository implements ContentQueueRepository {
     };
   }
 
+  /**
+   * Mirrors the SQL count: version rows, not slots. A slot regenerated after a rejection holds
+   * two versions and cost two paid calls, and the budget has to see both.
+   */
+  async countGeneratedVersionsForMonth(periodMonth: string): Promise<number> {
+    let total = 0;
+    for (const item of this.items.values()) {
+      if (!isSamePeriodMonth(item.periodMonth, periodMonth)) continue;
+      total += this.versionHistory.get(item.id)?.length ?? 0;
+    }
+    return total;
+  }
+
   async getById(id: string): Promise<AdminContentQueueItem | null> {
     const item = this.items.get(id);
     return item ? structuredClone(item) : null;

@@ -21,6 +21,7 @@ import {
 import { siteFulfillmentPlan } from '@/lib/content-fulfillment/site-fulfillment';
 import { currentMonthStartDateInTimeZone } from '@/lib/reporting/period';
 import { MockContentQueueRepository } from '@/lib/admin/content-queue-repository-mock';
+import { CONTENT_HONESTY_POLICY_VERSION } from '@/lib/content-fulfillment/honesty';
 import type { AdminContentQueueItem } from '@/lib/admin/content-queue-core';
 import type { GeneratedContentPostVersion } from '@/lib/content-fulfillment/generation';
 import {
@@ -60,7 +61,7 @@ function generated(attempt: 1 | 2 | 'safe-catalog'): GeneratedContentPostVersion
     },
     sourceSnapshotSha256: 'a'.repeat(64),
     sourceRefs: [],
-    policyVersions: { honesty: 'content-honesty-2026-07-v1', medical: 'medical-ad-2026-07-v1' },
+    policyVersions: { honesty: CONTENT_HONESTY_POLICY_VERSION, medical: 'medical-ad-2026-07-v1' },
     validationEvidence: { honesty: { ok: true }, medical: { ok: true } },
     generationMetadata: {
       pipelineVersion: 'content-post-generator-2026-07-v1',
@@ -87,7 +88,7 @@ async function publish(
     expectedVersionId: stored.currentVersionId!,
     actorId: 'admin',
     sourceSnapshotSha256: 'a'.repeat(64),
-    honestyPolicyVersion: 'content-honesty-2026-07-v1',
+    honestyPolicyVersion: CONTENT_HONESTY_POLICY_VERSION,
     medicalPolicyVersion: 'medical-ad-2026-07-v1',
     validatedDocumentSha256: 'b'.repeat(64),
   });

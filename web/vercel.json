@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/citation-checks",
       "schedule": "45 23 * * *"
+    },
+    {
+      "path": "/api/cron/content-fulfillment",
+      "schedule": "30 22 * * *"
     }
   ]
 }

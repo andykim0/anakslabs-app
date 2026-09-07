@@ -465,6 +465,38 @@ export interface AdminContentSlotProvisionResponse {
   slotCount: number;
 }
 
+/** One line per site in the batch log, so the operator can see where a run stopped and why. */
+export interface AdminContentBatchSiteLog {
+  siteId: string;
+  siteName: string;
+  periodMonth: string;
+  timeZone: string;
+  committed: number;
+  provisioned: number;
+  reclaimed: number;
+  eligible: number;
+  generated: number;
+  failed: number;
+  deferred: number;
+  skippedReason?: string;
+}
+
+export interface AdminContentBatchResponse {
+  ok: true;
+  contentFulfillment: {
+    inspectedSites: number;
+    eligibleSites: number;
+    skippedSites: number;
+    provisionedSlots: number;
+    reclaimedSlots: number;
+    generated: number;
+    failed: number;
+    remaining: number;
+    stoppedBy: 'complete' | 'disabled' | 'run_cap' | 'month_cap' | 'deadline';
+    sites: AdminContentBatchSiteLog[];
+  };
+}
+
 export interface AdminUsDemoCrawlResponse {
   artifact: {
     id: string;
@@ -942,6 +974,18 @@ export function provisionAdminContentSlots(
     `/api/admin/clients/${encodeURIComponent(clientId)}/sites/${encodeURIComponent(siteId)}/content-slots`,
     { method: 'POST', body: '{}' },
   );
+}
+
+/**
+ * Provisions and generates the month for every eligible site — the same runner the daily cron
+ * uses, with the same caps. It never approves or publishes; approval stays one human decision
+ * per post. Pass a siteId to narrow the run to one site.
+ */
+export function runAdminContentMonth(siteId?: string): Promise<AdminContentBatchResponse> {
+  return fetchJson<AdminContentBatchResponse>('/api/admin/content-queue/run-month', {
+    method: 'POST',
+    body: JSON.stringify(siteId ? { siteId } : {}),
+  });
 }
 
 export function generateAdminContent(

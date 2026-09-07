@@ -6,7 +6,21 @@ import {
   type ContentSourceSnapshot,
 } from './contracts';
 
-export const CONTENT_HONESTY_POLICY_VERSION = 'content-honesty-2026-07-v1' as const;
+/**
+ * Bumped from `content-honesty-2026-07-v1` when the English lexicon landed.
+ *
+ * The stamp is what a stored version was validated against, and this release changed what
+ * "validated" means: until now the whole claim lexicon was Korean while the US generator emitted
+ * English, so an English superlative or guarantee was published without ever being asked for a
+ * source. Rows carrying the old stamp are therefore refused by `content-approval-core`'s
+ * `z.literal` and dropped by `public-integrity`, which is the direction that fails safe — copy
+ * cleared by a gate that could not read it is re-generated, not grandfathered.
+ *
+ * Unlike `MEDICAL_AD_POLICY_VERSION`, this string is not duplicated into `lib/pricing.ts` and is
+ * not stamped on stored SiteConfigs, so bumping it cannot fail zod on an issued preview or gate
+ * clinic availability. See `docs/ops/content-fulfillment-batch.md`.
+ */
+export const CONTENT_HONESTY_POLICY_VERSION = 'content-honesty-2026-09-v1' as const;
 
 const sourceRefIds = z.array(z.string().trim().min(1).max(240)).max(30).default([]);
 
@@ -52,11 +66,71 @@ const VERIFIABLE_CLAIM =
 const COMPARISON_OR_SUPERLATIVE =
   /(?:\uCD5C\uACE0|\uCD5C\uC0C1|\uCD5C\uCD08|\uC720\uC77C|1\uC704|1\uB4F1|no\.?\s*1|\uB118\uBC84\uC6D0|\uBCA0\uC2A4\uD2B8|top|\uD0C0\uC0AC|\uB2E4\uB978\s*(?:\uC5C5\uCCB4|\uBCD1\uC6D0|\uD68C\uC0AC).{0,30}\uBCF4\uB2E4|\uB300\uBE44.{0,20}(?:\uC6B0\uC218|\uB192|\uB0AE|\uBE60\uB974))/iu;
 
+/**
+ * The English half of the same four groups.
+ *
+ * The rules above are a Korean lexicon, and the US generator writes English: "the best implant
+ * clinic", "guaranteed results", "painless", "$1,450", "40 minutes" all reached the customer
+ * without a sourceRef, because none of them contains a Korean token. `no.1` and `top` were the
+ * only English tokens in the file, and `\d+%` the only English-readable number, so the gate was
+ * partially inert on the US product rather than absent — these close the rest of it.
+ *
+ * Matching never means "forbidden". It means "this sentence has to name a source id from the
+ * catalog", which is the same contract the Korean rules carry. The medical screen, which does
+ * block, is a separate pass (`medical-post-policy.ts`) and is unchanged by this.
+ */
+const ENGLISH_MEASURABLE_NUMBER = new RegExp(
+  [
+    // Money. "$1,450", "$ 95", "USD 95".
+    '(?:\\$|\\bUSD\\s)\\s?\\d',
+    // Quantity + unit. The unit list mirrors the Korean one (건·명·회·년·개월·주·일·시간·분)
+    // and adds the ones a US clinic article actually writes.
+    '\\d+(?:[,.]\\d+)?\\s*(?:%|percent|minutes?|mins?|hours?|hrs?|days?|weeks?|months?|years?'
+    + '|patients?|clients?|customers?|cases?|visits?|reviews?|locations?|providers?)\\b',
+  ].join('|'),
+  'iu',
+);
+
+/**
+ * The English equivalents of 수상/인증/자격/경력/특허/후기/만족도/성공률 above. Each is a claim a
+ * registry, a document, or a count can settle, which is exactly when a source id is required.
+ */
+const ENGLISH_VERIFIABLE_CLAIM =
+  /\b(?:board[- ]certified|certified|certification|accredited|licensed|fellowship[- ]trained|patented|patents?|testimonials?|success\s+rates?|satisfaction\s+rates?|years\s+of\s+experience|clinically\s+proven|scientifically\s+proven|fda[- ]approved)\b/iu;
+
+const ENGLISH_COMPARISON_OR_SUPERLATIVE = new RegExp(
+  [
+    '\\b(?:best|safest|fastest|cheapest|finest|largest|leading|award[- ]winning|top[- ]rated'
+    + '|world[- ]class|state[- ]of[- ]the[- ]art)\\b',
+    // "#1 clinic", "# 1 provider". `no.1` is already carried by the rule above.
+    '#\\s*1\\b',
+    // Exclusivity. Bare "only" is an ordinary adverb; "the only" is the claim.
+    '\\bthe\\s+only\\b',
+    // Explicit comparatives. "than" is required so "comparing the answers you receive" — the
+    // generator's own fallback copy — is not read as a comparison against a competitor.
+    '\\b(?:better|safer|faster|cheaper|stronger|more\\s+\\w+)\\s+than\\b',
+    '\\b\\d+(?:[,.]\\d+)?\\s*times\\s+(?:faster|better|stronger|more)\\b',
+  ].join('|'),
+  'iu',
+);
+
+/**
+ * Absolutes. `permanent` is guarded on the right: "permanent teeth" is the anatomical term for
+ * adult dentition, not a promise about how long a result lasts, and forcing a source onto it
+ * would burn generation attempts on ordinary paediatric copy.
+ */
+const ENGLISH_GUARANTEE_OR_ABSOLUTE =
+  /\b(?:guarantee(?:d|s)?|painless|pain[- ]free|risk[- ]free|cure(?:d|s)?|completely\s+safe|absolutely\s+safe|no\s+side\s+effects?)\b|\bpermanent(?:ly)?\b(?!\s+(?:teeth|tooth|molars?|dentition))/iu;
+
 export function textNeedsContentSource(text: string): boolean {
   return YEAR_OR_DATE.test(text)
     || MEASURABLE_NUMBER.test(text)
     || VERIFIABLE_CLAIM.test(text)
-    || COMPARISON_OR_SUPERLATIVE.test(text);
+    || COMPARISON_OR_SUPERLATIVE.test(text)
+    || ENGLISH_MEASURABLE_NUMBER.test(text)
+    || ENGLISH_VERIFIABLE_CLAIM.test(text)
+    || ENGLISH_COMPARISON_OR_SUPERLATIVE.test(text)
+    || ENGLISH_GUARANTEE_OR_ABSOLUTE.test(text);
 }
 
 interface PublicTextEntry {
