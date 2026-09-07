@@ -19,6 +19,7 @@ import {
   type AdminContentQueueItem,
 } from '@/lib/admin/content-queue-core';
 import { MockContentQueueRepository } from '@/lib/admin/content-queue-repository-mock';
+import { CONTENT_HONESTY_POLICY_VERSION } from '@/lib/content-fulfillment/honesty';
 import { CONTENT_REWORK_REFUSAL_MESSAGES } from '@/lib/admin/content-rework-policy';
 import {
   deliveredCountForPeriod,
@@ -172,7 +173,7 @@ async function swap(
     expectedVersionId: item.pendingVersionId!,
     actorId: ACTOR,
     sourceSnapshotSha256: SOURCE_SHA,
-    honestyPolicyVersion: 'content-honesty-2026-07-v1',
+    honestyPolicyVersion: CONTENT_HONESTY_POLICY_VERSION,
     medicalPolicyVersion: 'medical-ad-2026-07-v1',
     validatedDocumentSha256: 'b'.repeat(64),
   });

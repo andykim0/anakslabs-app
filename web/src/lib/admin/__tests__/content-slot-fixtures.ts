@@ -6,6 +6,7 @@
  * repository would reject can never sneak into an assertion.
  */
 import type { MockContentQueueRepository } from '@/lib/admin/content-queue-repository-mock';
+import { CONTENT_HONESTY_POLICY_VERSION } from '@/lib/content-fulfillment/honesty';
 import type { GeneratedContentPostVersion } from '@/lib/content-fulfillment/generation';
 
 const SOURCE_SHA = 'a'.repeat(64);
@@ -41,7 +42,7 @@ export function slotGeneration(
     },
     sourceSnapshotSha256: SOURCE_SHA,
     sourceRefs: [],
-    policyVersions: { honesty: 'content-honesty-2026-07-v1', medical: 'medical-ad-2026-07-v1' },
+    policyVersions: { honesty: CONTENT_HONESTY_POLICY_VERSION, medical: 'medical-ad-2026-07-v1' },
     validationEvidence: { honesty: { ok: true }, medical: { ok: true } },
     generationMetadata: {
       pipelineVersion: 'content-post-generator-2026-07-v1',
@@ -69,7 +70,7 @@ export async function publishSlot(
     expectedVersionId: stored.currentVersionId!,
     actorId,
     sourceSnapshotSha256: SOURCE_SHA,
-    honestyPolicyVersion: 'content-honesty-2026-07-v1',
+    honestyPolicyVersion: CONTENT_HONESTY_POLICY_VERSION,
     medicalPolicyVersion: 'medical-ad-2026-07-v1',
     validatedDocumentSha256: DOCUMENT_SHA,
   });

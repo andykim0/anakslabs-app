@@ -16,6 +16,7 @@ import {
   normalizeContentQueueLimit,
 } from '@/lib/admin/content-queue-core';
 import { MockContentQueueRepository } from '@/lib/admin/content-queue-repository-mock';
+import { CONTENT_HONESTY_POLICY_VERSION } from '@/lib/content-fulfillment/honesty';
 import { monthlySlotSlug } from '@/lib/content-fulfillment/delivery';
 import { PRICING_MODEL_VERSION } from '@/lib/pricing';
 import { SUMMIT_DENTAL_SITE_ID, DEMO_CLINIC_ID } from '@/lib/data/mock/seed';
@@ -339,7 +340,7 @@ async function publish(repository: MockContentQueueRepository, id: string): Prom
       },
       sourceSnapshotSha256: 'a'.repeat(64),
       sourceRefs: [],
-      policyVersions: { honesty: 'content-honesty-2026-07-v1', medical: 'medical-ad-2026-07-v1' },
+      policyVersions: { honesty: CONTENT_HONESTY_POLICY_VERSION, medical: 'medical-ad-2026-07-v1' },
       validationEvidence: { honesty: { ok: true }, medical: { ok: true } },
       generationMetadata: {
         pipelineVersion: 'content-post-generator-2026-07-v1',
@@ -354,7 +355,7 @@ async function publish(repository: MockContentQueueRepository, id: string): Prom
     expectedVersionId: stored.currentVersionId!,
     actorId: OPERATOR_ACTOR_ID,
     sourceSnapshotSha256: 'a'.repeat(64),
-    honestyPolicyVersion: 'content-honesty-2026-07-v1',
+    honestyPolicyVersion: CONTENT_HONESTY_POLICY_VERSION,
     medicalPolicyVersion: 'medical-ad-2026-07-v1',
     validatedDocumentSha256: 'b'.repeat(64),
   });
