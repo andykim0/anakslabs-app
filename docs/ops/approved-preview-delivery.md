@@ -85,29 +85,44 @@ material and keeps the approval. The mock purge mirrors it, and
 `/preview/[token]` still 404s for a US medical preview whose artifact is gone: that page renders a
 source-structure comparison and has nothing to compare against. Delivery does not need it.
 
-## Known gap — a delivered US clinic page cannot pass the publish quality gate yet
+## Closed — a delivered US clinic page passes the publish quality gate
 
-Measured across the fixture corpus, **every** US demo config fails `checkPublish` today —
-**22 (10 `broken_internal_link` + 12 scrim AA)** on the delivered iddental page, the same 22 on
-cameods, identical in both render modes, and 1 scrim AA on the seeded Summit Dental site. Two
-classes:
+This section used to record a gap: **every** US demo config failed `checkPublish` — 22 blockers
+(10 `broken_internal_link` + 12 scrim AA) on a delivered iddental or cameods page in both render
+modes, 19 on dental360, and 2 on the seeded Summit Dental site. A page the prospect had approved
+could not be taken live by anyone.
 
-- `Book Appointment` buttons anchored at section ids that do not exist on their own page
-  (`clinic-procedure-*-details-cta` on every procedure subpage — code `broken_internal_link`);
-- `Introduction` (Summit: `Hero`) text below AA contrast over its background image.
+It is fixed at the compiler, and the gate is untouched. Full account in
+[`publish-quality-gate.md`](./publish-quality-gate.md); in short:
 
-The contrast half is one number, not a design problem: overlay opacity **0.45 where 0.49 is
-required**, achieving **3.92 against a 4.5 floor**, on 35 of the 37 scrim blockers measured. Every
-row has a satisfiable `minOverlayOpacityForAA`, so a scrim-opacity default clears the class. The
-exception is iddental's `invisalign` page, whose `#4253FF` text only reaches 5.37 at full opacity.
+- the `Book Appointment` buttons pointed at `#clinic-sticky-booking`, which is not a section id
+  anywhere — the sticky bar is an `<aside>` with no `id`. Real dead links, on every treatment
+  page. They now point at the practice's `/contact`.
+- the `Introduction` scrim blockers were a **phantom**. The compiler emitted `overlayColor` on
+  heroes whose copy sits on an opaque plate and whose renderer paints no overlay at all; the gate
+  saw the colour, assumed `overlayOpacity ?? 0.45`, and scored a wash that reaches no screen.
+  Dropping the colour retires the class and changes zero rendered pixels.
 
-This predates the operator publish route and is not caused by it. The route inherits the verdict
-rather than working around it, and `approved-preview-delivery.test.ts` pins that: a delivered site
-with an active subscription is refused `409 PUBLISH_QUALITY_BLOCKED` and its `siteConfig` stays
-null. Fixing it means changing what the compiler emits — i.e. changing the bytes a prospect
-approves — so it is a separate decision, not a delivery change.
+The earlier note here — that "a scrim-opacity default clears the class" — was **wrong**, and worth
+recording as such: setting a measured opacity would have painted a wash the design deliberately
+does not have, in order to satisfy a rule about a wash that was not there. The only genuine scrim
+in the corpus is iddental's `invisalign` stock hero, handled by `enforceClinicStockHeroContrast`.
 
-The clinic **new build** path does clear the gate, which is what the end-to-end publish test uses.
+`approved-preview-delivery.test.ts` now pins the outcome from both ends: the delivered site
+publishes (200), and the delivered bytes score zero blockers when run directly through
+`preflightScan` → `checkPublish`, so a route that quietly stopped auditing would still be caught.
+
+**A preview issued before that fix keeps its bytes**, because delivery never recompiles an
+approved preview — so it keeps its blockers and must be re-issued to publish. The console no
+longer discovers this by pressing Publish: `GET /api/admin/clients/[id]/sites/[siteId]/publish-gate`
+recomputes the verdict from the stored draft and the delivery panel renders it, saying
+*"This preview predates the publish fix; re-issue to publish."* when that applies.
+
+One unrelated refusal remains on dental360, at delivery rather than publish:
+`enforceOperatorMedicalDraft` throws `US_OPERATOR_MEDICAL_AD_POLICY_BLOCKED` on it. That predates
+this work and belongs to the medical-ad screen.
+
+The clinic **new build** path still clears the gate, and its output did not move.
 
 ## Migration status
 

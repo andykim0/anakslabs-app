@@ -210,6 +210,23 @@ export interface OperatorSitePublishResult {
   checkedBy: string;
 }
 
+/** The publish verdict recomputed from the stored draft. Mirrors `StoredConfigGateResult`. */
+export interface OperatorSitePublishGateResult {
+  gate: {
+    ok: boolean;
+    blockers: string[];
+    warnings: string[];
+    artifactBlockers: {
+      code: string;
+      message: string;
+      pageSlug?: string;
+      sectionId?: string;
+    }[];
+    predatesPublishFix: boolean;
+    scan?: { total: number; grade: string; belowThreshold: boolean };
+  };
+}
+
 export interface OperatorSiteDomainResult {
   siteId: string;
   status: CustomDomainStatus;
@@ -804,6 +821,19 @@ export function publishOperatorClientSite(
   return fetchJson<OperatorSitePublishResult>(
     `/api/admin/clients/${encodeURIComponent(clientId)}/sites/${encodeURIComponent(siteId)}/publish`,
     { method: 'POST', body: JSON.stringify(input) },
+  );
+}
+
+/**
+ * What the publish gate would say about this site's stored draft, without publishing it. Read-only
+ * and recomputed from the bytes already on the draft — never a recompile of an approved preview.
+ */
+export function readOperatorSitePublishGate(
+  clientId: string,
+  siteId: string,
+): Promise<OperatorSitePublishGateResult> {
+  return fetchJson<OperatorSitePublishGateResult>(
+    `/api/admin/clients/${encodeURIComponent(clientId)}/sites/${encodeURIComponent(siteId)}/publish-gate`,
   );
 }
 

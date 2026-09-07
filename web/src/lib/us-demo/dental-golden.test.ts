@@ -97,6 +97,43 @@ import {
  * on it moved. Legitimate because each movement is a claim the demo was making that its source
  * does not support — a nav entry that repeats another, a doctor section with no doctor in it, and
  * ten digits where a phone number belongs.
+ *
+ * CAPTURE 5 — the publish blockers. Every config in this corpus was refused by `checkPublish`:
+ * 22 blockers on a delivered cameods or iddental page, 19 on dental360, in both render modes.
+ * Two defects, both at the compiler.
+ *
+ *   (a) `#clinic-sticky-booking` is not a section id and never was — the sticky bar is an
+ *       `<aside>` with no `id` — so every treatment page's "Book Appointment" did nothing in the
+ *       browser. It now points at `/contact`. It stays an internal path because P3 forbids this
+ *       compiler from emitting an active connector and because booking is not ours to activate
+ *       before the operator connects the practice's system.
+ *   (b) A hero carrying a `clinicHeroLayout` emitted `overlayColor` for a scrim the renderer
+ *       never paints (the copy sits on an opaque plate). The gate read the colour, assumed
+ *       `overlayOpacity ?? 0.45`, and scored a wash that does not exist at 3.92 against a 4.5
+ *       floor. The colour is no longer emitted there. Zero rendered pixels move.
+ *
+ * Stated expectation before regen — ALL SIX entries move, and nothing outside this list:
+ *
+ *   cameods    12 `overlayColor` removals (one per hero with a layout decision), 10 procedure
+ *              CTA hrefs `#clinic-sticky-booking` -> `/contact`. 22 paths, both modes.
+ *   dental360  9 `overlayColor` removals, 7 procedure CTA hrefs, and ONE more: its home CTA
+ *              also moves, `#clinic-home-faq` -> `/contact`. dental360 publishes no FAQ, so
+ *              `buildClinicFaqSection` returned nothing and that band had been pointing at a
+ *              section its own page did not contain. 17 paths, both modes.
+ *   iddental   11 `overlayColor` removals — 11, not 12, because the `invisalign` hero is the one
+ *              stock hero in the corpus and its 0.82 scrim is really painted, so it keeps its
+ *              overlay — 10 procedure CTA hrefs, and 2 text colours on that stock hero moving to
+ *              the ink token (`#4253FF` and `#5A6270` -> `#111318`) so the copy clears AA on the
+ *              scrim it actually sits on. `overlayOpacity` stays 0.82: the colour swap was
+ *              enough, and nothing raises a scrim that already passes. 23 paths, both modes.
+ *
+ * No fixture may change its page count, its section count, `deliverable`, `deliveryBlockers`,
+ * `sourceReport` or any JSON-LD node.
+ *
+ * Found exactly that: 6 of 6 moved, every reported path was on this list, no path that is not on
+ * it moved, and the four non-config surfaces were byte-identical in all six entries. Legitimate
+ * because every movement removes something that was already false — a button that navigated
+ * nowhere, and a scrim that was described in the config but drawn on no screen.
  */
 describe('dental output is byte-identical across the specialty parameterisation', () => {
   const golden = readDentalGolden();

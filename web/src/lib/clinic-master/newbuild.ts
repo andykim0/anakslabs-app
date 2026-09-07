@@ -24,7 +24,10 @@ import {
   type ClinicMasterSourceBlock,
 } from './compiler';
 import { resolveClinicFocus } from './focus-recipe';
-import { applyDentalStockToClinicMaster } from './dental-stock';
+import {
+  applyDentalStockToClinicMaster,
+  enforceClinicStockHeroContrast,
+} from './dental-stock';
 import { resolveClinicMasterTheme } from './tokens';
 import {
   CLINIC_NEWBUILD_MAX_SERVICES,
@@ -36,7 +39,6 @@ import {
   type ClinicServiceTaxonomyEntry,
 } from './service-taxonomy';
 import { applyLatinFontPairing } from '@/lib/fonts/selection';
-import { minOverlayOpacityForAA, scrimPassesAA } from '@/lib/design/scrim';
 import {
   medicalPolicyErrorDetails,
   screenMedicalSiteConfig,
@@ -312,54 +314,6 @@ export function clinicNewbuildPin(input: {
   };
 }
 
-/**
- * 라이선스 stock 히어로의 스크림 대비 마감.
- *
- * `applyDentalStockToClinicMaster`가 얹는 라이선스 공시 문구는 muted 토큰을 쓰는데,
- * 그 색은 stock 히어로의 0.82 스크림에서 본문 AA(4.5:1)에 못 미쳐 발행 감사가 차단한다
- * (프리뷰 경로는 발행 감사를 타지 않아 드러나지 않았다). 공유 헬퍼의 기존 출력 바이트를
- * 건드리지 않기 위해, 신규 제작에서만 히어로 텍스트를 읽히는 토큰으로 되돌린다.
- */
-function enforceClinicNewbuildHeroContrast(config: SiteConfig): SiteConfig {
-  let changed = false;
-  const pages = config.pages.map((page) => ({
-    ...page,
-    sections: page.sections.map((section) => {
-      const image = section.background.image;
-      if (!image?.overlayColor) return section;
-      const overlayColor = image.overlayColor;
-      const overlayOpacity = image.overlayOpacity ?? 0.45;
-      let sectionChanged = false;
-      const elements = section.elements.map((element) => {
-        if (element.kind !== 'text') return element;
-        const color = element.style.color ?? config.theme.palette.text;
-        if (scrimPassesAA(overlayColor, overlayOpacity, color)) return element;
-        sectionChanged = true;
-        return {
-          ...element,
-          style: { ...element.style, color: config.theme.palette.text },
-        };
-      });
-      if (!sectionChanged) return section;
-      changed = true;
-      // 본문 토큰마저 못 미치면 스크림을 필요한 최소치까지 올려 fail-closed 한다.
-      const required = minOverlayOpacityForAA(overlayColor, config.theme.palette.text);
-      const nextOpacity = required !== null && required > overlayOpacity
-        ? required
-        : overlayOpacity;
-      return {
-        ...section,
-        elements,
-        background: {
-          ...section.background,
-          image: { ...image, overlayOpacity: nextOpacity },
-        },
-      };
-    }),
-  }));
-  return changed ? { ...config, pages } : config;
-}
-
 function clinicNewbuildConfig(input: {
   declared: ClinicNewbuildInput;
   services: readonly ClinicServiceTaxonomyEntry[];
@@ -421,7 +375,7 @@ function clinicNewbuildConfig(input: {
     nav: { enabled: false },
     motion: { presetId: 'clinic-premium', intensity: 'subtle' },
   };
-  return enforceClinicNewbuildHeroContrast(applyDentalStockToClinicMaster(config, {
+  return enforceClinicStockHeroContrast(applyDentalStockToClinicMaster(config, {
     hospitalStableId: `newbuild:${pin.paletteSource.sourceSha256.slice(0, 16)}`,
     category: resolveClinicNewbuildStockCategory(input.services),
     slot: 'hero',

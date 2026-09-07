@@ -151,19 +151,28 @@ export function buildClinicHeroSection(input: {
       : 0;
     section.background.image = {
       src: input.image.src,
-      overlayColor: input.theme.palette.background,
       /**
        * The legacy clinic contract remains 0.78. KO contract import explicitly opts into
        * generation-time evidence and a fail-closed stronger scrim when raw AA is unknown.
        *
-       * [D2] A hero carrying a layout decision omits it entirely. Neither new mode washes its
-       * photograph, and on the en-US path this number was never read anyway — only the ko-KR
-       * renderer turns it into --clinic-hero-overlay-opacity. Emitting it there is load-bearing;
-       * emitting it here was dead data that read like a scrim nobody could find.
+       * [D2] A hero carrying a layout decision omits the WHOLE scrim — colour as well as opacity.
+       * Neither new mode washes its photograph: `ClinicHeroLayout` emits no overlay element and
+       * sets the copy on an opaque `[data-clinic-hero-plate]`, and `ClinicFlowSection` reads
+       * `overlayOpacity` only under ko-KR. Emitting the pair there is load-bearing; emitting it
+       * here was dead data that read like a scrim nobody could find.
+       *
+       * [Q1-publish] And it was not merely dead — it was read by the ONE consumer that could
+       * not see the renderer: `checkPublish` fires its scrim rule on `if (img.overlayColor)` and
+       * then assumes `overlayOpacity ?? 0.45`, so a hero that paints no scrim at all was scored
+       * as a 0.45 wash and refused publication (3.92 against a 4.5 floor) on every en-US demo
+       * page. Dropping the colour retires the phantom at the compiler and moves zero pixels; the
+       * honest alternative — inventing a measured opacity here — would have painted a wash the
+       * design deliberately does not have.
        */
       ...(input.clinicHeroLayout
         ? {}
         : {
+            overlayColor: input.theme.palette.background,
             overlayOpacity: input.enforceHeroContrast
               ? (rawContrast >= 4.5 ? 0.78 : 0.94)
               : 0.78,
