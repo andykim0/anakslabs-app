@@ -28,7 +28,15 @@ const hero: Section = {
     image: {
       src: '/stock/pexels/dental-atmosphere/6627725.webp',
       overlayColor: '#0d1c2c',
-      overlayOpacity: 0.62,
+      /**
+       * [Q1-publish] 0.66, not 0.62 — the seed's own value, corrected. `hero-sub` (#dfe8f0) came
+       * out at 3.94 against the 4.5 floor on the worst background the scrim math assumes, so the
+       * one published demo site in mock could not clear its own publish gate. 0.66 is exactly
+       * `minOverlayOpacityForAA('#0d1c2c', '#dfe8f0')`; the title and the kicker already passed
+       * and still do. Raising the scrim rather than lightening the sub keeps the seed's
+       * deliberate title/sub contrast hierarchy.
+       */
+      overlayOpacity: 0.66,
     },
   },
   elements: [

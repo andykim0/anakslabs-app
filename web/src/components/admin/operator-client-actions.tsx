@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
   apiErrorCode,
@@ -8,6 +8,7 @@ import {
   createOperatorClientSite,
   inviteOperatorClient,
   publishOperatorClientSite,
+  readOperatorSitePublishGate,
 } from './api';
 import { Card, PanelSection } from './ui';
 import type { Site } from '@/lib/types/domain';
@@ -343,6 +344,20 @@ export function OperatorSiteDeliveryControls({
     }),
     onSuccess: invalidate,
   });
+  /**
+   * The publish verdict, read before anyone presses Publish. The console used to discover an
+   * unpublishable page by publishing it and reading a 409 — by which point the operator has
+   * already promised the customer a date. Recomputed from the stored draft through the same
+   * preflight composition the publish path uses, so this cannot disagree with the refusal.
+   * Only fetched once the panel is open: it renders every page of the site to score it.
+   */
+  const gateQuery = useQuery({
+    queryKey: ['admin', 'client', clientId, 'site', site.id, 'publish-gate'],
+    queryFn: () => readOperatorSitePublishGate(clientId, site.id),
+    enabled: open,
+    staleTime: 30_000,
+  });
+  const gate = gateQuery.data?.gate;
   const allChecked = PUBLISH_HUMAN_CHECKS.every(({ id }) => checks[id]);
   // The publish path answers 402 when the account has no active subscription. That is a
   // commercial fact for the operator to act on, not an error to retry.
@@ -395,6 +410,52 @@ export function OperatorSiteDeliveryControls({
           ))}
         </ul>
       ) : null}
+
+      <div className="border-t border-slate-200 pt-2">
+        {gateQuery.isPending ? (
+          <p className="text-[11px] text-slate-500">Checking whether this page can be published…</p>
+        ) : gateQuery.isError ? (
+          <p className="text-[11px] text-amber-700">
+            {`Could not run the publish check: ${gateQuery.error.message}`}
+          </p>
+        ) : gate?.ok ? (
+          <p className="text-[11px] text-emerald-700">
+            Publish check passed — no blockers on this draft.
+          </p>
+        ) : gate ? (
+          <div className="space-y-1">
+            <p className="text-[11px] font-medium text-red-700">
+              {`Publish is blocked — ${gate.blockers.length} ${
+                gate.blockers.length === 1 ? 'reason' : 'reasons'
+              }. Pressing Publish will refuse.`}
+            </p>
+            {gate.predatesPublishFix ? (
+              <p className="text-[11px] font-medium text-amber-800">
+                This preview predates the publish fix; re-issue to publish.
+              </p>
+            ) : null}
+            <ul className="space-y-0.5 text-[11px] text-slate-600">
+              {gate.artifactBlockers.slice(0, 8).map((blocker, index) => (
+                <li key={`${blocker.code}:${blocker.pageSlug ?? ''}:${blocker.sectionId ?? ''}:${index}`}>
+                  {`${blocker.pageSlug ? `/${blocker.pageSlug}` : '/'}${
+                    blocker.sectionId ? ` · ${blocker.sectionId}` : ''
+                  } — ${blocker.message}`}
+                </li>
+              ))}
+              {gate.artifactBlockers.length === 0
+                ? gate.blockers.slice(0, 8).map((message, index) => (
+                  <li key={`prose:${index}`}>{message}</li>
+                ))
+                : null}
+            </ul>
+            {gate.blockers.length > 8 ? (
+              <p className="text-[11px] text-slate-500">
+                {`…and ${gate.blockers.length - 8} more.`}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
 
       <fieldset className="space-y-1 border-t border-slate-200 pt-2">
         <legend className="text-[11px] font-medium text-slate-700">

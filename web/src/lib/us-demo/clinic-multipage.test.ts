@@ -802,11 +802,19 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       true,
     );
     assert.equal(clinicMaximumConsecutiveProseSections(implantPage.sections) <= 2, true);
+    /**
+     * [Q1-publish] `#clinic-sticky-booking` was never a section id — the sticky bar is an
+     * `<aside data-clinic-sticky-booking>` with no `id`, so this button went nowhere in the
+     * browser and the publish audit refused it (`broken_internal_link`, ten per practice).
+     * The CTA now points at the page that carries the address, hours and insurance. It stays an
+     * internal path because the P3 rule forbids this compiler from emitting an active connector,
+     * and because booking is not ours to activate until the operator connects their system.
+     */
     assert.equal(
       implantPage.sections
         .find((section) => section.type === 'cta')
         ?.elements.some((element) => (
-          element.kind === 'button' && element.href === '#clinic-sticky-booking'
+          element.kind === 'button' && element.href === '/contact'
         )),
       true,
     );
@@ -1321,7 +1329,27 @@ describe('CLINIC$ master v2 — clinic multipage', () => {
       html,
       /(?:예약|연결하면|활성화|시스템을)/u,
     );
-    assert.match(html, /href="#clinic-home-faq"/u);
+    /**
+     * [Q1-publish] This assertion used to read `assert.match(html, /href="#clinic-home-faq"/u)`,
+     * and it was pinning a dead link: this fixture publishes no FAQ, so `buildClinicFaqSection`
+     * returns nothing and the home page never had a `clinic-home-faq` section to scroll to.
+     * Measured on the previous commit: one `href="#clinic-home-faq"`, zero elements carrying
+     * that id. The band is now emitted only alongside the section it names.
+     */
+    assert.doesNotMatch(html, /href="#clinic-home-faq"/u);
+    /**
+     * The band itself stays — it is the home page's booking affordance, and `surfaceTone`
+     * alternates across the section list, so removing a member would re-paint every section
+     * below it. Only the destination moves, to the same internal page the treatment CTAs use.
+     */
+    const homeCta = compiled.config.pages
+      .find((entry) => entry.slug === '')
+      ?.sections.find((entry) => entry.id === 'clinic-home-cta');
+    assert.ok(homeCta, 'the home CTA band is still emitted');
+    assert.equal(
+      homeCta.elements.some((el) => el.kind === 'button' && el.href === '/contact'),
+      true,
+    );
     assert.match(html, /data-clinic-booking-state="call-only"/u);
     assert.match(html, /<section\b/u);
     assert.match(html, /<img\b[^>]*alt=/u);

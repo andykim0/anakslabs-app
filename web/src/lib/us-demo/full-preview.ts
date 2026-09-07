@@ -1668,6 +1668,41 @@ export function compileUsMedicalFullPreview(input: {
         })
       : candidate
   ));
+  /**
+   * Hoisted from the contact-page branch below, because the procedure pages are built first and
+   * their booking CTA needs to know whether a contact page will exist to link to.
+   */
+  const contactSections = masterSections.filter((candidate) => (
+    candidate.id === 'clinic-insurance-pricing'
+    || candidate.id === 'us-demo-contact'
+    || candidate.id === 'clinic-faq'
+  ));
+  /**
+   * [Q1-publish] Where a treatment page's "Book Appointment" actually goes.
+   *
+   * It used to go to `#clinic-sticky-booking`, which is not a section id and never was: the
+   * sticky bar is an `<aside data-clinic-sticky-booking="1">` with no `id` at all
+   * (`ClinicStickyBooking.tsx`), and on a preview it renders deactivated ("Booking activates
+   * when you connect your system"). So the button did nothing in the browser on every procedure
+   * subpage, and the publish audit was right to refuse it — ten `broken_internal_link` blockers
+   * per delivered practice, one per treatment page.
+   *
+   * IT IS THE CONTACT PAGE, and the two more direct destinations are ruled out by contracts this
+   * compiler does not get to overrule:
+   *   - the crawled booking URL is forbidden in compiler output. Booking is not ours to activate
+   *     until the operator connects the practice's system, and `clinic-multipage.test.ts:1309`
+   *     pins that the crawled `us_booking` URL appears as no `href` in the rendered preview at
+   *     all — the Book action is a deactivated `<span>` carrying that disclosure.
+   *   - `tel:` is forbidden too, by the P3 no-active-connector rule: every button this compiler
+   *     emits must be an internal destination (`p3-preview.test.ts:299` — `/` or `#` only). The
+   *     phone belongs to the sticky bar, which reaches it through the verified source projection
+   *     rather than through a config button.
+   * So the honest internal destination is the page that already carries the address, the hours,
+   * the insurance list and the FAQ. When a practice publishes none of that there is no contact
+   * page to send anyone to, and no CTA section is emitted at all — a missing card beats a dead
+   * button.
+   */
+  const procedureBookingHref = contactSections.length > 0 ? '/contact' : undefined;
   const reservedImages = new Set([
     homeImage?.source.id,
     // Both prospect-facing modes now place a provider photo, so both must hold it: an unreserved
@@ -1860,14 +1895,31 @@ export function compileUsMedicalFullPreview(input: {
       };
     }),
   });
-  const homeCta = buildClinicCtaSection({
-    id: 'clinic-home-cta',
-    name: 'Book Appointment',
-    theme,
-    title: introduction ?? businessName,
-    href: '#clinic-home-faq',
-    candidates: ['cta.fullwidth-band'],
-  });
+  /**
+   * [Q1-publish] The home CTA scrolls to the FAQ, and `buildClinicFaqSection` returns nothing
+   * when the practice published no questions — so on such a site this band shipped a fragment
+   * with no target. Not hypothetical: dental360 is exactly that practice, and its home page was
+   * carrying a `#clinic-home-faq` button with no `clinic-home-faq` section to land on.
+   *
+   * The anchor is therefore emitted only alongside the section it names, and when that section
+   * is absent the band falls back to the SAME destination the treatment pages use rather than
+   * disappearing. Dropping it outright was the other option and it is worse twice over: the
+   * practice loses its home booking band, and because `surfaceTone` alternates across the page's
+   * section list, removing one member re-paints the tone of every section below it — measured on
+   * dental360, three sections in outreach-safe and four in preview-full changed tone. One rule
+   * for both CTAs, no dead fragment, and no page-wide repaint as a side effect.
+   */
+  const homeCtaHref = homeFaq ? '#clinic-home-faq' : procedureBookingHref;
+  const homeCta = homeCtaHref
+    ? buildClinicCtaSection({
+        id: 'clinic-home-cta',
+        name: 'Book Appointment',
+        theme,
+        title: introduction ?? businessName,
+        href: homeCtaHref,
+        candidates: ['cta.fullwidth-band'],
+      })
+    : undefined;
   const homeHero = masterSections.find((candidate) => candidate.type === 'hero');
   const providerTeaser = masterSections.find(
     (candidate) => candidate.id === 'us-demo-providers',
@@ -1909,7 +1961,7 @@ export function compileUsMedicalFullPreview(input: {
             : []),
         ...(homeLocation ? [homeLocation] : []),
         ...(homeFaq ? [homeFaq] : []),
-        homeCta,
+        ...(homeCta ? [homeCta] : []),
       ]
     : [
     ...(homeHero ? [homeHero] : []),
@@ -1925,7 +1977,7 @@ export function compileUsMedicalFullPreview(input: {
         : []),
     ...(homeLocation ? [homeLocation] : []),
     ...(homeFaq ? [homeFaq] : []),
-    homeCta,
+    ...(homeCta ? [homeCta] : []),
       ];
   /**
    * TenantHeader renders the practice's mark by looking for this element id anywhere in the
@@ -2022,7 +2074,8 @@ export function compileUsMedicalFullPreview(input: {
       images: bodyImages,
       theme,
       ...(heroTitleBlock ? { titleBlock: heroTitleBlock } : {}),
-      bookingUrl: '#clinic-sticky-booking',
+      // See `procedureBookingHref` above: a real destination, or no CTA card at all.
+      ...(procedureBookingHref ? { bookingUrl: procedureBookingHref } : {}),
     });
     const galleryImages = bodyImages
       .filter((image) => !detail.usedImageIds.has(image.source.id))
@@ -2121,11 +2174,6 @@ export function compileUsMedicalFullPreview(input: {
     });
   }
 
-  const contactSections = masterSections.filter((candidate) => (
-    candidate.id === 'clinic-insurance-pricing'
-    || candidate.id === 'us-demo-contact'
-    || candidate.id === 'clinic-faq'
-  ));
   if (contactSections.length > 0) {
     const contactTitle = blocks.find((block) => block.kind === 'address') ?? businessName;
     const contactPageUrls = new Set(

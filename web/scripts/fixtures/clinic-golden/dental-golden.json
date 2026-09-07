@@ -1504,7 +1504,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/20211028-CONTACT-PAGE-1024-c1118.jpg"
                 }
               },
@@ -5685,7 +5684,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/IMG-PatientForm-c1118.webp"
                 }
               },
@@ -6910,7 +6908,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -7033,7 +7031,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/20211028-CONTACT-PAGE-1024-c1118.jpg"
                 }
               },
@@ -8844,7 +8841,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -8967,7 +8964,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/IMG-PatientForm-c1118.webp"
                 }
               },
@@ -10264,7 +10260,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -10387,7 +10383,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/20211028-ABOUT-Carousel-1-c1118.jpg"
                 }
               },
@@ -11499,7 +11494,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-cosmetic-restorative-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -11622,7 +11617,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/05/IMG-periodontics-tl-GettyImages-936538202.jpg"
                 }
               },
@@ -13189,7 +13183,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -13312,7 +13306,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/20211028-ABOUT-Carousel-1-c1118.jpg"
                 }
               },
@@ -14042,7 +14035,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -14165,7 +14158,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/05/IMG-periodontics-tl-GettyImages-936538202.jpg"
                 }
               },
@@ -15366,7 +15358,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -15489,7 +15481,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2025/10/periodontics-periodontal-care-gingivectomy-woman-running-race-1024x574.jpeg"
                 }
               },
@@ -16706,7 +16697,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -16829,7 +16820,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2025/07/AdobeStock_521977079-1024x683.jpeg"
                 }
               },
@@ -18663,7 +18653,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -18937,7 +18927,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2025/10/periodontics-periodontal-care-gingivectomy-woman-running-race-1024x574.jpeg"
                 }
               },
@@ -21036,7 +21025,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -21158,7 +21147,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2025/07/AdobeStock_521977079-1024x683.jpeg"
                 }
               },
@@ -22968,7 +22956,7 @@
       },
       "version": 2
     },
-    "sha256": "87e01abc6e8b790f08cf17b2f01a823945547d88758affbe1cb0ea3f9ffb9783"
+    "sha256": "65c5e13463adedbb683d498074ee6a34b6439d9b69417acb1bfb6df5388f82ab"
   },
   {
     "fixture": "cameods",
@@ -24475,7 +24463,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/20211028-CONTACT-PAGE-1024-c1118.jpg"
                 }
               },
@@ -28697,7 +28684,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/IMG-PatientForm-c1118.webp"
                 }
               },
@@ -29922,7 +29908,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -30045,7 +30031,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/20211028-CONTACT-PAGE-1024-c1118.jpg"
                 }
               },
@@ -31856,7 +31841,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -31979,7 +31964,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/IMG-PatientForm-c1118.webp"
                 }
               },
@@ -33276,7 +33260,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -33399,7 +33383,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/20211028-ABOUT-Carousel-1-c1118.jpg"
                 }
               },
@@ -34511,7 +34494,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-cosmetic-restorative-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -34634,7 +34617,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/05/IMG-periodontics-tl-GettyImages-936538202.jpg"
                 }
               },
@@ -36201,7 +36183,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -36324,7 +36306,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/04/20211028-ABOUT-Carousel-1-c1118.jpg"
                 }
               },
@@ -37054,7 +37035,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -37177,7 +37158,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2024/05/IMG-periodontics-tl-GettyImages-936538202.jpg"
                 }
               },
@@ -38378,7 +38358,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -38501,7 +38481,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2025/10/periodontics-periodontal-care-gingivectomy-woman-running-race-1024x574.jpeg"
                 }
               },
@@ -39718,7 +39697,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -39841,7 +39820,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2025/07/AdobeStock_521977079-1024x683.jpeg"
                 }
               },
@@ -41675,7 +41653,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -41949,7 +41927,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2025/10/periodontics-periodontal-care-gingivectomy-woman-running-race-1024x574.jpeg"
                 }
               },
@@ -44048,7 +44025,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -44170,7 +44147,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://cameods.com/wp-content/uploads/2025/07/AdobeStock_521977079-1024x683.jpeg"
                 }
               },
@@ -46021,7 +45997,7 @@
       },
       "version": 2
     },
-    "sha256": "e38c6f35d14e8d214ee1c8738afba2bd705fcd9c7870aca959d06393976e2072"
+    "sha256": "e58909775475f9392487351f33268f38945999b34229aed233d3fba8bf1d704e"
   },
   {
     "fixture": "dental360",
@@ -47272,7 +47248,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2023/09/female-dentist-adjusting-lamp-1024x682.jpg"
                 }
               },
@@ -49934,7 +49909,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-home-faq",
+                  "href": "/contact",
                   "id": "clinic-home-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -50057,7 +50032,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/04/dental-clinic-inside-look-in-Mundelein-IL.jpg"
                 }
               },
@@ -51125,7 +51099,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -51248,7 +51222,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2023/09/female-dentist-adjusting-lamp-1024x682.jpg"
                 }
               },
@@ -52556,7 +52529,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -52679,7 +52652,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/04/dental-clinic-inside-look-in-Mundelein-IL.jpg"
                 }
               },
@@ -53987,7 +53959,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -54110,7 +54082,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/N6-scaled.webp"
                 }
               },
@@ -55400,7 +55371,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -55523,7 +55494,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/invisalign-teen.png"
                 }
               },
@@ -56759,7 +56729,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-orthodontic-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -56882,7 +56852,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/INVISALIGN.png"
                 }
               },
@@ -58002,7 +57971,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-orthodontic-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -58125,7 +58094,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/N6-scaled.webp"
                 }
               },
@@ -59193,7 +59161,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -59315,7 +59283,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/CLIENT-scaled.webp"
                 }
               },
@@ -60186,7 +60153,7 @@
       },
       "version": 2
     },
-    "sha256": "a29a9950a190954223fb00e10b7b3122b896cd9d7b751c28385f11e924e5618d"
+    "sha256": "720a9403539e4ac43f874a49fdc368ab39623607d83f436489cb389ab6ab1352"
   },
   {
     "fixture": "dental360",
@@ -61437,7 +61404,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2023/09/female-dentist-adjusting-lamp-1024x682.jpg"
                 }
               },
@@ -64305,7 +64271,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-home-faq",
+                  "href": "/contact",
                   "id": "clinic-home-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -64428,7 +64394,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/04/dental-clinic-inside-look-in-Mundelein-IL.jpg"
                 }
               },
@@ -65496,7 +65461,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -65619,7 +65584,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2023/09/female-dentist-adjusting-lamp-1024x682.jpg"
                 }
               },
@@ -66927,7 +66891,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -67050,7 +67014,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/04/dental-clinic-inside-look-in-Mundelein-IL.jpg"
                 }
               },
@@ -68358,7 +68321,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -68481,7 +68444,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/N6-scaled.webp"
                 }
               },
@@ -69771,7 +69733,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -69894,7 +69856,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/invisalign-teen.png"
                 }
               },
@@ -71130,7 +71091,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-orthodontic-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -71253,7 +71214,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/INVISALIGN.png"
                 }
               },
@@ -72373,7 +72333,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-orthodontic-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -72496,7 +72456,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/N6-scaled.webp"
                 }
               },
@@ -73564,7 +73523,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-preventive-general-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -73686,7 +73645,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://dental360grp.com/wp-content/uploads/2025/12/CLIENT-scaled.webp"
                 }
               },
@@ -74557,7 +74515,7 @@
       },
       "version": 2
     },
-    "sha256": "66e70d9bb27dc948d6a88493c7ae1066839b497e90b47575e160544f81255453"
+    "sha256": "17f1d625ffdb3499df916f47e1804aa77ed91131fd728bcb8a4369193ea9a462"
   },
   {
     "fixture": "iddental",
@@ -76571,7 +76529,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/nam-surgery-2.jpg"
                 }
               },
@@ -80434,7 +80391,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/cat-implants.webp"
                 }
               },
@@ -83155,7 +83111,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -83278,7 +83234,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/nam-surgery-2.jpg"
                 }
               },
@@ -86160,7 +86115,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -86283,7 +86238,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/cat-implants.webp"
                 }
               },
@@ -88801,7 +88755,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -88924,7 +88878,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/implant-jaw-clear.jpg"
                 }
               },
@@ -91724,7 +91677,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -91847,7 +91800,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/implant-model-2.jpg"
                 }
               },
@@ -94703,7 +94655,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -95308,7 +95260,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/cat-ortho.webp"
                 }
               },
@@ -97952,7 +97903,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-orthodontic-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -98356,7 +98307,7 @@
                   "id": "clinic-procedure-orthodontic-hero-article-date",
                   "kind": "text",
                   "style": {
-                    "color": "#4253FF",
+                    "color": "#111318",
                     "fontFamily": "body",
                     "fontSize": 14,
                     "fontWeight": 600,
@@ -98378,7 +98329,7 @@
                   "id": "clinic-dental-stock-disclosure",
                   "kind": "text",
                   "style": {
-                    "color": "#5A6270",
+                    "color": "#111318",
                     "fontFamily": "body",
                     "fontSize": 14,
                     "fontWeight": 600,
@@ -100375,7 +100326,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-orthodontic-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -100498,7 +100449,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/cat-ortho.webp"
                 }
               },
@@ -103402,7 +103352,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-cosmetic-restorative-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -103525,7 +103475,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/veneer/veneer-glam-3.webp"
                 }
               },
@@ -106199,7 +106148,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-cosmetic-restorative-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -106516,7 +106465,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/team-treatment.jpg"
                 }
               },
@@ -109030,7 +108978,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-cosmetic-restorative-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -109152,7 +109100,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/team-lobby.jpg"
                 }
               },
@@ -111163,7 +111110,7 @@
       },
       "version": 2
     },
-    "sha256": "d1efecd0eaa75b04dc817eb84213ffad5a3ccd5501f3c2ed647b0fd5b79c089a"
+    "sha256": "62db395ee3ec002b0413ae331602e00897db80b5191df97ec9a6c0206d5cb52a"
   },
   {
     "fixture": "iddental",
@@ -113177,7 +113124,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/nam-surgery-2.jpg"
                 }
               },
@@ -117570,7 +117516,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/cat-implants.webp"
                 }
               },
@@ -120291,7 +120236,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -120414,7 +120359,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/nam-surgery-2.jpg"
                 }
               },
@@ -123296,7 +123240,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -123419,7 +123363,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/cat-implants.webp"
                 }
               },
@@ -125937,7 +125880,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -126060,7 +126003,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/implant-jaw-clear.jpg"
                 }
               },
@@ -128860,7 +128802,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -128983,7 +128925,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/implant-model-2.jpg"
                 }
               },
@@ -131839,7 +131780,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-implant-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -132444,7 +132385,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/cat-ortho.webp"
                 }
               },
@@ -135088,7 +135028,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-orthodontic-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -135492,7 +135432,7 @@
                   "id": "clinic-procedure-orthodontic-hero-article-date",
                   "kind": "text",
                   "style": {
-                    "color": "#4253FF",
+                    "color": "#111318",
                     "fontFamily": "body",
                     "fontSize": 14,
                     "fontWeight": 600,
@@ -135514,7 +135454,7 @@
                   "id": "clinic-dental-stock-disclosure",
                   "kind": "text",
                   "style": {
-                    "color": "#5A6270",
+                    "color": "#111318",
                     "fontFamily": "body",
                     "fontSize": 14,
                     "fontWeight": 600,
@@ -137511,7 +137451,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-orthodontic-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -137634,7 +137574,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/cat-ortho.webp"
                 }
               },
@@ -140538,7 +140477,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-cosmetic-restorative-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -140661,7 +140600,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/veneer/veneer-glam-3.webp"
                 }
               },
@@ -143335,7 +143273,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-cosmetic-restorative-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -143652,7 +143590,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/team-treatment.jpg"
                 }
               },
@@ -146166,7 +146103,7 @@
                     "x": 0,
                     "y": 0
                   },
-                  "href": "#clinic-sticky-booking",
+                  "href": "/contact",
                   "id": "clinic-procedure-cosmetic-restorative-details-cta-cta-primary",
                   "kind": "button",
                   "label": "Book Appointment",
@@ -146288,7 +146225,6 @@
               "background": {
                 "color": "#FFFFFF",
                 "image": {
-                  "overlayColor": "#FFFFFF",
                   "src": "https://iddentalimplant.com/images/team-lobby.jpg"
                 }
               },
@@ -148299,6 +148235,6 @@
       },
       "version": 2
     },
-    "sha256": "dd0755cb478726a0e9294c98d6fed69932da069a9d791ffa4fcad113b24254dd"
+    "sha256": "1dad6f9bcb992bcf910f560bc02170bd1ee363a882795499f5edf2bb791807b1"
   }
 ]
