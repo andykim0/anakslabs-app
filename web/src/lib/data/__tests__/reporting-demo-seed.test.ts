@@ -17,7 +17,12 @@ import { DEMO_CLINIC_ID, SUMMIT_DENTAL_SITE_ID } from '@/lib/data/mock/seed';
 import { getMockStore } from '@/lib/data/mock/store';
 import { buildMonthlyReportEmail } from '@/lib/reporting/email';
 import { buildMonthlyPerformanceReport } from '@/lib/reporting/monthly-report';
-import { previousMonthRangesInTimeZone } from '@/lib/reporting/period';
+import {
+  REPORT_SERIES_MONTHS,
+  previousMonthRangesInTimeZone,
+  trailingMonthRangesInTimeZone,
+} from '@/lib/reporting/period';
+import { buildReportSeries } from '@/lib/reporting/series';
 import { monthlyPerformanceReportSchema } from '@/lib/reporting/repository-core';
 import { MockMonthlyReportsRepository } from '@/lib/reporting/repository-mock';
 import type { SiteEventAggregate } from '@/lib/data/types';
@@ -39,6 +44,22 @@ function aggregatesInRange(rows: readonly SiteEventAggregate[], range: KstMonthR
   return rows
     .filter((row) => row.eventDate >= range.startDate && row.eventDate < range.endExclusiveDate)
     .map(({ eventType, source, count }) => ({ eventType, source, count }));
+}
+
+/**
+ * [SERIES$] The six-month window ending at `month`, rebuilt the way the runner builds it.
+ *
+ * `trailingMonthRangesInTimeZone` is anchored on an instant inside the month AFTER the one
+ * we want to end on, because it always resolves to COMPLETED months.
+ */
+function seriesEndingAt(rows: readonly SiteEventAggregate[], range: KstMonthRange) {
+  const anchor = new Date(Date.parse(range.endExclusiveIso) + 3 * 60 * 60 * 1_000);
+  const months = trailingMonthRangesInTimeZone(TIME_ZONE, anchor, REPORT_SERIES_MONTHS);
+  assert.equal(months[months.length - 1].month, range.month);
+  return buildReportSeries({
+    months,
+    rows: rows.map(({ eventDate, eventType, count }) => ({ eventDate, eventType, count })),
+  });
 }
 
 function totalFor(
@@ -86,6 +107,7 @@ describe('RPT$ demo reporting seed', () => {
       previous: aggregatesInRange(built.siteEvents, recent.report.comparisonPeriod),
       locale: 'en-US',
       aiAnswers,
+      series: seriesEndingAt(built.siteEvents, recent.report.period),
     });
     assert.deepEqual(rebuiltRecent, recent.report);
 
@@ -96,6 +118,7 @@ describe('RPT$ demo reporting seed', () => {
       current: aggregatesInRange(built.siteEvents, older.report.period),
       previous: aggregatesInRange(built.siteEvents, older.report.comparisonPeriod),
       locale: 'en-US',
+      series: seriesEndingAt(built.siteEvents, older.report.period),
     });
     assert.deepEqual(rebuiltOlder, older.report);
     // Absent, not present-and-undefined: a period without probes renders the pre-CITE$ report.

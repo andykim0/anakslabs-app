@@ -19,11 +19,17 @@ import type {
   CitationQuestionRecord,
 } from '@/lib/citation-check/repository-core';
 import { buildMonthlyPerformanceReport } from '@/lib/reporting/monthly-report';
-import { previousMonthRangesInTimeZone } from '@/lib/reporting/period';
+import {
+  REPORT_SERIES_MONTHS,
+  previousMonthRangesInTimeZone,
+  trailingMonthRangesInTimeZone,
+} from '@/lib/reporting/period';
+import { buildReportSeries } from '@/lib/reporting/series';
 import type { MonthlyReportRecord } from '@/lib/reporting/repository-core';
 import type {
   KstMonthRange,
   ReportAiAnswersSection,
+  ReportSeriesSection,
   ReportEventType,
   ReportReferrerSource,
   SiteEventAggregate as ReportSiteEventAggregate,
@@ -40,27 +46,55 @@ interface DemoMonthTotals {
 }
 
 /**
- * Three months of totals for one Denver dental practice. The shape is the point: paid-free
- * discovery grows steadily while AI-assistant referrals grow fastest, which is the single
- * claim this product makes and the reason `ai` is a first-class traffic source.
+ * [SERIES$] Seven months of totals for one Denver dental practice, OLDEST FIRST.
+ *
+ * The shape is the point: paid-free discovery grows steadily while AI-assistant referrals
+ * grow fastest, which is the single claim this product makes and the reason `ai` is a
+ * first-class traffic source.
+ *
+ * Seven, not six, and not the three this started with. Each stored report carries a
+ * SIX-month series ending at its own month, and the seed stores two reports one month
+ * apart — so the older report's series reaches one month further back than the newer
+ * one's, and six months of history would leave it a point short. The three newest entries
+ * are unchanged from the original seed, so every number already pinned by a test still
+ * holds.
  *
  * `naver` is zero because a US site never sees it; the report keeps the row and the UI
  * drops it, which is the behaviour worth demonstrating.
  */
-const DEMO_MONTH_TOTALS: Readonly<Record<'recent' | 'middle' | 'oldest', DemoMonthTotals>> = {
-  recent: {
-    pageviews: { google: 604, ai: 96, direct: 191, instagram: 58, other: 37, naver: 0 },
-    actions: { tel: 38, reserve: 15, directions: 24, form: 11, chat: 13, instagram: 10 },
+const DEMO_MONTH_TOTALS: readonly DemoMonthTotals[] = [
+  {
+    pageviews: { google: 254, ai: 14, direct: 104, instagram: 30, other: 20, naver: 0 },
+    actions: { tel: 13, reserve: 5, directions: 9, form: 3, chat: 4, instagram: 3 },
   },
-  middle: {
-    pageviews: { google: 512, ai: 47, direct: 168, instagram: 51, other: 34, naver: 0 },
-    actions: { tel: 31, reserve: 12, directions: 19, form: 8, chat: 9, instagram: 8 },
+  {
+    pageviews: { google: 288, ai: 19, direct: 113, instagram: 33, other: 22, naver: 0 },
+    actions: { tel: 15, reserve: 6, directions: 10, form: 3, chat: 4, instagram: 4 },
   },
-  oldest: {
+  {
+    pageviews: { google: 322, ai: 25, direct: 124, instagram: 36, other: 24, naver: 0 },
+    actions: { tel: 18, reserve: 7, directions: 12, form: 4, chat: 5, instagram: 5 },
+  },
+  {
+    pageviews: { google: 366, ai: 31, direct: 136, instagram: 40, other: 27, naver: 0 },
+    actions: { tel: 20, reserve: 8, directions: 13, form: 5, chat: 6, instagram: 5 },
+  },
+  {
     pageviews: { google: 420, ai: 40, direct: 150, instagram: 44, other: 30, naver: 0 },
     actions: { tel: 22, reserve: 9, directions: 15, form: 5, chat: 7, instagram: 6 },
   },
-};
+  {
+    pageviews: { google: 512, ai: 47, direct: 168, instagram: 51, other: 34, naver: 0 },
+    actions: { tel: 31, reserve: 12, directions: 19, form: 8, chat: 9, instagram: 8 },
+  },
+  {
+    pageviews: { google: 604, ai: 96, direct: 191, instagram: 58, other: 37, naver: 0 },
+    actions: { tel: 38, reserve: 15, directions: 24, form: 11, chat: 13, instagram: 10 },
+  },
+];
+
+/** One month of history beyond the newest report's own six-month series. */
+const DEMO_SEED_MONTHS = REPORT_SERIES_MONTHS + 1;
 
 /**
  * Which referrer a completed action is credited to. Actions are never broken down by
@@ -317,25 +351,32 @@ export function buildDemoReportingSeed(input: {
   now?: Date;
 }): DemoReportingSeed {
   const now = input.now ?? new Date();
-  // The same resolution the runner performs: report = last completed month, comparison =
-  // the one before it, both in the site's own calendar.
-  const newest = previousMonthRangesInTimeZone(input.timeZone, now);
-  const older = previousMonthRangesInTimeZone(input.timeZone, new Date(newest.report.startIso));
-  if (older.report.month !== newest.comparison.month) {
+  // The same resolution the runner performs, over the same widened window: the newest
+  // range is the last completed month and the array runs oldest first.
+  const months = trailingMonthRangesInTimeZone(input.timeZone, now, DEMO_SEED_MONTHS);
+  if (months.length !== DEMO_MONTH_TOTALS.length) {
     throw new Error('DEMO_REPORT_SEED_MONTH_WALK_INVALID');
   }
-  const ranges = {
-    recent: newest.report,
-    middle: newest.comparison,
-    oldest: older.comparison,
-  } as const;
+  const legacyWalk = previousMonthRangesInTimeZone(input.timeZone, now);
+  // Belt and braces: the trailing walk must land on exactly the report/comparison months
+  // the runner would have chosen on its own, or the seeded card would describe a period
+  // the product never generates.
+  if (
+    months[months.length - 1].month !== legacyWalk.report.month
+    || months[months.length - 2].month !== legacyWalk.comparison.month
+  ) {
+    throw new Error('DEMO_REPORT_SEED_MONTH_WALK_INVALID');
+  }
 
   const identity = { siteId: input.siteId, clientId: input.clientId };
-  const aggregates = {
-    recent: monthAggregates({ ...identity, range: ranges.recent, totals: DEMO_MONTH_TOTALS.recent }),
-    middle: monthAggregates({ ...identity, range: ranges.middle, totals: DEMO_MONTH_TOTALS.middle }),
-    oldest: monthAggregates({ ...identity, range: ranges.oldest, totals: DEMO_MONTH_TOTALS.oldest }),
-  };
+  const aggregates = months.map((range, index) =>
+    monthAggregates({ ...identity, range, totals: DEMO_MONTH_TOTALS[index] }));
+  const allRows = aggregates.flat();
+  const ranges = {
+    recent: months[months.length - 1],
+    middle: months[months.length - 2],
+    oldest: months[months.length - 3],
+  } as const;
 
   const citation = demoCitationRecords({
     siteId: input.siteId,
@@ -344,26 +385,38 @@ export function buildDemoReportingSeed(input: {
   const aiAnswers: ReportAiAnswersSection | null = buildCitationReportSection(citation);
   if (!aiAnswers) throw new Error('DEMO_REPORT_SEED_CITATION_SECTION_EMPTY');
 
+  /**
+   * [SERIES$] Each report carries the six months ENDING AT ITS OWN month, exactly as the
+   * runner builds it — the newer report's window is the older one's shifted forward by
+   * one, which is why the seed manufactures seven months of days.
+   */
+  const seriesEndingAt = (endIndex: number): ReportSeriesSection => buildReportSeries({
+    months: months.slice(endIndex - REPORT_SERIES_MONTHS + 1, endIndex + 1),
+    rows: allRows,
+  });
+
   const recent = buildMonthlyPerformanceReport({
     siteId: input.siteId,
     period: ranges.recent,
     comparisonPeriod: ranges.middle,
-    current: reportAggregates(aggregates.recent),
-    previous: reportAggregates(aggregates.middle),
+    current: reportAggregates(aggregates[months.length - 1]),
+    previous: reportAggregates(aggregates[months.length - 2]),
     locale: 'en-US',
     aiAnswers,
+    series: seriesEndingAt(months.length - 1),
   });
   const middle = buildMonthlyPerformanceReport({
     siteId: input.siteId,
     period: ranges.middle,
     comparisonPeriod: ranges.oldest,
-    current: reportAggregates(aggregates.middle),
-    previous: reportAggregates(aggregates.oldest),
+    current: reportAggregates(aggregates[months.length - 2]),
+    previous: reportAggregates(aggregates[months.length - 3]),
     locale: 'en-US',
+    series: seriesEndingAt(months.length - 2),
   });
 
   return {
-    siteEvents: [...aggregates.oldest, ...aggregates.middle, ...aggregates.recent],
+    siteEvents: allRows,
     monthlyReports: [
       sentRecord({ ...identity, range: ranges.recent, report: recent }),
       sentRecord({ ...identity, range: ranges.middle, report: middle }),

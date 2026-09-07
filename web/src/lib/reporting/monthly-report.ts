@@ -9,6 +9,7 @@ import {
   type ReportEventType,
   type ReportMetric,
   type ReportReferrerSource,
+  type ReportSeriesSection,
   type ReportSourceComposition,
   type SiteEventAggregate,
 } from './types';
@@ -267,6 +268,13 @@ export function buildMonthlyPerformanceReport(input: {
    * pre-CITE$ one — report generation itself never makes a live call.
    */
   aiAnswers?: ReportAiAnswersSection;
+  /**
+   * [SERIES$] Trailing months and weekly buckets, built by `series.ts` from the day-grained
+   * rows the RUNNER fetched. It arrives already computed for the same reason `aiAnswers`
+   * does: this builder stays pure and takes no date-window or store dependency of its own.
+   * Omitted leaves the payload byte-identical to a pre-series one.
+   */
+  series?: ReportSeriesSection;
 }): MonthlyPerformanceReport {
   const siteId = input.siteId.trim();
   if (!siteId) throw new TypeError('A siteId is required to build a monthly report');
@@ -299,5 +307,6 @@ export function buildMonthlyPerformanceReport(input: {
     // Spread rather than assign: the key must be ABSENT, not present-and-undefined, or
     // the strict schema and the byte-for-byte email snapshot both notice.
     ...(input.aiAnswers ? { aiAnswers: input.aiAnswers } : {}),
+    ...(input.series ? { series: input.series } : {}),
   };
 }

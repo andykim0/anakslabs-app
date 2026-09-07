@@ -129,6 +129,75 @@ export interface ReportAiAnswersSection {
   footnote: string;
 }
 
+/**
+ * [SERIES$] One month of a KPI's trailing series.
+ *
+ * All four KPIs share one month axis so a sparkline never has to reconcile two different
+ * time bases. `month` is `YYYY-MM` in the SITE'S own calendar — the same calendar the
+ * report period uses — not UTC.
+ */
+export interface ReportSeriesMonth {
+  month: string;
+  pageviews: number;
+  /** `tel` clicks. */
+  calls: number;
+  directions: number;
+  /** `form` + `chat`, i.e. the same definition as `consultationActions`. */
+  inquiries: number;
+}
+
+/**
+ * [SERIES$] One ISO-8601 week of the report month, CLAMPED to the month.
+ *
+ * The first and last bucket of a month are usually partial weeks, and clamping is the
+ * honest choice: a bar that silently borrowed three days from the previous month would
+ * not add up to the month total printed beside it.
+ */
+export interface ReportWeeklyBucket {
+  /** ISO week-numbering year. Week 1 can belong to the previous calendar year. */
+  isoYear: number;
+  /** ISO-8601 week number, 1-53. */
+  isoWeek: number;
+  /** Inclusive first day of this bucket, clamped into the report month. */
+  startDate: string;
+  /** Inclusive last day of this bucket, clamped into the report month. */
+  endDate: string;
+  calls: number;
+  directions: number;
+  inquiries: number;
+}
+
+/**
+ * [SERIES$] Trend context for one report: where each KPI has been, and when in the month
+ * the customer's phone actually rang.
+ *
+ * Optional on the payload and optional in the strict storage schema. Reports written
+ * before this existed carry no `series` key at all, and every renderer must draw the
+ * report correctly without it — the store is insert-once per site/month, so those rows
+ * are never backfilled.
+ */
+export interface ReportSeriesSection {
+  /** Trailing months, OLDEST first, ending with the report month itself. */
+  months: readonly ReportSeriesMonth[];
+  /** ISO weeks overlapping the report month, in calendar order. */
+  weeks: readonly ReportWeeklyBucket[];
+}
+
+/**
+ * [SERIES$] One post the customer had published in the report month.
+ *
+ * Never stored on the report. This is a JOIN performed at render time against the content
+ * queue, so a title corrected after the report was generated shows corrected rather than
+ * frozen, and the report payload stays a pure measurement record.
+ */
+export interface ReportPublishedPost {
+  ordinal: number;
+  title: string;
+  url: string | null;
+  /** ISO instant, or null for a post whose publish time was never recorded. */
+  publishedAt: string | null;
+}
+
 interface MonthlyPerformanceReportBase {
   siteId: string;
   period: KstMonthRange;
@@ -155,6 +224,12 @@ export interface MonthlyPerformanceReportV2 extends MonthlyPerformanceReportBase
    * The schema version stays 2: this is additive and old payloads still parse.
    */
   aiAnswers?: ReportAiAnswersSection;
+  /**
+   * [SERIES$] Present only on reports generated after the series existed. Absent is the
+   * normal state for every stored row written before it, and every renderer degrades to
+   * the number-only report when it is missing. The schema version stays 2: additive.
+   */
+  series?: ReportSeriesSection;
 }
 
 /** 저장소는 v1을 계속 읽고, 신규 생성은 v2를 쓴다. */
