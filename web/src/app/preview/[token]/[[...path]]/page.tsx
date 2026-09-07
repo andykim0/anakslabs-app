@@ -49,7 +49,12 @@ export default async function SharedImportPreviewPage({
     && preview.siteConfig.meta.jurisdiction === 'US';
   const isKoClinicImport = preview.siteConfig.clinicMaster?.demoPitchLocale === 'ko-owner';
   const koClinicMotion = isKoClinicImport && !isUsMedicalDemo;
-  const artifact = isUsMedicalDemo
+  /**
+   * `crawlArtifactId` is null once the artifact was purged (0066 kept the preview and dropped the
+   * cascade). This page needs the artifact for its source-structure comparison, so it still 404s
+   * then — unlike delivery, which reads the approved siteConfig on the preview row and nothing else.
+   */
+  const artifact = isUsMedicalDemo && preview.crawlArtifactId
     ? await getCrawlArtifact(preview.crawlArtifactId)
     : null;
   if (isUsMedicalDemo && !artifact) notFound();

@@ -60,12 +60,13 @@ describe('PRICE P2 publish payment contract', () => {
   });
 
   test('publish audits precede 402 and live checkout fails closed without Stripe', () => {
-    const publish = read('src/app/api/sites/[siteId]/publish/route.ts');
+    // The gates moved into the service both publish entry points call; the ordering is unchanged.
+    const publish = read('src/lib/publish/publish-site-service.ts');
     const audit = publish.indexOf('const preflight = checkPublish');
-    const subscription = publish.indexOf('resolveSiteSubscription(client.id)');
+    const subscription = publish.indexOf('resolveSiteSubscription(owner.id)');
     const persist = publish.indexOf('publishAuditedSnapshot(');
     assert.ok(audit >= 0 && audit < subscription && subscription < persist);
-    assert.match(publish, /apiError\(\s*402,[\s\S]*PUBLISH_PAYMENT_ERROR_CODE/);
+    assert.match(publish, /refuse\(\s*402,[\s\S]*PUBLISH_PAYMENT_ERROR_CODE/);
 
     const payment = read('src/app/api/sites/[siteId]/publish-payment/route.ts');
     assert.match(payment, /if \(liveStripe\) \{[\s\S]*createStripeCheckoutSession/);

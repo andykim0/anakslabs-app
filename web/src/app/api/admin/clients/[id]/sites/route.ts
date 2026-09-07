@@ -56,6 +56,8 @@ const bodySchema = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('approved-preview'),
     previewId: z.string().uuid(),
+    /** When the customer said yes, as the operator recorded it. Provenance only — no gate reads it. */
+    approvedAt: z.iso.datetime({ offset: true }).optional(),
     timezone: timezoneSchema.optional(),
     phone: phoneSchema.optional(),
     bookingUrl: bookingUrlSchema.optional(),
@@ -105,8 +107,9 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
 
   let config;
   let name;
-  let source: 'crawl' | 'minimal' | 'newbuild';
+  let source: 'crawl' | 'approved-preview' | 'minimal' | 'newbuild';
   let copySource: string | undefined;
+  let deliveredPreview: { id: string; approvedAt: string | null } | null = null;
   if (body.data.mode === 'newbuild') {
     const input = body.data;
     const declared = {
@@ -156,7 +159,10 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
     );
     name = preview.siteConfig.meta.title?.trim().slice(0, 100)
       || new URL(preview.sourceUrl).hostname;
-    source = 'crawl';
+    // Not 'crawl'. This site is the bytes the customer approved, and the console keys the
+    // publish affordance off the provenance the delivery records below.
+    source = 'approved-preview';
+    deliveredPreview = { id: preview.id, approvedAt: body.data.approvedAt ?? null };
   } else if (body.data.mode === 'crawl') {
     const artifact = await getLatestCrawlArtifactBySeedUrl(body.data.sourceUrl);
     if (!artifact || new Date(artifact.expiresAt) <= new Date()) {
@@ -189,7 +195,7 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
   }
   // Register the frozen licensed-stock asset before the atomic binding request.
   await ensureDentalStockAssetRefs(config.assetRefs);
-  const site = await sites.create({
+  let site = await sites.create({
     clientId,
     name,
     draftConfig: config,
@@ -199,6 +205,19 @@ export const POST = withApiHandler<Ctx>(async (request, { params }) => {
     // matching atomic binding request (same contract the onboarding route uses).
     ...(config.assetRefs?.length ? { assetRefsToBind: config.assetRefs } : {}),
   });
+  if (deliveredPreview) {
+    // Written after the atomic create because create() carries no provenance fields. If this
+    // throws the site still exists and the operator sees a 500 — the delivery is repeatable
+    // only after deleting that site, which is the honest outcome for a half-recorded delivery.
+    await sites.recordApprovedPreviewDelivery(site.id, {
+      previewId: deliveredPreview.id,
+      deliveredAt: new Date().toISOString(),
+      approvedAt: deliveredPreview.approvedAt,
+    });
+    // The console keys "Publish on their domain" off this provenance, so the row it renders has
+    // to be the one that carries it — not the pre-provenance value create() handed back.
+    site = (await sites.getById(site.id)) ?? site;
+  }
 
   return NextResponse.json({
     siteId: site.id,

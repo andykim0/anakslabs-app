@@ -394,6 +394,31 @@ export class SupabaseSitesRepo implements SitesRepo {
     if (error) throw new Error(`sites 도메인 정보 갱신 실패: ${error.message}`);
   }
 
+  /**
+   * 0066 provenance. Guarded by `is null` so a second write cannot rewrite where a delivered
+   * site came from — the same one-shot rule the trigger enforces for non-service sessions.
+   */
+  async recordApprovedPreviewDelivery(
+    siteId: string,
+    input: { previewId: string; deliveredAt: string; approvedAt?: string | null },
+  ): Promise<void> {
+    const svc = getServiceRoleClient();
+    const { data, error } = await svc
+      .from('sites')
+      .update({
+        delivered_from_preview_id: input.previewId,
+        delivered_at: input.deliveredAt,
+        approved_at: input.approvedAt ?? null,
+      })
+      .eq('id', siteId)
+      .is('delivered_from_preview_id', null)
+      .select('id');
+    if (error) throw new Error(`sites 배송 출처 기록 실패: ${error.message}`);
+    if (!data || data.length === 0) {
+      throw new Error(`sites.recordApprovedPreviewDelivery: 사이트가 없거나 이미 기록됐습니다 (${siteId})`);
+    }
+  }
+
   async incrementFreeRegens(siteId: string): Promise<void> {
     const svc = getServiceRoleClient();
     // 원자적 증가: 현재값 조회 후 +1 (동시 재생성은 온보딩 단일 세션이라 경합 낮음)

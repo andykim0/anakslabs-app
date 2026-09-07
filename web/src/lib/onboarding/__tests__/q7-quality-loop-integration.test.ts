@@ -212,8 +212,9 @@ describe('Q$7 — Anaks Labs 품질 루프 통합 경계', () => {
     assert.equal(preflight.ok, false);
     assert.ok(preflight.blockers.includes(artifactMessage));
 
-    const route = source('src/app/api/sites/[siteId]/publish/route.ts');
-    const humanGate = route.indexOf('missingPublishHumanChecks(body?.humanChecks)');
+    // 순서 불변식은 고객·오퍼레이터 두 발행 경로가 공유하는 서비스에 있다.
+    const route = source('src/lib/publish/publish-site-service.ts');
+    const humanGate = route.indexOf('missingPublishHumanChecks(input.humanChecks)');
     const humanFailure = route.indexOf("'PUBLISH_HUMAN_CHECKS_REQUIRED'", humanGate);
     const artifactAudit = route.indexOf('scan = preflightScan(', humanFailure);
     const auditFailure = route.indexOf("'PUBLISH_AUDIT_UNAVAILABLE'", artifactAudit);
@@ -228,7 +229,7 @@ describe('Q$7 — Anaks Labs 품질 루프 통합 경계', () => {
         qualityGate < persistence,
       'human → artifact audit/catch → quality gate → publish 순서가 깨짐',
     );
-    assert.match(route.slice(artifactAudit, qualityGate), /catch \(error\)[\s\S]*apiError\([\s\S]*503/);
+    assert.match(route.slice(artifactAudit, qualityGate), /catch \(error\)[\s\S]*refuse\([\s\S]*503/);
     assert.match(route.slice(qualityGate, persistence), /if \(!preflight\.ok\)[\s\S]*PUBLISH_QUALITY_BLOCKED/);
     assert.match(route.slice(persistence), /site\.draftConfig/);
   });

@@ -263,6 +263,11 @@ class MockSitesRepo implements SitesRepo {
       exportStatus: 'none',
       exportRequestedAt: null,
       exportUrl: null,
+      // Provenance is never an input to create(): the server records it afterwards, and only
+      // for the one mode that ships an approved preview.
+      deliveredFromPreviewId: null,
+      deliveredAt: null,
+      approvedAt: null,
     };
     store.sites.set(site.id, site);
     if (input.assetRefsToBind?.length) {
@@ -293,6 +298,20 @@ class MockSitesRepo implements SitesRepo {
       }
     }
     return structuredClone(site);
+  }
+
+  async recordApprovedPreviewDelivery(
+    siteId: string,
+    input: { previewId: string; deliveredAt: string; approvedAt?: string | null },
+  ): Promise<void> {
+    const site = getMockStore().sites.get(siteId);
+    if (!site) throw new Error(`sites.recordApprovedPreviewDelivery: 사이트가 없습니다 (${siteId})`);
+    if (site.deliveredFromPreviewId) {
+      throw new Error('sites.recordApprovedPreviewDelivery: 배송 출처는 한 번만 기록됩니다.');
+    }
+    site.deliveredFromPreviewId = input.previewId;
+    site.deliveredAt = input.deliveredAt;
+    site.approvedAt = input.approvedAt ?? null;
   }
 
   async saveDraft(siteId: string, config: SiteConfig): Promise<void> {

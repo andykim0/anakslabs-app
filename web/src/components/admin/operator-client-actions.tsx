@@ -3,10 +3,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
+  apiErrorCode,
+  attachOperatorSiteDomain,
   createOperatorClientSite,
   inviteOperatorClient,
+  publishOperatorClientSite,
 } from './api';
 import { Card, PanelSection } from './ui';
+import type { Site } from '@/lib/types/domain';
+import { PUBLISH_HUMAN_CHECKS, emptyPublishHumanChecks } from '@/lib/publish/human-checks';
+import { PUBLISH_PAYMENT_ERROR_CODE } from '@/lib/billing/publish-payment-contract';
 import {
   DEFAULT_US_SITE_TIMEZONE,
   US_SITE_TIMEZONES,
@@ -67,9 +73,27 @@ export function OperatorClientInviteForm() {
   );
 }
 
-export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: string; disabled: boolean }) {
+/**
+ * `approvedPreviewId` is the id of the preview this client approved, handed over from the US demo
+ * pipeline (`/admin/us-demos` → "Deliver this preview" → `?previewId=`). When one is present the
+ * form opens on the delivery mode, because shipping the approved bytes is the right default and
+ * every other mode compiles a second, different site.
+ */
+export function OperatorSiteCreateForm({
+  clientId,
+  disabled,
+  approvedPreviewId,
+}: {
+  clientId: string;
+  disabled: boolean;
+  approvedPreviewId?: string;
+}) {
   const queryClient = useQueryClient();
-  const [mode, setMode] = useState<'crawl' | 'minimal' | 'newbuild'>('crawl');
+  const [mode, setMode] = useState<'approved-preview' | 'crawl' | 'minimal' | 'newbuild'>(
+    approvedPreviewId ? 'approved-preview' : 'crawl',
+  );
+  const [previewId, setPreviewId] = useState(approvedPreviewId ?? '');
+  const [approvedAt, setApprovedAt] = useState('');
   const [sourceUrl, setSourceUrl] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [industry, setIndustry] = useState('Dental practice');
@@ -85,7 +109,17 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
   const [insurances, setInsurances] = useState('');
   const [hours, setHours] = useState('');
   const mutation = useMutation({
-    mutationFn: () => createOperatorClientSite(clientId, mode === 'crawl'
+    mutationFn: () => createOperatorClientSite(clientId, mode === 'approved-preview'
+      ? {
+          mode,
+          previewId: previewId.trim(),
+          timezone,
+          // A local datetime-local value carries no offset; the API contract requires one.
+          ...(approvedAt ? { approvedAt: new Date(approvedAt).toISOString() } : {}),
+          ...(phone.trim() ? { phone: phone.trim() } : {}),
+          ...(bookingUrl.trim() ? { bookingUrl: bookingUrl.trim() } : {}),
+        }
+      : mode === 'crawl'
       ? {
           mode,
           sourceUrl: sourceUrl.trim(),
@@ -139,11 +173,34 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
           }}
         >
           <div className="flex flex-wrap gap-2 text-xs">
+            <label><input type="radio" checked={mode === 'approved-preview'} onChange={() => setMode('approved-preview')} /> Deliver the approved preview</label>
             <label><input type="radio" checked={mode === 'crawl'} onChange={() => setMode('crawl')} /> Existing crawl artifact</label>
             <label><input type="radio" checked={mode === 'newbuild'} onChange={() => setMode('newbuild')} /> New build (dental)</label>
             <label><input type="radio" checked={mode === 'minimal'} onChange={() => setMode('minimal')} /> No source URL</label>
           </div>
-          {mode === 'crawl' ? (
+          {mode === 'approved-preview' ? (
+            <div className="space-y-2">
+              <input
+                className={INPUT}
+                value={previewId}
+                onChange={(event) => setPreviewId(event.target.value)}
+                required
+                placeholder="Approved preview id (from the US demo pipeline)"
+                aria-label="Approved preview id"
+              />
+              <input
+                className={INPUT}
+                value={approvedAt}
+                onChange={(event) => setApprovedAt(event.target.value)}
+                type="datetime-local"
+                aria-label="When the customer approved this preview"
+              />
+              <p className="text-[11px] text-slate-500">
+                Ships the exact page the customer approved. Every other mode compiles a second
+                site, which is not what they said yes to.
+              </p>
+            </div>
+          ) : mode === 'crawl' ? (
             <input className={INPUT} value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} required type="url" placeholder="https://clinic.example" aria-label="Existing crawl source URL" />
           ) : mode === 'newbuild' ? (
             <div className="space-y-2">
@@ -242,5 +299,147 @@ export function OperatorSiteCreateForm({ clientId, disabled }: { clientId: strin
         </form>
       )}
     </PanelSection>
+  );
+}
+
+
+/**
+ * Takes a delivered site live on the customer's own domain.
+ *
+ * Shown only for a site the operator delivered from an approved preview — `deliveredFromPreviewId`
+ * is the provenance the server wrote at delivery (0066), and it is the single discriminator this
+ * console uses. A site compiled by any other mode is not the artefact the customer approved, so
+ * the operator does not get a one-click route to publish it on their behalf.
+ *
+ * The three human checks are not decoration and are not defaulted: the server refuses the publish
+ * without them, and the operator who ticks them is recorded as the checker.
+ */
+export function OperatorSiteDeliveryControls({
+  clientId,
+  site,
+}: {
+  clientId: string;
+  site: Site;
+}) {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [checks, setChecks] = useState(() => emptyPublishHumanChecks());
+  const [hostname, setHostname] = useState(
+    site.domainType === 'custom' && site.domain ? site.domain : '',
+  );
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'client', clientId] });
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'clients'] });
+  };
+  const domainMutation = useMutation({
+    mutationFn: () => attachOperatorSiteDomain(clientId, site.id, hostname.trim()),
+    onSuccess: invalidate,
+  });
+  const publishMutation = useMutation({
+    mutationFn: () => publishOperatorClientSite(clientId, site.id, {
+      humanChecks: checks,
+      // The server only asks for this when the draft carries operator information at all.
+      businessInfoConfirmed: true,
+    }),
+    onSuccess: invalidate,
+  });
+  const allChecked = PUBLISH_HUMAN_CHECKS.every(({ id }) => checks[id]);
+  // The publish path answers 402 when the account has no active subscription. That is a
+  // commercial fact for the operator to act on, not an error to retry.
+  const needsSubscription = apiErrorCode(publishMutation.error) === PUBLISH_PAYMENT_ERROR_CODE;
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-slate-700"
+      >
+        Publish on their domain
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-2 w-full space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3">
+      <p className="text-[11px] font-medium text-slate-700">
+        Publish on their domain
+      </p>
+      <div className="flex gap-2">
+        <input
+          className={INPUT}
+          value={hostname}
+          onChange={(event) => setHostname(event.target.value)}
+          placeholder="www.theirclinic.com"
+          aria-label="Customer domain"
+        />
+        <button
+          type="button"
+          disabled={domainMutation.isPending || hostname.trim().length === 0}
+          onClick={() => domainMutation.mutate()}
+          className="shrink-0 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11px] font-medium text-slate-700 disabled:opacity-50"
+        >
+          Attach domain
+        </button>
+      </div>
+      {domainMutation.isError ? (
+        <p className="text-[11px] text-red-600">{domainMutation.error.message}</p>
+      ) : null}
+      {domainMutation.data ? (
+        <ul className="space-y-0.5 text-[11px] text-slate-600">
+          <li>{`status: ${domainMutation.data.status.status}`}</li>
+          {domainMutation.data.status.verificationRecords.map((record) => (
+            <li key={`${record.type}:${record.name}`} className="break-all">
+              {`${record.type} ${record.name} → ${record.value}`}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      <fieldset className="space-y-1 border-t border-slate-200 pt-2">
+        <legend className="text-[11px] font-medium text-slate-700">
+          Confirm before it goes live
+        </legend>
+        {PUBLISH_HUMAN_CHECKS.map(({ id, label }) => (
+          <label key={id} className="flex items-start gap-1.5 text-[11px] text-slate-700">
+            <input
+              type="checkbox"
+              checked={checks[id]}
+              onChange={() => setChecks((current) => ({ ...current, [id]: !current[id] }))}
+            />
+            <span>{label}</span>
+          </label>
+        ))}
+      </fieldset>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          disabled={publishMutation.isPending || !allChecked}
+          onClick={() => publishMutation.mutate()}
+          className="rounded-md bg-slate-900 px-3 py-1.5 text-[11px] font-medium text-white disabled:opacity-50"
+        >
+          Publish
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="text-[11px] text-slate-500 underline"
+        >
+          Close
+        </button>
+      </div>
+      {publishMutation.isError ? (
+        <p className="text-[11px] text-red-600">
+          {needsSubscription
+            ? 'This site needs an active subscription before it can be published.'
+            : publishMutation.error.message}
+        </p>
+      ) : null}
+      {publishMutation.data ? (
+        <p className="text-[11px] text-emerald-700 break-all">
+          {`Live at ${publishMutation.data.url ?? '(no domain assigned)'} · checked by ${publishMutation.data.checkedBy}`}
+        </p>
+      ) : null}
+    </div>
   );
 }

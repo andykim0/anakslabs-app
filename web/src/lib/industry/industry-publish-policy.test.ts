@@ -50,7 +50,8 @@ describe('Anaks Labs clinic enterprise publish policy', () => {
   });
 
   test('발행과 결제는 같은 정책 함수를 402·webhook보다 먼저 소비한다', () => {
-    const publish = source('src/app/api/sites/[siteId]/publish/route.ts');
+    // 발행 게이트는 두 발행 진입점(고객·오퍼레이터)이 공유하는 서비스에 산다.
+    const publish = source('src/lib/publish/publish-site-service.ts');
     const payment = source('src/app/api/sites/[siteId]/publish-payment/route.ts');
     for (const route of [publish, payment]) {
       const policy = route.indexOf('industryPublishPolicy(site)');
