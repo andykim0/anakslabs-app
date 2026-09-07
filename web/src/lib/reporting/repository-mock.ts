@@ -19,11 +19,37 @@ interface MockMonthlyReportState {
 
 const stateByStore = new WeakMap<MockStore, MockMonthlyReportState>();
 
+/**
+ * [RPT$] Hydrate the demo history the seed left on the store.
+ *
+ * The seed cannot call this repository — `store.ts` already imports the seed, so the
+ * reverse edge would close a cycle — so the seed leaves plain records behind and the
+ * repository pulls them in the first time this store is touched. Every row goes through
+ * the same `assertReportInsertInput` an insert would face, so a malformed demo payload
+ * fails loudly here instead of rendering a card the real schema would reject.
+ */
+function loadSeededRecords(store: MockStore, state: MockMonthlyReportState): void {
+  for (const seeded of store.demoMonthlyReports ?? []) {
+    assertReportInsertInput({
+      siteId: seeded.siteId,
+      clientId: seeded.clientId,
+      periodMonth: seeded.periodMonth,
+      report: seeded.report,
+    });
+    const key = `${seeded.siteId}:${seeded.periodMonth}`;
+    if (state.identity.has(key)) continue;
+    state.records.set(seeded.id, structuredClone(seeded));
+    state.identity.set(key, seeded.id);
+  }
+}
+
 function stateFor(store: MockStore): MockMonthlyReportState {
   let state = stateByStore.get(store);
   if (!state) {
     state = { records: new Map(), identity: new Map() };
+    // Registered before hydration so a re-entrant read cannot build a second state.
     stateByStore.set(store, state);
+    loadSeededRecords(store, state);
   }
   return state;
 }

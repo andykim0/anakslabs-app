@@ -42,10 +42,14 @@ describe('RPT4 reporting retention', () => {
     }
     const repo = new MockSiteEventsRepo();
     assert.equal(await repo.purgeBeforeDate('2024-07-17'), 1);
-    assert.deepEqual([...store.siteEvents.values()].map((row) => row.eventDate), [
-      '2024-07-17',
-      '2026-07-01',
-    ]);
+    // Scoped to this site: the seed now ships a demo clinic's own aggregate history, and
+    // this test is about which of ITS rows the cutoff removes, not how many rows exist.
+    assert.deepEqual(
+      [...store.siteEvents.values()]
+        .filter((row) => row.siteId === HWARODAM_SITE_ID)
+        .map((row) => row.eventDate),
+      ['2024-07-17', '2026-07-01'],
+    );
     await assert.rejects(repo.purgeBeforeDate('2024/07/17'), /YYYY-MM-DD/);
     await assert.rejects(repo.purgeBeforeDate('2024-02-30'), /calendar date/);
     await assert.rejects(repo.purgeBeforeDate('2024-13-01'), /calendar date/);

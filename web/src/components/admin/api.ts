@@ -828,6 +828,23 @@ export function retryAdminMonthlyReport(
   );
 }
 
+/**
+ * Sends the stored report's real email to an internal @anakslabs.com address. This is a
+ * preview for the operator, not a delivery: the customer's delivery status is untouched.
+ */
+export function sendAdminMonthlyReportTest(
+  reportId: string,
+  recipient: string,
+): Promise<{ ok: true; recipient: string; providerMessageId: string }> {
+  return fetchJson<{ ok: true; recipient: string; providerMessageId: string }>(
+    `/api/admin/reports/${encodeURIComponent(reportId)}/send-test`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ recipient }),
+    },
+  );
+}
+
 export function getAdminEditQueue(): Promise<AdminEditQueueResponse> {
   return fetchJson<AdminEditQueueResponse>('/api/admin/edit-queue');
 }

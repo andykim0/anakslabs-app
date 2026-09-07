@@ -21,6 +21,8 @@ import type {
   ManualPaymentEntry,
 } from '@/lib/payments/manual-collection-core';
 import type { EditRequestEvent } from '@/lib/admin/edit-fulfillment-core';
+import type { MonthlyReportRecord } from '@/lib/reporting/repository-core';
+import type { SiteSubscriptionState } from '@/lib/subscriptions/core';
 import { buildSeed } from './seed';
 
 /** 지급(양수) 원장 행 1개 = lot 1개. remaining은 소진/만료로 감소 */
@@ -78,6 +80,18 @@ export interface MockStore {
   formSubmissions: Map<string, FormSubmission>;
   /** [RPT$] site/date/event/source별 PII 없는 누적 카운트 */
   siteEvents: Map<string, SiteEventAggregate>;
+  /**
+   * [RPT$] 데모 월간 리포트 시드. `MockMonthlyReportsRepository`가 스토어별 상태를 처음
+   * 만들 때 1회 적재한다 — 스토어(seed)가 리포지토리를 import 하면 순환이 되므로,
+   * 데이터만 스토어에 얹고 적재는 리포지토리 쪽에서 당겨간다.
+   */
+  demoMonthlyReports?: MonthlyReportRecord[];
+  /**
+   * [RPT$] 데모 구독 상태. 결제 원장에서 유도되지 않는 운영자 발급 계약(미국 클리닉)을
+   * 표현한다 — `lib/subscriptions/mock.ts`가 스토어별 상태를 부트스트랩할 때 병합한다.
+   * 이 행이 없으면 리포트 러너가 사이트를 건너뛰고(구독 비활성) 관리자 보드에도 뜨지 않는다.
+   */
+  demoSubscriptions?: SiteSubscriptionState[];
   /** [CONN] 전송 재시도 중복 방지용 event nonce → 만료 시각 */
   siteEventReceipts?: Map<string, { siteId: string; expiresAt: string }>;
   /** [motion 4단계] 영상 생성 로그 (비용 가드 카운트 + 프롬프트 튜닝). optional=lazy init(시드 무변경) */

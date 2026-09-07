@@ -69,6 +69,12 @@ function data(): MockSubscriptionData {
         updatedAt: now.toISOString(),
       });
     }
+    // [RPT$] Operator-issued contracts are not derived from a payment ledger, so the seed
+    // states them directly. Never overwrites a state the payment bootstrap already built.
+    for (const seeded of store.demoSubscriptions ?? []) {
+      if (value.states.has(seeded.clientId)) continue;
+      value.states.set(seeded.clientId, structuredClone(seeded));
+    }
     subscriptionsByStore.set(store, value);
   }
   return value;
