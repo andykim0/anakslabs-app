@@ -234,6 +234,24 @@ export class SupabaseContentQueueRepository implements ContentQueueRepository {
     };
   }
 
+  /**
+   * One row per paid generation that landed, for the whole month across every site.
+   *
+   * Counted on `content_post_versions` and not on `content_posts`, because a slot regenerated
+   * after a rejection is one row and two calls. The month is read through the parent slot's
+   * `period_month` — the month the post was PROMISED for — not the version's `created_at`, so a
+   * generation that runs just after midnight on the 1st is still counted against the month it is
+   * fulfilling. `!inner` makes the embed a join filter rather than an optional expansion.
+   */
+  async countGeneratedVersionsForMonth(periodMonth: string): Promise<number> {
+    const { count, error } = await getServiceRoleClient()
+      .from('content_post_versions')
+      .select('id,content_posts!inner(period_month)', { count: 'exact', head: true })
+      .eq('content_posts.period_month', periodMonth);
+    if (error) throw new Error(`content generated version count failed: ${error.message}`);
+    return count ?? 0;
+  }
+
   async getById(id: string): Promise<AdminContentQueueItem | null> {
     const { data, error } = await getServiceRoleClient()
       .from('content_posts')

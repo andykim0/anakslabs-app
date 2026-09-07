@@ -20,10 +20,12 @@ import {
 } from '@/lib/content-fulfillment/delivery';
 import { contentPostEducationalNotice } from '@/lib/legal/notices';
 import { MockContentQueueRepository } from '@/lib/admin/content-queue-repository-mock';
-import type {
-  AdminContentQueueItem,
-  ContentQueueSiteQuery,
+import {
+  CONTENT_QUEUE_MAX_LIMIT,
+  type AdminContentQueueItem,
+  type ContentQueueSiteQuery,
 } from '@/lib/admin/content-queue-core';
+import { CONTENT_PANEL_SITES_PER_QUERY } from '@/lib/admin/content-fulfillment-panel-core';
 import { PRICING_MODEL_VERSION } from '@/lib/pricing';
 import type { Site } from '@/lib/types/domain';
 import type { SiteConfig } from '@/lib/types/site';
@@ -189,18 +191,40 @@ describe('BLOG-SCREEN F3 — the panel stays correct as the roster grows', () =>
     assert.equal(panel.filter((row) => row.delivered === 0).length, 61);
   });
 
-  test('no panel query asks for more than one month of one site', async () => {
+  /**
+   * The read is batched now, and this assertion moved with it — from "one query per site" to
+   * "no query can ask for more rows than it is allowed to receive", which is the property that
+   * actually prevented the truncation. One query per site was a way of guaranteeing it, not the
+   * guarantee itself; at a hundred customers it cost a hundred round trips to draw one panel.
+   *
+   * The sibling test above is unchanged and is the real safety net: every one of the 63 sites
+   * still reports the slots it actually has.
+   */
+  test('no panel query can ask for more rows than the repository will return', async () => {
     const { repository, sites } = await rosterOf63();
     repository.queries.length = 0;
     await loadPanel(repository, sites);
 
-    assert.equal(repository.queries.length, 63, 'one bounded read per site');
+    assert.equal(
+      repository.queries.length,
+      Math.ceil(63 / CONTENT_PANEL_SITES_PER_QUERY),
+      'the roster is read in chunks, not one site at a time',
+    );
     for (const query of repository.queries) {
-      assert.equal(query.siteIds.length, 1, 'a query must never pool sites into one row budget');
-      assert.deepEqual(query.periodMonths, [PERIOD], 'the month is filtered, not scanned');
       assert.ok(
-        query.limit !== undefined && query.limit <= MAX_MONTHLY_CONTENT_SLOTS,
-        `panel limit ${query.limit} must stay within one month's ceiling of ${MAX_MONTHLY_CONTENT_SLOTS}`,
+        query.siteIds.length <= CONTENT_PANEL_SITES_PER_QUERY,
+        `a chunk of ${query.siteIds.length} sites can exceed the row budget`,
+      );
+      assert.deepEqual(query.periodMonths, [PERIOD], 'the month is filtered, not scanned');
+      assert.ok(query.limit !== undefined, 'an unbounded panel read is the original bug');
+      assert.equal(
+        query.limit,
+        MAX_MONTHLY_CONTENT_SLOTS * query.siteIds.length,
+        'the budget is exactly what one month of these sites can hold',
+      );
+      assert.ok(
+        query.limit <= CONTENT_QUEUE_MAX_LIMIT,
+        `panel limit ${query.limit} is silently clamped to ${CONTENT_QUEUE_MAX_LIMIT} and truncates`,
       );
     }
   });

@@ -121,6 +121,14 @@ export interface ContentQueueRepository {
   listBySites(query: ContentQueueSiteQuery): Promise<AdminContentQueueItem[]>;
   /** Idempotent: fills only the ordinals this site is still missing for the month. */
   provisionMonthlySlots(input: ContentSlotProvisionInput): Promise<ContentSlotProvisionResult>;
+  /**
+   * Immutable version rows written for one `period_month`, across every site.
+   *
+   * The monthly spend cap for the batch is counted from this rather than from a per-run tally:
+   * one version row is one paid generation that actually landed, so a crashed run that is retried
+   * cannot spend the month's budget twice. Callers treat a throw as "fully spent".
+   */
+  countGeneratedVersionsForMonth(periodMonth: string): Promise<number>;
   getById(id: string): Promise<AdminContentQueueItem | null>;
   claimGeneration(input: {
     id: string;

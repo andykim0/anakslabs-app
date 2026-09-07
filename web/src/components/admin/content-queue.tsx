@@ -8,6 +8,7 @@ import {
   FileCheck2,
   Inbox,
   Loader2,
+  PlayCircle,
   RefreshCw,
   RotateCcw,
   Sparkles,
@@ -22,6 +23,8 @@ import {
   provisionAdminContentSlots,
   rejectAdminContent,
   reworkAdminContent,
+  runAdminContentMonth,
+  type AdminContentBatchResponse,
   type AdminContentFulfillmentSite,
   type AdminContentQueueItem,
   type AdminContentQueueStatus,
@@ -110,16 +113,82 @@ function FulfillmentRow({ site }: { site: AdminContentFulfillmentSite }) {
   );
 }
 
+const STOP_REASONS: Record<
+  AdminContentBatchResponse['contentFulfillment']['stoppedBy'],
+  string
+> = {
+  complete: 'everything due this run was attempted',
+  disabled: 'the batch is switched off',
+  run_cap: 'the per-run generation cap was reached',
+  month_cap: 'the monthly generation cap was reached',
+  deadline: 'the run reached its dispatch deadline',
+};
+
+function batchSentence(result: AdminContentBatchResponse['contentFulfillment']): string {
+  return [
+    `${formatNumber(result.provisionedSlots)} slots provisioned`,
+    `${formatNumber(result.generated)} drafts written`,
+    result.failed > 0 ? `${formatNumber(result.failed)} failed` : null,
+    result.reclaimedSlots > 0
+      ? `${formatNumber(result.reclaimedSlots)} stuck slots released`
+      : null,
+    result.remaining > 0 ? `${formatNumber(result.remaining)} left for the next run` : null,
+  ].filter(Boolean).join(' · ');
+}
+
 function FulfillmentPanel({ sites }: { sites: readonly AdminContentFulfillmentSite[] }) {
+  const queryClient = useQueryClient();
+  const runMonth = useMutation({
+    mutationFn: () => runAdminContentMonth(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin', 'content-queue'] });
+    },
+  });
   if (sites.length === 0) return null;
   return (
     <Card className="mb-4 p-0">
-      <div className="border-b border-slate-100 px-4 py-3">
-        <h2 className="text-sm font-semibold text-slate-900">Monthly fulfillment</h2>
-        <p className="mt-0.5 text-xs text-slate-500">
-          Each site&apos;s current month is read in that site&apos;s own time zone. Provisioning is
-          idempotent — it adds only the slots the month is still missing.
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-4 py-3">
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold text-slate-900">Monthly fulfillment</h2>
+          <p className="mt-0.5 text-xs text-slate-500">
+            Each site&apos;s current month is read in that site&apos;s own time zone. Provisioning is
+            idempotent — it adds only the slots the month is still missing.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => runMonth.mutate()}
+          disabled={runMonth.isPending}
+          className="inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-md bg-slate-900 px-3 text-xs font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
+        >
+          {runMonth.isPending
+            ? <Loader2 size={13} className="animate-spin" aria-hidden />
+            : <PlayCircle size={13} aria-hidden />}
+          Run this month
+        </button>
+      </div>
+      <div className="border-b border-slate-100 px-4 py-2">
+        <p className="text-[11px] text-slate-500">
+          Runs the same job the nightly cron runs: it provisions the missing slots and writes a
+          draft for each one, for every published site with an active subscription. It never
+          approves and never publishes — every post still needs your review below.
         </p>
+        {runMonth.isPending ? (
+          <p className="mt-1 text-xs text-slate-600">
+            Generating. Each article can take up to two minutes; the run stops handing out new work
+            after 170 seconds and the rest is picked up by the next run.
+          </p>
+        ) : null}
+        {runMonth.error ? (
+          <p role="alert" className="mt-1 text-xs text-red-600">{runMonth.error.message}</p>
+        ) : null}
+        {runMonth.data ? (
+          <p className="mt-1 text-xs text-slate-700">
+            {batchSentence(runMonth.data.contentFulfillment)}
+            {' — '}
+            {STOP_REASONS[runMonth.data.contentFulfillment.stoppedBy]}.
+          </p>
+        ) : null}
       </div>
       <ul className="divide-y divide-slate-100">
         {sites.map((site) => <FulfillmentRow key={site.siteId} site={site} />)}
