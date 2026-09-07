@@ -212,6 +212,12 @@ function ReportCard({
               <p className="mt-1 flex items-center gap-1.5 text-xs text-[#6a7286]">
                 <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
                 {monthLabel(record.periodMonth)} · generated {formatDate(record.createdAt)}
+                {/*
+                  The badge says the email was accepted but never said when, and `sentAt`
+                  was already on the record — a customer comparing this card against their
+                  inbox had no date to match it to.
+                */}
+                {record.sentAt ? ` · emailed ${formatDate(record.sentAt)}` : null}
               </p>
             </div>
             <a
