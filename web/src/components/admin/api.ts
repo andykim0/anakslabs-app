@@ -29,6 +29,7 @@ import type {
   Client,
   ClientStatus,
   CreditLedgerEntry,
+  CustomDomainStatus,
   EditRequest,
   EditType,
   Payment,
@@ -36,6 +37,7 @@ import type {
   SiteStatus,
   Tier,
 } from '@/lib/types/domain';
+import type { PublishHumanChecks } from '@/lib/publish/human-checks';
 import type { AdminOpsRevenueMetrics } from '@/lib/admin/ops-metrics';
 import type { MonthlyReportDeliveryStatus } from '@/lib/reporting/repository-core';
 import type { SiteSubscriptionStatus } from '@/lib/subscriptions/core';
@@ -194,12 +196,23 @@ export interface OperatorClientInviteResult {
 export interface OperatorSiteCreateResult {
   siteId: string;
   site: Site;
-  source: 'crawl' | 'minimal' | 'newbuild';
+  source: 'crawl' | 'approved-preview' | 'minimal' | 'newbuild';
   copySource?: 'generated' | 'neutral-template';
   locale: string;
   timezone: UsSiteTimezone;
   formCount: number;
   items: SiteConnector[];
+}
+
+export interface OperatorSitePublishResult {
+  site: Site;
+  url: string | null;
+  checkedBy: string;
+}
+
+export interface OperatorSiteDomainResult {
+  siteId: string;
+  status: CustomDomainStatus;
 }
 
 export interface OperatorConnectorPatchInput {
@@ -561,6 +574,17 @@ export interface AdminUsMedicalConsent {
 
 // ---------- fetch 헬퍼 ----------
 
+/**
+ * 표준 에러 포맷의 `code`를 Error에 실어 보낸다. 메시지 문자열을 substring 매칭하는 것보다
+ * 정확하고 (402 발행 결제처럼) UI가 특정 코드에 반응해야 할 때 유일하게 믿을 수 있는 값이다.
+ * 기존 호출자는 그대로 `error.message`만 읽으므로 회귀가 없다.
+ */
+export function apiErrorCode(error: unknown): string | null {
+  if (!(error instanceof Error)) return null;
+  const code = (error as Error & { code?: unknown }).code;
+  return typeof code === 'string' ? code : null;
+}
+
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...init,
@@ -568,15 +592,21 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     let message = `Request failed (HTTP${res.status})`;
+    let code: string | null = null;
     try {
       // API 표준 에러 포맷: { error: { code, message, ...extra } }
-      const body = (await res.json()) as { error?: { message?: string } | string };
+      const body = (await res.json()) as { error?: { code?: string; message?: string } | string };
       if (typeof body?.error === 'string') message = body.error;
       else if (body?.error?.message) message = body.error.message;
+      if (typeof body?.error === 'object' && typeof body.error?.code === 'string') {
+        code = body.error.code;
+      }
     } catch {
       // JSON이 아닌 에러 응답 — 기본 메시지 유지
     }
-    throw new Error(message);
+    const error = new Error(message);
+    if (code) Object.assign(error, { code });
+    throw error;
   }
   return (await res.json()) as T;
 }
@@ -687,6 +717,18 @@ export function createOperatorClientSite(
         phone?: string;
         bookingUrl?: string;
       }
+    /**
+     * Ships the exact bytes the customer approved at /preview/[token]. Every other mode compiles
+     * a second site, which is not what they said yes to.
+     */
+    | {
+        mode: 'approved-preview';
+        previewId: string;
+        approvedAt?: string;
+        timezone?: UsSiteTimezone;
+        phone?: string;
+        bookingUrl?: string;
+      }
     | {
         mode: 'minimal';
         businessName: string;
@@ -715,6 +757,33 @@ export function createOperatorClientSite(
   return fetchJson<OperatorSiteCreateResult>(
     `/api/admin/clients/${encodeURIComponent(clientId)}/sites`,
     { method: 'POST', body: JSON.stringify(input) },
+  );
+}
+
+/**
+ * Publishes a delivered site on the customer's behalf. Runs the real publish path, so it can
+ * still answer 402 when the account has no active subscription.
+ */
+export function publishOperatorClientSite(
+  clientId: string,
+  siteId: string,
+  input: { humanChecks: PublishHumanChecks; businessInfoConfirmed?: boolean },
+): Promise<OperatorSitePublishResult> {
+  return fetchJson<OperatorSitePublishResult>(
+    `/api/admin/clients/${encodeURIComponent(clientId)}/sites/${encodeURIComponent(siteId)}/publish`,
+    { method: 'POST', body: JSON.stringify(input) },
+  );
+}
+
+/** Attaches the customer's own domain through the same Cloudflare service the customer path uses. */
+export function attachOperatorSiteDomain(
+  clientId: string,
+  siteId: string,
+  hostname: string,
+): Promise<OperatorSiteDomainResult> {
+  return fetchJson<OperatorSiteDomainResult>(
+    `/api/admin/clients/${encodeURIComponent(clientId)}/sites/${encodeURIComponent(siteId)}/domain`,
+    { method: 'POST', body: JSON.stringify({ hostname }) },
   );
 }
 

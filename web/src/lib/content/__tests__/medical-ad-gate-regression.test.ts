@@ -241,7 +241,7 @@ describe('MEDLAW R3 — clinic 단일 가용성 게이트', () => {
     const industry = source('src/lib/industry/publish-policy.ts');
     const page = source('src/app/(marketing)/clinic/page.tsx');
     const sitemap = source('src/app/sitemap.ts');
-    const publish = source('src/app/api/sites/[siteId]/publish/route.ts');
+    const publish = source('src/lib/publish/publish-site-service.ts');
     const payment = source('src/app/api/sites/[siteId]/publish-payment/route.ts');
     assert.match(availability, /screenMedicalSiteConfig\(input\.config\)/u);
     assert.match(industry, /clinicAvailability\(\{/u);

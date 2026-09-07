@@ -85,6 +85,14 @@ export interface SitesRepo {
     industryProfileId?: IndustryProfileId;
     pricingModelVersion?: string;
   }): Promise<Site>;
+  /**
+   * 관리자 서버 전용: 이 사이트가 어떤 승인 프리뷰에서 배송됐는지 기록 (보호 컬럼 — 0066).
+   * create 직후 한 번만 호출한다. 이미 기록된 사이트에 다시 쓰면 실패해야 한다.
+   */
+  recordApprovedPreviewDelivery(
+    siteId: string,
+    input: { previewId: string; deliveredAt: string; approvedAt?: string | null },
+  ): Promise<void>;
   /** 에디터 자동저장 대상 */
   saveDraft(siteId: string, config: SiteConfig): Promise<void>;
   /** 관리자 서버 전용: 발행본·초안에 소유확인 값을 함께 기록한다. */

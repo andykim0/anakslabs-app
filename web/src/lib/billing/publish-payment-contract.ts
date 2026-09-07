@@ -1,3 +1,10 @@
+/**
+ * Lives here rather than in publish-payment.ts because the admin console branches on it, and
+ * that module imports node:crypto for the quote digest — importing it from a client component
+ * pulls a node builtin into the browser bundle and the page fails to build.
+ */
+export const PUBLISH_PAYMENT_ERROR_CODE = 'PUBLISH_PAYMENT_REQUIRED' as const;
+
 export interface PublishPaymentQuote {
   quoteId: string;
   pricingModelVersion: string;

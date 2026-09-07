@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Search, Users } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import type { ClientStatus, Tier } from '@/lib/types/domain';
 import { getClients } from './api';
@@ -29,6 +30,11 @@ export function ClientsTable() {
   const [tierFilter, setTierFilter] = useState<Tier | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<ClientStatus | 'all'>('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  /**
+   * The US demo pipeline hands the approved preview over as `?previewId=`. It is carried, not
+   * consumed, here: the create form uses it to open on the delivery mode.
+   */
+  const approvedPreviewId = useSearchParams().get('previewId') ?? undefined;
 
   const filtered = useMemo(() => {
     if (!data) return [];
@@ -156,7 +162,11 @@ export function ClientsTable() {
       )}
 
       {selectedId ? (
-        <ClientDetailPanel clientId={selectedId} onClose={() => setSelectedId(null)} />
+        <ClientDetailPanel
+          clientId={selectedId}
+          onClose={() => setSelectedId(null)}
+          approvedPreviewId={approvedPreviewId}
+        />
       ) : null}
     </>
   );

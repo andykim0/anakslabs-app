@@ -76,6 +76,9 @@ export interface SiteRow {
   asset_policy_version?: number | null;
   industry_profile_id?: string | null;
   pricing_model_version?: string | null;
+  delivered_from_preview_id?: string | null;
+  delivered_at?: string | null;
+  approved_at?: string | null;
 }
 
 export function rowToSite(row: SiteRow): Site {
@@ -101,6 +104,9 @@ export function rowToSite(row: SiteRow): Site {
     ...(row.asset_policy_version === 2 ? { assetPolicyVersion: 2 as const } : {}),
     industryProfileId: (row.industry_profile_id as IndustryProfileId | null | undefined) ?? null,
     pricingModelVersion: row.pricing_model_version ?? null,
+    deliveredFromPreviewId: row.delivered_from_preview_id ?? null,
+    deliveredAt: row.delivered_at ?? null,
+    approvedAt: row.approved_at ?? null,
   };
 }
 

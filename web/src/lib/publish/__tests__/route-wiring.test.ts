@@ -6,11 +6,20 @@ import { describe, test } from 'node:test';
 const source = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 
 describe('Q$6 publish route 서버 강제 배선', () => {
-  const publish = source('src/app/api/sites/[siteId]/publish/route.ts');
+  /**
+   * 이 게이트들은 더 이상 라우트 본문에 있지 않다. 고객 라우트와 오퍼레이터 콘솔 라우트가
+   * 같은 publishSiteWithAudits 를 호출하므로 순서 불변식은 그 서비스에 한 벌만 있고, 라우트는
+   * "자기만의 발행 경로를 갖지 않는다"로 검사한다 (아래 마지막 테스트).
+   */
+  const publish = source('src/lib/publish/publish-site-service.ts');
   const preflight = source('src/app/api/sites/[siteId]/preflight/route.ts');
+  const customerRoute = source('src/app/api/sites/[siteId]/publish/route.ts');
+  const operatorRoute = source(
+    'src/app/api/admin/clients/[id]/sites/[siteId]/publish/route.ts',
+  );
 
   test('휴먼 3체크 → provenance 감사 → artifact 감사가 실제 publish보다 먼저 실행된다', () => {
-    const humanAt = publish.indexOf('missingPublishHumanChecks(body?.humanChecks)');
+    const humanAt = publish.indexOf('missingPublishHumanChecks(input.humanChecks)');
     const provenanceAt = publish.indexOf('await resolveSiteAssetPolicy({');
     const auditAt = publish.indexOf('preflightScan(auditedDraft');
     const persistAt = publish.indexOf('publishAuditedSnapshot(getDataServices().sites, siteId, auditedDraft)');
@@ -56,17 +65,36 @@ describe('Q$6 publish route 서버 강제 배선', () => {
     for (const route of [publish, preflight]) {
       assert.match(route, /publishAssetPolicyIssues\(assetAudit\.violations\)/);
       assert.match(route, /violations:\s*assetPolicyIssues/);
-      assert.doesNotMatch(route, /assetAudit\.violations[\s\S]{0,120}apiError/);
+      assert.doesNotMatch(route, /assetAudit\.violations[\s\S]{0,120}(?:apiError|refuse)\(/);
       assert.doesNotMatch(route, /console\.(?:warn|error)\([^)]*assetId/);
     }
   });
 
+  test('두 발행 진입점 모두 자기만의 발행 경로 없이 같은 서비스에 위임한다', () => {
+    /**
+     * The operator console can publish on a customer's behalf. If it ever grew its own copy of
+     * these gates, a delivered site could go live without the audits the customer path enforces —
+     * so neither route may name a publish audit itself, and both must call the one service.
+     */
+    for (const route of [customerRoute, operatorRoute]) {
+      assert.match(route, /publishSiteWithAudits\(\{/u);
+      assert.doesNotMatch(route, /checkPublish|preflightScan|resolveSiteAssetPolicy|publishAuditedSnapshot/u);
+      assert.doesNotMatch(route, /needsPublishPayment|missingPublishHumanChecks/u);
+    }
+    // The operator submits the human checks in their own name and is recorded as the checker.
+    assert.match(operatorRoute, /getCurrentAdminActorId\(\)/u);
+    assert.match(operatorRoute, /humanChecks: body\?\.humanChecks/u);
+    assert.match(operatorRoute, /console\.info\('\[operator-publish\]/u);
+    // Ownership: the audits run against the customer account, never the operator.
+    assert.match(operatorRoute, /owner,/u);
+  });
+
   test('US operator information is optional while KO and present-info confirmation remain enforced', () => {
-    assert.match(publish, /businessInfoRequiredForPublish\(site\.draftConfig\)/);
-    assert.match(publish, /\(requiresBusinessInfo \|\| hasBusinessInfo\) && body\?\.businessInfoConfirmed !== true/);
+    assert.match(publish, /businessInfoRequiredForPublish\(draftConfig\)/);
+    assert.match(publish, /\(requiresBusinessInfo \|\| hasBusinessInfo\) && input\.businessInfoConfirmed !== true/);
     assert.match(publish, /requiresBusinessInfo && !hasBusinessInfo/);
     assert.match(preflight, /businessInfoRequiredForPublish\(auditedConfig\) && !auditedConfig\.businessInfo/);
-    const legalAt = publish.indexOf('usTenantLegalDocumentsRequired(site.draftConfig)');
+    const legalAt = publish.indexOf('usTenantLegalDocumentsRequired(draftConfig)');
     const provenanceAt = publish.indexOf('await resolveStoredBeforeAfterMotionOptions({');
     assert.ok(legalAt >= 0 && provenanceAt > legalAt);
     assert.match(publish, /US_PERSONAL_DATA_LEGAL_DOCUMENTS_REQUIRED/);

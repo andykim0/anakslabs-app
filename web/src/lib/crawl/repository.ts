@@ -135,7 +135,7 @@ export async function getLatestCrawlArtifactBySeedUrl(
 
 interface SharedSitePreviewRow {
   id: string;
-  crawl_artifact_id: string;
+  crawl_artifact_id: string | null;
   token_hash: string;
   source_url: string;
   site_config: SiteConfig;
@@ -151,7 +151,7 @@ interface SharedSitePreviewRow {
 function previewRowToRecord(row: SharedSitePreviewRow): SharedSitePreviewRecord {
   return {
     id: row.id,
-    crawlArtifactId: row.crawl_artifact_id,
+    crawlArtifactId: row.crawl_artifact_id ?? null,
     tokenHash: row.token_hash,
     sourceUrl: row.source_url,
     siteConfig: row.site_config,
@@ -301,6 +301,13 @@ export async function purgeExpiredCrawlerRecords(
       if (new Date(record.expiresAt) > now) continue;
       mockArtifacts().delete(id);
       artifacts += 1;
+      // 0066 turned the cascade into `on delete set null`: a preview the customer approved
+      // outlives the raw material it was compiled from, so purging the artifact here must
+      // detach the surviving previews rather than take them with it.
+      for (const [hash, preview] of mockPreviews()) {
+        if (preview.crawlArtifactId !== id) continue;
+        mockPreviews().set(hash, { ...preview, crawlArtifactId: null });
+      }
     }
     return { artifacts, previews };
   }

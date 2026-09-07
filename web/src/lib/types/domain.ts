@@ -84,6 +84,16 @@ export interface Site {
   exportRequestedAt?: string | null;
   /** [§5] export zip 저장 object path (signed URL 아님 — 다운로드 시점에 발급) */
   exportUrl?: string | null;
+  /**
+   * [delivery provenance — 서버 전용, 0066] 고객이 승인한 프리뷰를 그대로 배송한 사이트임을 나타낸다.
+   * 값이 있으면 이 사이트의 draftConfig는 재컴파일본이 아니라 승인본 바이트다. 프리뷰 행(45일)보다
+   * 오래 살아야 하므로 외래키가 아니라 기록된 id다. null/미정의 = 승인 프리뷰 배송이 아님.
+   */
+  deliveredFromPreviewId?: string | null;
+  /** [delivery provenance] 오퍼레이터가 승인본을 배송한 시각. */
+  deliveredAt?: string | null;
+  /** [delivery provenance] 고객이 그 프리뷰를 승인한 시각 (오퍼레이터 입력, 없으면 null). */
+  approvedAt?: string | null;
 }
 
 // ---------- 크레딧 ----------

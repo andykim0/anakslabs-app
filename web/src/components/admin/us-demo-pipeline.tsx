@@ -608,6 +608,21 @@ export function UsDemoPipeline() {
               <p className="mt-1 break-all text-xs text-emerald-700">
                 {preview.url} · {new Date(preview.expiresAt).toLocaleString('ko-KR')} expiration
               </p>
+              {/*
+                * The hand-off to delivery. Once the prospect says yes, this id is what ships their
+                * approved bytes as a paid site — every other operator mode compiles a second,
+                * different site. The clients page opens on the delivery mode when it carries it.
+                */}
+              <p className="mt-2 break-all text-xs text-emerald-800">
+                Approved? Deliver preview{' '}
+                <code className="rounded bg-white/70 px-1 py-0.5 font-mono">{preview.id}</code>{' '}
+                <a
+                  className="underline"
+                  href={`/admin/clients?previewId=${encodeURIComponent(preview.id)}`}
+                >
+                  on the customer&apos;s page
+                </a>
+              </p>
             </div>
             <button
               type="button"

@@ -7,7 +7,7 @@ import {
 } from '@/lib/pricing';
 import type { PublishPaymentQuote } from './publish-payment-contract';
 
-export const PUBLISH_PAYMENT_ERROR_CODE = 'PUBLISH_PAYMENT_REQUIRED' as const;
+export { PUBLISH_PAYMENT_ERROR_CODE } from './publish-payment-contract';
 
 function quoteDigest(
   clientId: string,

@@ -297,7 +297,12 @@ export interface CrawlArtifactRecord {
 
 export interface SharedSitePreviewRecord {
   id: string;
-  crawlArtifactId: string;
+  /**
+   * The raw material this preview was compiled from, or null once that artifact was purged
+   * (0066 replaced 0046's cascade with `on delete set null`). Delivery never reads it: the
+   * approved `siteConfig` below is the whole artefact the customer said yes to.
+   */
+  crawlArtifactId: string | null;
   tokenHash: string;
   sourceUrl: string;
   siteConfig: SiteConfig;

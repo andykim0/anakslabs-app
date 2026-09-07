@@ -27,15 +27,24 @@ import {
   SITE_STATUS_TONES,
   TIER_TONES,
 } from './ui';
-import { OperatorSiteCreateForm } from './operator-client-actions';
+import {
+  OperatorSiteCreateForm,
+  OperatorSiteDeliveryControls,
+} from './operator-client-actions';
 
 /** 고객 행 클릭 시 우측에 뜨는 상세 패널. */
+/**
+ * `approvedPreviewId` arrives from the US demo pipeline via `?previewId=` on the clients page, so
+ * the operator who just made a preview lands on the delivery mode instead of a crawl.
+ */
 export function ClientDetailPanel({
   clientId,
   onClose,
+  approvedPreviewId,
 }: {
   clientId: string;
   onClose: () => void;
+  approvedPreviewId?: string;
 }) {
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ['admin', 'client', clientId],
@@ -122,7 +131,11 @@ export function ClientDetailPanel({
 
             <ClientEditControls key={data.client.id} client={data.client} />
 
-            <OperatorSiteCreateForm clientId={data.client.id} disabled={data.sites.length > 0} />
+            <OperatorSiteCreateForm
+              clientId={data.client.id}
+              disabled={data.sites.length > 0}
+              approvedPreviewId={approvedPreviewId}
+            />
 
             <PanelSection title={`site (${data.sites.length})`}>
               {data.sites.length === 0 ? (
@@ -132,7 +145,7 @@ export function ClientDetailPanel({
                   {data.sites.map((site) => (
                     <li
                       key={site.id}
-                      className="flex items-center justify-between gap-2 rounded-md border border-slate-200 px-3 py-2"
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-slate-200 px-3 py-2"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium text-slate-800">{site.name}</p>
@@ -157,6 +170,9 @@ export function ClientDetailPanel({
                           </a>
                         ) : null}
                       </div>
+                      {site.deliveredFromPreviewId ? (
+                        <OperatorSiteDeliveryControls clientId={data.client.id} site={site} />
+                      ) : null}
                     </li>
                   ))}
                 </ul>
