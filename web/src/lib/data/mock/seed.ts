@@ -26,6 +26,8 @@ import { ensureMotion } from '@/lib/motion/validate';
 import { HWARODAM_SITE_CONFIG } from './hwarodam';
 import { MINTWASH_DRAFT_CONFIG } from './mintwash';
 import { SUMMIT_DENTAL_SITE_CONFIG } from './summit-dental';
+import { buildDemoReportingSeed } from './reporting-demo';
+import { DEFAULT_US_SITE_TIMEZONE } from '@/lib/types/site';
 
 export const DEMO_PREMIUM_ID = 'demo-premium';
 export const DEMO_BASIC_ID = 'demo-basic';
@@ -357,6 +359,23 @@ export function buildSeed(): MockStore {
     ],
   ]);
 
+  // ---------- [RPT$] 성과 리포트 데모 이력 ----------
+  // 리포트 카드가 비어 있으면 "고객이 매달 뭘 받는지"를 아무도 확인할 수 없다.
+  // 일별 익명 집계를 시드하고, 그 집계로 제품의 실제 빌더가 리포트를 만들게 한다
+  // (숫자는 전부 buildMonthlyPerformanceReport / buildCitationReportSection 산출물).
+  const reporting = buildDemoReportingSeed({
+    siteId: SUMMIT_DENTAL_SITE_ID,
+    clientId: DEMO_CLINIC_ID,
+    timeZone: SUMMIT_DENTAL_SITE_CONFIG.meta.timezone ?? DEFAULT_US_SITE_TIMEZONE,
+  });
+  // 키 규약은 MockSiteEventsRepo와 동일해야 한다 (site|date|event|source).
+  const siteEvents = new Map(
+    reporting.siteEvents.map((row) => [
+      [row.siteId, row.eventDate, row.eventType, row.source].join('|'),
+      row,
+    ]),
+  );
+
   return {
     clients,
     sites,
@@ -394,7 +413,22 @@ export function buildSeed(): MockStore {
     ),
     scans: new Map(),
     formSubmissions: new Map(),
-    siteEvents: new Map(),
+    siteEvents,
+    demoMonthlyReports: reporting.monthlyReports,
+    // 운영자 발급 미국 클리닉은 결제 원장이 아니라 사이트 단위 구독 계약으로 산다.
+    // 이 행이 있어야 리포트 러너가 이 사이트를 대상에 넣고(구독 활성), 관리자 보드가
+    // 발송된 리포트를 보여준다 — 시드한 리포트가 실제로 만들어질 수 있는 상태와 일치한다.
+    demoSubscriptions: [
+      {
+        clientId: DEMO_CLINIC_ID,
+        siteId: SUMMIT_DENTAL_SITE_ID,
+        industryProfileId: 'clinic',
+        pricingModelVersion: PRICING_MODEL_VERSION,
+        status: 'active',
+        currentPeriodEnd: daysFromIso(daysAgoIso(6), 30),
+        updatedAt: daysAgoIso(6),
+      },
+    ],
     counters: { id: 0, text: 0, image: 0 },
   };
 }
