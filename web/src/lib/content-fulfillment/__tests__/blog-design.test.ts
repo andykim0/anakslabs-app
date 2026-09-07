@@ -656,23 +656,39 @@ describe('BLOG-DESIGN G1 — motion off means no markers on either surface', () 
     }
 
     // suppressHydrationWarning never survives into markup, so the guarantee is asserted at its
-    // single source: `data-m` may be written in exactly one place, and that place pairs it with
-    // the opt-out and the gate. A marker written directly on an element — which is how the
+    // single source: the reveal marker may be written in exactly one place, and that place pairs
+    // it with the opt-out and the gate. A marker written directly on an element — which is how the
     // article band leaked — makes this count 2.
+    //
+    // Counted as the quoted attribute name rather than the bare substring, so the distinct
+    // `data-m-progress` hook below is not mistaken for a second reveal marker. A stray bare
+    // `data-m` written anywhere else still trips this, which is the property that matters.
     const { readFileSync } = await import('node:fs');
     const source = readFileSync(
       `${process.cwd()}/src/components/content-posts/TenantContentBlog.tsx`,
       'utf8',
     );
     assert.equal(
-      source.split('data-m').length - 1,
+      [...source.matchAll(/(?<![\w-])'data-m'(?![\w-])/gu)].length,
       1,
-      'data-m may only be written once, inside revealProps',
+      'the reveal marker may only be written once, inside revealProps',
     );
     assert.match(
       source,
       /function revealProps\(enabled: boolean\)[\s\S]{0,200}'data-m'[\s\S]{0,80}suppressHydrationWarning/u,
     );
+    // The scroll-progress hook is a second attribute the same runtime mutates before hydration
+    // (it writes --scroll-progress, will-change and data-signature-active onto the element it is
+    // given). So wherever it is written it must sit on an element that already carries
+    // revealProps — that spread is what supplies suppressHydrationWarning.
+    for (const match of source.matchAll(/'data-m-progress'/gu)) {
+      const preceding = source.slice(Math.max(0, match.index - 160), match.index);
+      assert.match(
+        preceding,
+        /\{\.\.\.revealProps\(motion\)\}/u,
+        'data-m-progress must sit on an element that already spreads revealProps',
+      );
+    }
   });
 });
 

@@ -16,6 +16,10 @@ function contentQueueVersionDto(version: AdminContentQueueItem['currentVersion']
     sourceRefs: version.sourceRefs,
     policyVersions: version.policyVersions,
     generationMetadata: version.generationMetadata,
+    // The picture that would publish beside the copy. It is a registry-canonical URL plus its
+    // raster size — no storage key, no provenance internals — so the console can show a thumbnail
+    // without this boundary widening into an asset API.
+    ...(version.cover ? { cover: version.cover } : {}),
     createdAt: version.createdAt,
   } : null;
 }

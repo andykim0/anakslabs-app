@@ -1,9 +1,14 @@
 import type {
+  ContentPostCoverAsset,
   ContentPostDocument,
   ContentPostRow,
   ContentPostStatus,
   ContentPostVersionRow,
 } from '@/lib/content-fulfillment/contracts';
+import {
+  projectContentPostCover,
+  type ContentPostCover,
+} from '@/lib/content-fulfillment/cover-image-core';
 import {
   CONTENT_POST_STATUSES,
   contentPostDocumentSchema,
@@ -30,6 +35,11 @@ export interface AdminContentQueueVersion {
   policyVersions: Record<string, unknown>;
   validationEvidence: Record<string, unknown>;
   generationMetadata: Record<string, unknown>;
+  /**
+   * The generated hero image this version stored, when covers were enabled for the run. The
+   * console shows it so an operator approves the picture that will publish, not only the copy.
+   */
+  cover?: ContentPostCover;
   createdAt: string;
 }
 
@@ -223,6 +233,7 @@ function isContentPostStatus(status: string): status is ContentPostStatus {
 
 export function projectAdminContentVersion(
   row: ContentPostVersionRow & { version_number?: number; created_at?: string },
+  coverAsset?: ContentPostCoverAsset | null,
 ): AdminContentQueueVersion | null {
   if (
     !Number.isSafeInteger(row.version_number)
@@ -247,6 +258,11 @@ export function projectAdminContentVersion(
     ? row.tags
     : null;
   if (!parsedDocument.success || !tags) return null;
+  // Same discipline as the public projection: a joined asset that is not the one this version
+  // points at belongs to another row, and an unparseable one is dropped rather than shown.
+  const cover = coverAsset && coverAsset.assetId === row.cover_asset_id
+    ? projectContentPostCover(coverAsset)
+    : null;
   return {
     id: row.id,
     versionNumber: row.version_number!,
@@ -260,6 +276,7 @@ export function projectAdminContentVersion(
     policyVersions: row.policy_versions as Record<string, unknown>,
     validationEvidence: row.validation_evidence as Record<string, unknown>,
     generationMetadata: row.generation_metadata as Record<string, unknown>,
+    ...(cover ? { cover } : {}),
     createdAt: row.created_at ?? '',
   };
 }

@@ -58,6 +58,12 @@ export interface DocumentShellInput {
   documentDescription?: string;
   canonicalOverride?: string | null;
   jsonLdOverride?: string | null;
+  /**
+   * Extra structured-data documents emitted after the primary one, each in its own script.
+   * The blog uses it for the article's FAQPage, so an exported bundle carries the same two
+   * documents the hosted route serves instead of quietly dropping one.
+   */
+  additionalJsonLd?: readonly string[];
   openGraphType?: 'website' | 'article';
 }
 
@@ -132,6 +138,8 @@ export function buildDocumentShell(input: DocumentShellInput): string {
     description ? `<meta property="og:description" content="${escapeAttr(description)}">` : '',
     ogImage ? `<meta property="og:image" content="${escapeAttr(ogImage)}">` : '',
     jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : '',
+    ...(input.additionalJsonLd ?? []).map((document) =>
+      `<script type="application/ld+json">${document}</script>`),
     `<style>${BASE_DOC_CSS}</style>`,
     input.fontFaceCss ? `<style>${input.fontFaceCss}</style>` : '',
     input.headExtraHtml ?? '',

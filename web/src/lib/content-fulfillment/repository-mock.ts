@@ -1,6 +1,7 @@
 import type { AdminContentQueueItem } from '@/lib/admin/content-queue-core';
 import type { SiteConfig } from '@/lib/types/site';
 import type {
+  ContentPostCoverAsset,
   ContentPostRow,
   ContentPostVersionRow,
 } from './contracts';
@@ -11,6 +12,8 @@ import { filterPublicContentPostsForConfig } from './public-integrity';
 export interface MockPublishedRows {
   posts: readonly ContentPostRow[];
   versions: readonly ContentPostVersionRow[];
+  /** Stands in for the `asset_records` rows the live repository joins for covers. */
+  coverAssets?: readonly ContentPostCoverAsset[];
   /** Present when the caller can supply it; enables the same re-validation the live path runs. */
   config?: SiteConfig;
 }
@@ -28,9 +31,14 @@ export type MockPublishedRowSource = (siteId: string) => Promise<MockPublishedRo
  */
 export function publishedRowsFromQueueItems(
   items: readonly AdminContentQueueItem[],
-): { posts: ContentPostRow[]; versions: ContentPostVersionRow[] } {
+): {
+  posts: ContentPostRow[];
+  versions: ContentPostVersionRow[];
+  coverAssets: ContentPostCoverAsset[];
+} {
   const posts: ContentPostRow[] = [];
   const versions: ContentPostVersionRow[] = [];
+  const coverAssets: ContentPostCoverAsset[] = [];
   for (const item of items) {
     const version = item.currentVersion;
     if (!item.publishedVersionId || !item.publishedAt || !version) continue;
@@ -58,9 +66,21 @@ export function publishedRowsFromQueueItems(
       policy_versions: version.policyVersions,
       validation_evidence: version.validationEvidence,
       generation_metadata: version.generationMetadata,
+      // The stored pointer and the registry row are two separate reads in production, so the mock
+      // keeps them separate too — the projection has to match a pointer against an asset here for
+      // exactly the same reason it does against Postgres.
+      cover_asset_id: version.cover?.assetId ?? null,
     });
+    if (version.cover) {
+      coverAssets.push({
+        assetId: version.cover.assetId,
+        url: version.cover.url,
+        width: version.cover.width ?? null,
+        height: version.cover.height ?? null,
+      });
+    }
   }
-  return { posts, versions };
+  return { posts, versions, coverAssets };
 }
 
 export class MockPublishedContentPostsRepository implements PublishedContentPostsRepository {
@@ -69,6 +89,7 @@ export class MockPublishedContentPostsRepository implements PublishedContentPost
     private readonly versions: readonly ContentPostVersionRow[] = [],
     /** Live source used by the running mock app; the fixed arrays remain for fixtures. */
     private readonly rowSource?: MockPublishedRowSource,
+    private readonly coverAssets: readonly ContentPostCoverAsset[] = [],
   ) {}
 
   private async rowsFor(siteId: string): Promise<MockPublishedRows> {
@@ -76,6 +97,7 @@ export class MockPublishedContentPostsRepository implements PublishedContentPost
     return {
       posts: this.posts.filter((post) => post.site_id === siteId),
       versions: this.versions,
+      coverAssets: this.coverAssets,
     };
   }
 
@@ -96,8 +118,8 @@ export class MockPublishedContentPostsRepository implements PublishedContentPost
   }
 
   async listPublishedBySite(siteId: string) {
-    const { posts, versions, config } = await this.rowsFor(siteId);
-    const projected = projectPublishedRows(posts, versions);
+    const { posts, versions, coverAssets, config } = await this.rowsFor(siteId);
+    const projected = projectPublishedRows(posts, versions, coverAssets);
     return structuredClone(this.enforceCurrentPublicPolicy(projected, config));
   }
 

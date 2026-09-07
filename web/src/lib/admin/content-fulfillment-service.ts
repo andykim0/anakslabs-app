@@ -11,6 +11,7 @@ import {
   type GeneratedContentPostVersion,
 } from '@/lib/content-fulfillment/generation';
 import { loadContentGenerationContext } from '@/lib/content-fulfillment/generation-repository';
+import { generateContentPostCover } from '@/lib/content-fulfillment/cover-image';
 import {
   createContentPostTextGenerator,
   type ContentPostGenerationObservation,
@@ -40,6 +41,8 @@ interface ContentWorkflowDependencies {
   generator: ContentTextGenerator;
   loadContext: typeof loadContentGenerationContext;
   indexNow: typeof submitIndexNow;
+  /** Injected so tests can assert the spend guard without a key or a network. */
+  generateCover: typeof generateContentPostCover;
 }
 
 interface ResolvedContentWorkflowDependencies extends ContentWorkflowDependencies {
@@ -57,6 +60,7 @@ function dependencies(
     }),
     loadContext: overrides.loadContext ?? loadContentGenerationContext,
     indexNow: overrides.indexNow ?? submitIndexNow,
+    generateCover: overrides.generateCover ?? generateContentPostCover,
     generationObservations,
   };
 }
@@ -123,13 +127,27 @@ async function generateVersionForItem(
       console.warn('[content-generation] attempt rejected', { attempt, code, paths });
     },
   });
-  if (deps.generationObservations.length === 0) return generated;
+  // Exactly one cover attempt per stored version, after the article has cleared its gates. Doing
+  // it here rather than inside `generateContentPostVersion` means a retried or safe-catalog
+  // article still buys one image, never three: the retry loop lives on the other side of this
+  // call. The guard itself is in `cover-image.ts` and is closed unless a flag and a key are both
+  // present, so on the default configuration this line costs nothing.
+  const coverResult = await deps.generateCover({
+    config: context.config,
+    clientId: context.clientId,
+    siteId: context.siteId,
+  });
+  const withCover = coverResult.generated
+    ? { ...generated, cover: coverResult.cover }
+    : generated;
+
+  if (deps.generationObservations.length === 0) return withCover;
   // The provider transcript is audit evidence beside the pipeline's own metadata, not part of the
   // generation contract, so it is attached after the contract-typed value is built.
   const withProviderEvidence = {
-    ...generated,
+    ...withCover,
     generationMetadata: {
-      ...generated.generationMetadata,
+      ...withCover.generationMetadata,
       provider: {
         name: 'anthropic',
         responses: deps.generationObservations,

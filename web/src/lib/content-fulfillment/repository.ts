@@ -3,6 +3,7 @@ import { siteConfigSchema } from '@/app/api/_lib/schemas';
 import { isMockMode } from '@/lib/env';
 import { getServiceRoleClient } from '@/lib/data/supabase/client';
 import type {
+  ContentPostCoverAsset,
   ContentPostRow,
   ContentPostVersionRow,
 } from './contracts';
@@ -41,9 +42,50 @@ const VERSION_COLUMNS = [
   'policy_versions',
   'validation_evidence',
   'generation_metadata',
+  // 0049 shipped this column and nothing selected it until covers were wired; a version without
+  // one is the ordinary case and simply renders the template's tokenised plate.
+  'cover_asset_id',
 ].join(',');
 
+const COVER_ASSET_COLUMNS = 'id,canonical_url,width,height';
+
+interface CoverAssetRow {
+  id: string;
+  canonical_url: string;
+  width: number | null;
+  height: number | null;
+}
+
 class SupabasePublishedContentPostsRepository implements PublishedContentPostsRepository {
+  /**
+   * Resolves the cover rows a set of versions points at.
+   *
+   * Deliberately a second `in(...)` read rather than a PostgREST embedded resource: the foreign
+   * key on `cover_asset_id` is unnamed in 0049, so an embed would depend on the auto-generated
+   * constraint name and break silently on any future rename. It costs one round trip and only
+   * when a cover actually exists, which today is never.
+   */
+  private async coverAssetsFor(
+    versions: readonly ContentPostVersionRow[],
+  ): Promise<ContentPostCoverAsset[]> {
+    const ids = [...new Set(versions.flatMap((version) =>
+      version.cover_asset_id ? [version.cover_asset_id] : []))];
+    if (ids.length === 0) return [];
+    const { data, error } = await getServiceRoleClient()
+      .from('asset_records')
+      .select(COVER_ASSET_COLUMNS)
+      .in('id', ids);
+    // A cover is decoration; the article is the product. An unreadable registry drops the image
+    // and the page still serves, which is the opposite of the document gate on purpose.
+    if (error || !data) return [];
+    return (data as unknown as CoverAssetRow[]).map((row) => ({
+      assetId: row.id,
+      url: row.canonical_url,
+      width: row.width,
+      height: row.height,
+    }));
+  }
+
   private async enforceCurrentPublicPolicy(
     siteId: string,
     posts: ReturnType<typeof projectPublishedRows>,
@@ -83,9 +125,11 @@ class SupabasePublishedContentPostsRepository implements PublishedContentPostsRe
       .in('id', versionIds);
     if (versionError) throw new Error(`published content version list failed: ${versionError.message}`);
 
+    const versions = (versionData ?? []) as unknown as ContentPostVersionRow[];
     const projected = projectPublishedRows(
       posts,
-      (versionData ?? []) as unknown as ContentPostVersionRow[],
+      versions,
+      await this.coverAssetsFor(versions),
     );
     return this.enforceCurrentPublicPolicy(siteId, projected);
   }
@@ -112,9 +156,11 @@ class SupabasePublishedContentPostsRepository implements PublishedContentPostsRe
       .maybeSingle();
     if (versionError) throw new Error(`published content version lookup failed: ${versionError.message}`);
     if (!versionData) return null;
+    const version = versionData as unknown as ContentPostVersionRow;
     const projected = projectPublishedRows(
       [post],
-      [versionData as unknown as ContentPostVersionRow],
+      [version],
+      await this.coverAssetsFor([version]),
     );
     return (await this.enforceCurrentPublicPolicy(siteId, projected))[0] ?? null;
   }

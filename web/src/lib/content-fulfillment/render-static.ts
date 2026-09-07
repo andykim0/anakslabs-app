@@ -5,6 +5,7 @@ import type { Site } from '@/lib/types/domain';
 import { TenantContentBlog } from '@/components/content-posts/TenantContentBlog';
 import { buildDocumentShell } from '@/lib/export/document-shell';
 import {
+  contentPostFaqJsonLd,
   contentPostJsonLd,
   contentPostUrl,
 } from './public-projection';
@@ -88,6 +89,7 @@ export function renderStaticContentPostFiles(input: {
   }];
 
   for (const post of input.posts) {
+    const faqJsonLd = contentPostFaqJsonLd(input.site, post);
     files.push({
       name: `blog/${post.slug}.html`,
       html: buildDocumentShell({
@@ -102,6 +104,7 @@ export function renderStaticContentPostFiles(input: {
         documentDescription: post.summary,
         canonicalOverride: contentPostUrl(baseUrl, post.slug),
         jsonLdOverride: contentPostJsonLd(input.site, post),
+        ...(faqJsonLd ? { additionalJsonLd: [faqJsonLd] } : {}),
         openGraphType: 'article',
       }),
     });

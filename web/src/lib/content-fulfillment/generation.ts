@@ -15,6 +15,7 @@ import {
   stableContentJson,
 } from './source-snapshot';
 import type { ContentSourceSnapshot } from './contracts';
+import type { ContentPostCover } from './cover-image-core';
 
 export const CONTENT_POST_GENERATOR_VERSION = 'content-post-generator-2026-07-v1' as const;
 
@@ -52,6 +53,15 @@ export interface GeneratedContentPostVersion {
     externalImageCostKrw: 0;
     rawHtml: false;
   };
+  /**
+   * A hero image generated for this version, when covers were enabled for the run.
+   *
+   * Attached beside the contract-typed value rather than inside it, like the provider transcript
+   * above: `validatedDocumentSha256` hashes the article, and a picture is not part of the article
+   * the honesty and medical gates cleared. Keeping it outside means a cover can be added, replaced
+   * or dropped without any stored version failing its own integrity check on the next public read.
+   */
+  cover?: ContentPostCover;
 }
 
 export class ContentPostGenerationError extends Error {

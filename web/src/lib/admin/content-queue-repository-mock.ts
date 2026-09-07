@@ -236,6 +236,9 @@ export class MockContentQueueRepository implements ContentQueueRepository {
       policyVersions: structuredClone(generated.policyVersions),
       validationEvidence: structuredClone(generated.validationEvidence) as unknown as Record<string, unknown>,
       generationMetadata: structuredClone(generated.generationMetadata) as unknown as Record<string, unknown>,
+      // Same rename the SQL does: a cover the generator produced travels with its version, so the
+      // mock console and the mock tenant see the image production would have stored.
+      ...(generated.cover ? { cover: structuredClone(generated.cover) } : {}),
       createdAt: new Date().toISOString(),
     };
     history.push(structuredClone(version));
