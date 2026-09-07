@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import {
@@ -9,15 +10,18 @@ import {
   Clock3,
   Inbox,
   Loader2,
+  Mail,
   RefreshCw,
   RotateCcw,
   UsersRound,
 } from 'lucide-react';
 import type { MonthlyReportDeliveryStatus } from '@/lib/reporting/repository-core';
+import { INTERNAL_REPORT_TEST_DOMAIN } from '@/lib/reporting/test-send-core';
 import type { SiteSubscriptionStatus } from '@/lib/subscriptions/core';
 import {
   getAdminSubscriptions,
   retryAdminMonthlyReport,
+  sendAdminMonthlyReportTest,
   type AdminSubscriptionItem,
   type AdminSubscriptionReportItem,
 } from './api';
@@ -52,6 +56,76 @@ const REPORT_STATE: Record<
   'not-eligible': { label: "Inactive, undelivered", tone: 'neutral' },
 };
 
+/**
+ * Sends the stored report's real email to an internal address. Deliberately separate from
+ * Resend: this is a preview for whoever is on shift, and the customer's delivery status
+ * must come out of it unchanged — so it is never offered as a substitute for a retry.
+ */
+function TestSendControl({ reportId }: { reportId: string }) {
+  const [open, setOpen] = useState(false);
+  const [recipient, setRecipient] = useState('');
+  const send = useMutation({
+    mutationFn: () => sendAdminMonthlyReportTest(reportId, recipient),
+  });
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50"
+      >
+        <Mail size={12} aria-hidden />
+        Test send
+      </button>
+    );
+  }
+
+  return (
+    <form
+      className="flex w-full flex-wrap items-center gap-1.5"
+      onSubmit={(event) => {
+        event.preventDefault();
+        send.mutate();
+      }}
+    >
+      <label className="sr-only" htmlFor={`test-send-${reportId}`}>
+        Internal recipient for the report test send
+      </label>
+      <input
+        id={`test-send-${reportId}`}
+        type="email"
+        required
+        value={recipient}
+        onChange={(event) => setRecipient(event.target.value)}
+        placeholder={`ops@${INTERNAL_REPORT_TEST_DOMAIN}`}
+        className="min-w-0 flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-[11px] text-slate-700 placeholder:text-slate-400"
+      />
+      <button
+        type="submit"
+        disabled={send.isPending || recipient.trim() === ''}
+        className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+      >
+        {send.isPending ? <Loader2 size={12} className="animate-spin" aria-hidden /> : <Mail size={12} aria-hidden />}
+        Send
+      </button>
+      <button
+        type="button"
+        onClick={() => { setOpen(false); send.reset(); }}
+        className="rounded-md px-2 py-1.5 text-[11px] font-medium text-slate-500 hover:text-slate-700"
+      >
+        Cancel
+      </button>
+      {send.isSuccess ? (
+        <p className="w-full text-[11px] text-emerald-700">
+          Sent to {send.data.recipient}. The customer&rsquo;s delivery status is unchanged.
+        </p>
+      ) : null}
+      {send.isError ? <p className="w-full text-[11px] text-red-600">{send.error.message}</p> : null}
+    </form>
+  );
+}
+
 function ReportRow({ report }: { report: AdminSubscriptionReportItem }) {
   const queryClient = useQueryClient();
   const retry = useMutation({
@@ -78,17 +152,20 @@ function ReportRow({ report }: { report: AdminSubscriptionReportItem }) {
               : `${report.siteStatus}· trial${formatNumber(report.deliveryAttempts)} times`}
         </p>
       </div>
-      {report.deliveryStatus === 'failed' && report.reportId ? (
-        <button
-          type="button"
-          onClick={() => retry.mutate()}
-          disabled={retry.isPending}
-          className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
-        >
-          {retry.isPending ? <Loader2 size={12} className="animate-spin" aria-hidden /> : <RotateCcw size={12} aria-hidden />}
-          Resend
-        </button>
-      ) : null}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {report.deliveryStatus === 'failed' && report.reportId ? (
+          <button
+            type="button"
+            onClick={() => retry.mutate()}
+            disabled={retry.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+          >
+            {retry.isPending ? <Loader2 size={12} className="animate-spin" aria-hidden /> : <RotateCcw size={12} aria-hidden />}
+            Resend
+          </button>
+        ) : null}
+        {report.reportId ? <TestSendControl reportId={report.reportId} /> : null}
+      </div>
       {retry.isError ? <p className="w-full text-[11px] text-red-600">{retry.error.message}</p> : null}
     </div>
   );

@@ -65,6 +65,10 @@ const GUARDED_ROUTES = [
     markers: ['await parseBody(', 'await retryMonthlyReport('],
   },
   {
+    path: 'src/app/api/admin/reports/[reportId]/send-test/route.ts',
+    markers: ['await parseBody(', 'await params', 'await sendMonthlyReportTestEmail('],
+  },
+  {
     path: 'src/app/api/admin/edit-queue/route.ts',
     markers: [
       'getAdminEditQueueRepository()',
