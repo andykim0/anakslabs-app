@@ -82,6 +82,48 @@ const reportAiAnswersSchema = z
   })
   .strict();
 
+/**
+ * [SERIES$] The optional trend section.
+ *
+ * Every field is required WITHIN the section but the section itself is optional, which is
+ * the only shape that satisfies both constraints at once: a stored report written before
+ * the series existed has no `series` key and must still parse (this schema runs on
+ * read-back, not just on insert), while a report that DOES carry one must carry a complete
+ * one — a half-populated series would render as a chart with invented zeroes.
+ *
+ * `months` is capped at the daily store's 24-month retention and `weeks` at 6, the most
+ * ISO weeks a single calendar month can touch (a 31-day month starting on a Sunday).
+ */
+const reportSeriesSchema = z
+  .object({
+    months: z
+      .array(
+        z.object({
+          month: KST_MONTH,
+          pageviews: COUNT,
+          calls: COUNT,
+          directions: COUNT,
+          inquiries: COUNT,
+        }).strict(),
+      )
+      .min(1)
+      .max(24),
+    weeks: z
+      .array(
+        z.object({
+          isoYear: z.number().int().min(2000).max(9999),
+          isoWeek: z.number().int().min(1).max(53),
+          startDate: z.string().date(),
+          endDate: z.string().date(),
+          calls: COUNT,
+          directions: COUNT,
+          inquiries: COUNT,
+        }).strict(),
+      )
+      .max(6),
+  })
+  .strict();
+
 const commonReportShape = {
   siteId: z.string().trim().min(1),
   period: monthRangeSchema,
@@ -120,6 +162,7 @@ const monthlyPerformanceReportV2Schema = z
       consultationActions: metricSchema,
     }).strict(),
     aiAnswers: z.optional(reportAiAnswersSchema),
+    series: z.optional(reportSeriesSchema),
   })
   .strict();
 

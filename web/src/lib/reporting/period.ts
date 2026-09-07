@@ -38,6 +38,43 @@ export function previousMonthRangesKst(now: Date = new Date()): MonthlyReportPer
   };
 }
 
+/**
+ * [SERIES$] How many completed months a report's KPI series carries.
+ *
+ * Six, not twelve: the daily store keeps 24 months, so a longer window is affordable, but
+ * six is the longest run a six-cell email sparkline can print honestly and it is also the
+ * point past which a small practice's month-to-month shape stops being readable.
+ */
+export const REPORT_SERIES_MONTHS = 6;
+
+function assertSeriesCount(count: number): number {
+  if (!Number.isInteger(count) || count < 1 || count > 24) {
+    // 24 is the daily store's retention ceiling; asking for more would silently
+    // return months that were already purged, which reads as a collapse to zero.
+    throw new RangeError('A report series must span between 1 and 24 completed months');
+  }
+  return count;
+}
+
+/**
+ * [SERIES$] The last `count` completed Korean calendar months, OLDEST FIRST.
+ *
+ * The newest element is always the same month `previousMonthRangesKst().report` resolves
+ * to, so the series axis and the report period can never disagree.
+ */
+export function trailingMonthRangesKst(
+  now: Date = new Date(),
+  count: number = REPORT_SERIES_MONTHS,
+): KstMonthRange[] {
+  assertValidDate(now);
+  assertSeriesCount(count);
+  const nowInKst = new Date(now.getTime() + KST_OFFSET_MS);
+  const year = nowInKst.getUTCFullYear();
+  const month = nowInKst.getUTCMonth();
+  return Array.from({ length: count }, (_unused, index) =>
+    monthRange(year, month - count + index));
+}
+
 interface CalendarParts {
   year: number;
   month: number;
@@ -186,4 +223,24 @@ export function previousMonthRangesInTimeZone(
     report: zonedMonthRange(localNow.year, localNow.month - 2, timeZone),
     comparison: zonedMonthRange(localNow.year, localNow.month - 3, timeZone),
   };
+}
+
+/**
+ * [SERIES$] The last `count` completed calendar months in a US site time zone, OLDEST FIRST.
+ *
+ * `localNow.month` is 1-based, so the last completed month is `month - 2` zero-based — the
+ * same expression `previousMonthRangesInTimeZone` uses, which is why the newest element of
+ * this array is always exactly that report month.
+ */
+export function trailingMonthRangesInTimeZone(
+  timeZone: UsSiteTimezone,
+  now: Date = new Date(),
+  count: number = REPORT_SERIES_MONTHS,
+): KstMonthRange[] {
+  assertValidDate(now);
+  assertSeriesCount(count);
+  const localNow = zonedCalendarParts(now, timeZone);
+  const newest = localNow.month - 2;
+  return Array.from({ length: count }, (_unused, index) =>
+    zonedMonthRange(localNow.year, newest - (count - 1 - index), timeZone));
 }

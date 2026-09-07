@@ -114,11 +114,18 @@ describe('RPT2 monthly report runner', () => {
     }, new Date('2026-08-01T00:15:00.000Z'));
 
     assert.equal(result.periodMonth, '2026-07');
+    /**
+     * [SERIES$] One widened read per site, not two adjacent month reads.
+     *
+     * The window is the six completed months ending at that site's own report month, so
+     * the report and comparison slices are cut from these rows locally. The KR site's
+     * report month is 2026-07 (KST) and the US site's is 2026-06 (Los Angeles, where the
+     * same instant is still 31 July), and each window ends on the exclusive first day of
+     * the month after its own report month.
+     */
     assert.deepEqual(queries.sort(), [
-      `${HWARODAM_SITE_ID}:2026-06-01:2026-07-01`,
-      `${HWARODAM_SITE_ID}:2026-07-01:2026-08-01`,
-      'us-timezone-site:2026-05-01:2026-06-01',
-      'us-timezone-site:2026-06-01:2026-07-01',
+      `${HWARODAM_SITE_ID}:2026-02-01:2026-08-01`,
+      'us-timezone-site:2026-01-01:2026-07-01',
     ].sort());
     const records = await ctx.reports.listByClient({ clientId: DEMO_PREMIUM_ID });
     assert.deepEqual(

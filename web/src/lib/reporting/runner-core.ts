@@ -3,13 +3,18 @@ import type { SiteEventAggregate as StoredSiteEventAggregate } from '@/lib/data/
 import { DEFAULT_US_SITE_TIMEZONE } from '@/lib/types/site';
 import { buildMonthlyReportEmail } from './email';
 import { buildMonthlyPerformanceReport } from './monthly-report';
-import { previousMonthRangesInTimeZone, previousMonthRangesKst } from './period';
+import {
+  previousMonthRangesKst,
+  trailingMonthRangesInTimeZone,
+  trailingMonthRangesKst,
+} from './period';
+import { buildReportSeries } from './series';
 import type {
   MonthlyReportRecord,
   MonthlyReportsRepository,
 } from './repository-core';
 import type { ReportEmailSendResult } from './resend-core';
-import type { ReportAiAnswersSection } from './types';
+import type { ReportAiAnswersSection, ReportPublishedPost } from './types';
 import {
   createReportEmailStartRateGate,
   type ReportEmailRateGateTiming,
@@ -41,6 +46,16 @@ export interface MonthlyReportRunnerDependencies {
     siteId: string;
     periodMonth: string;
   }): Promise<ReportAiAnswersSection | null>;
+  /**
+   * [SERIES$] "What we published" — a JOIN against the content queue, performed at send
+   * time rather than stored on the report. Optional: a deployment without it sends exactly
+   * the email it sent before the section existed. A throw here is swallowed, because a
+   * missing blog list must never cost the customer their measurement report.
+   */
+  loadPublishedPosts?(input: {
+    siteId: string;
+    periodMonth: string;
+  }): Promise<readonly ReportPublishedPost[]>;
 }
 
 export interface MonthlyReportRunSummary {
@@ -72,8 +87,27 @@ function publishedSite(site: Site): boolean {
   );
 }
 
+/**
+ * Narrow stored rows to what the (pure) report builder accepts.
+ *
+ * This used to be applied to the WHOLE fetch, which is how the day grain was lost: the
+ * store is day-grained with 24-month retention, and `eventDate` was thrown away one line
+ * after being read. The rows are now sliced by date FIRST (see `rowsWithin`) and narrowed
+ * only at the point the builder is called, so the same fetch feeds both the month totals
+ * and the trailing/weekly series.
+ */
 function reportAggregates(rows: readonly StoredSiteEventAggregate[]) {
   return rows.map(({ eventType, source, count }) => ({ eventType, source, count }));
+}
+
+/** Half-open [startDate, endExclusiveDate) slice, in the site's own calendar days. */
+function rowsWithin(
+  rows: readonly StoredSiteEventAggregate[],
+  range: { startDate: string; endExclusiveDate: string },
+): StoredSiteEventAggregate[] {
+  return rows.filter(
+    (row) => row.eventDate >= range.startDate && row.eventDate < range.endExclusiveDate,
+  );
 }
 
 export function reportDeliveryFailure(result: Extract<ReportEmailSendResult, { ok: false }>): {
@@ -120,12 +154,26 @@ async function deliverReport(input: {
   const claimed = await dependencies.reports.claimDelivery({ reportId: record.id });
   if (!claimed) return 'pipeline_error';
 
+  let publishedPosts: readonly ReportPublishedPost[] = [];
+  if (dependencies.loadPublishedPosts) {
+    try {
+      publishedPosts = await dependencies.loadPublishedPosts({
+        siteId: record.siteId,
+        periodMonth: record.periodMonth,
+      });
+    } catch {
+      // The measurement report is the product; the blog list is context on top of it.
+      publishedPosts = [];
+    }
+  }
+
   let message: ReturnType<typeof buildMonthlyReportEmail>;
   try {
     message = buildMonthlyReportEmail({
       siteName: site.name,
       dashboardUrl: dependencies.dashboardUrl,
       report: claimed.report,
+      publishedPosts,
     });
   } catch {
     const marked = await markDeliverySafely(dependencies.reports, {
@@ -261,25 +309,35 @@ export async function runMonthlyReportsCore(
       }
       summary.eligibleSites += 1;
 
-      const periods = site.siteConfig?.meta.locale === 'en-US'
-        ? previousMonthRangesInTimeZone(
+      /**
+       * [SERIES$] One widened read instead of two adjacent ones.
+       *
+       * `trailingMonthRanges*` end on exactly the month `previousMonthRanges*` calls the
+       * report period, and the element before it is exactly the comparison period, so the
+       * report/comparison windows are the last two entries of this array by construction
+       * and cannot drift from the series axis. Six months is well inside the store's
+       * 24-month retention, and this is one round trip fewer than the pair it replaces.
+       */
+      const seriesMonths = site.siteConfig?.meta.locale === 'en-US'
+        ? trailingMonthRangesInTimeZone(
           site.siteConfig.meta.timezone ?? DEFAULT_US_SITE_TIMEZONE,
           now,
         )
-        : legacyPeriods;
+        : trailingMonthRangesKst(now);
+      const periods = {
+        report: seriesMonths[seriesMonths.length - 1],
+        comparison: seriesMonths[seriesMonths.length - 2],
+      };
 
-      const [current, previous] = await Promise.all([
-        dependencies.listSiteEvents({
-          siteId: site.id,
-          fromDate: periods.report.startDate,
-          toDate: periods.report.endExclusiveDate,
-        }),
-        dependencies.listSiteEvents({
-          siteId: site.id,
-          fromDate: periods.comparison.startDate,
-          toDate: periods.comparison.endExclusiveDate,
-        }),
-      ]);
+      // Day-grained rows, kept day-grained: the series is derived from these same rows.
+      const windowRows = await dependencies.listSiteEvents({
+        siteId: site.id,
+        fromDate: seriesMonths[0].startDate,
+        toDate: periods.report.endExclusiveDate,
+      });
+      const current = rowsWithin(windowRows, periods.report);
+      const previous = rowsWithin(windowRows, periods.comparison);
+      const series = buildReportSeries({ months: seriesMonths, rows: windowRows });
       // The report for month M is built on the 1st of M+1 and is insert-once, so the
       // probes it must quote are the ones stored under M — its own period — never the
       // month the cron happens to be running in.
@@ -304,6 +362,7 @@ export async function runMonthlyReportsCore(
         previous: reportAggregates(previous),
         locale: site.siteConfig?.meta.locale,
         ...(aiAnswers ? { aiAnswers } : {}),
+        series,
       });
       const inserted = await dependencies.reports.insertIfAbsent({
         siteId: site.id,

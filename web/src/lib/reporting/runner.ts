@@ -5,7 +5,9 @@ import { resolveSiteSubscription } from '@/lib/subscriptions/service';
 import { buildCitationReportSection } from '@/lib/citation-check/report-section';
 import { citationPeriodToRunMonth } from '@/lib/citation-check/repository-core';
 import { getCitationCheckRepository } from '@/lib/citation-check/repository';
+import { loadCustomerBlogView } from '@/lib/content-fulfillment/customer-view';
 import { reportDashboardUrl } from './dashboard-url';
+import { publishedPostsForMonth } from './published-posts';
 import { sendMonthlyReportEmail } from './resend';
 import { getMonthlyReportsRepository } from './repository';
 import {
@@ -36,6 +38,13 @@ function dependencies(): MonthlyReportRunnerDependencies {
         repository.listProbes({ siteId, runMonth }),
       ]);
       return buildCitationReportSection({ questions, probes });
+    },
+    loadPublishedPosts: async ({ siteId, periodMonth }) => {
+      // A read-only join against the content queue. The report month is a COMPLETED one,
+      // so these rows come out of the view's `earlier` half.
+      const site = await services.sites.getById(siteId);
+      if (!site) return [];
+      return publishedPostsForMonth(await loadCustomerBlogView(site), periodMonth);
     },
   };
 }

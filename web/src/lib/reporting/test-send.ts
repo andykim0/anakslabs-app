@@ -1,7 +1,9 @@
 import 'server-only';
 
 import { getDataServices } from '@/lib/data';
+import { loadCustomerBlogView } from '@/lib/content-fulfillment/customer-view';
 import { reportDashboardUrl } from './dashboard-url';
+import { publishedPostsForMonth } from './published-posts';
 import { buildMonthlyReportEmail } from './email';
 import { getMonthlyReportsRepository } from './repository';
 import { sendReportTestEmail } from './resend';
@@ -9,6 +11,7 @@ import {
   normalizeInternalTestRecipient,
   reportTestSendIdempotencyKey,
 } from './test-send-core';
+import type { ReportPublishedPost } from './types';
 
 export type ReportTestSendOutcome =
   | { status: 'sent'; recipient: string; providerId: string }
@@ -37,10 +40,24 @@ export async function sendMonthlyReportTestEmail(input: {
   // A report whose site is gone has no name to head the email with; refuse rather than guess.
   if (!site || site.clientId !== record.clientId) return { status: 'not_found' };
 
+  // The point of a test send is to read the EXACT email a customer receives, so the
+  // "what we published" join has to run here too. A failure of that join must not block
+  // the operator from seeing the measurement report.
+  let publishedPosts: readonly ReportPublishedPost[];
+  try {
+    publishedPosts = publishedPostsForMonth(
+      await loadCustomerBlogView(site),
+      record.periodMonth,
+    );
+  } catch {
+    publishedPosts = [];
+  }
+
   const message = buildMonthlyReportEmail({
     siteName: site.name,
     dashboardUrl: reportDashboardUrl(),
     report: record.report,
+    publishedPosts,
   });
   const result = await sendReportTestEmail({
     to: recipient,

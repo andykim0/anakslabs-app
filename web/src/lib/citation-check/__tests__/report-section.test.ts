@@ -211,11 +211,18 @@ describe('[CITE$] the strict stored schema accepts the section additively', () =
   });
 });
 
-describe('[CITE$] the email is byte-for-byte unchanged when the section is absent', () => {
+describe('[CITE$] the email is byte-for-byte stable when the section is absent', () => {
   /**
-   * The golden file was produced by running `buildMonthlyReportEmail` in the UNMODIFIED
-   * main checkout (a7d2160) against exactly this input, before any citation-check code
-   * existed. If the pre-CITE$ rendering ever moves by one byte, this fails.
+   * The golden file WAS produced by running `buildMonthlyReportEmail` in the unmodified
+   * main checkout (a7d2160), before any citation-check code existed. [SERIES$] regenerated
+   * it: the email template was rebuilt (640px, `<head>` with colour-scheme metas, charts
+   * made of table cells), so pinning the old bytes would have pinned the very layout that
+   * rewrite was commissioned to replace.
+   *
+   * What the golden still guards is unchanged and is the property that matters here: a
+   * report stored WITHOUT `aiAnswers` and WITHOUT `series` — the shape of every row
+   * written before those fields existed, and reports are insert-once per site/month, so
+   * those rows are never backfilled — must keep rendering, byte for byte, run to run.
    */
   const range = (month: string) => {
     const next = `${month.slice(0, 4)}-${String(Number(month.slice(5)) + 1).padStart(2, '0')}`;
@@ -292,8 +299,12 @@ describe('[CITE$] the email is byte-for-byte unchanged when the section is absen
     assert.match(withSection.text, /Perplexity: not connected/u);
     assert.match(withSection.html, /Google Search&#39;s AI answers are not included/u);
 
-    // Everything before the inserted block is identical, byte for byte.
-    const marker = '<h2 style="margin:26px 0 8px;font-size:17px">Who got named in AI answers</h2>';
+    // Everything before the inserted block is identical, byte for byte. The marker spans
+    // the section's whole wrapping row, so the index really is the insertion point rather
+    // than a point inside a row that the other document also opens.
+    const marker = '<tr><td style="padding:26px 30px 0;background:#ffffff">'
+      + '<h2 style="margin:0;font-size:16px;font-weight:700;background:#ffffff;color:#141a3a">'
+      + 'Who got named in AI answers</h2>';
     const insertedAt = withSection.html.indexOf(marker);
     assert.ok(insertedAt > 0);
     assert.equal(withSection.html.slice(0, insertedAt), without.html.slice(0, insertedAt));
