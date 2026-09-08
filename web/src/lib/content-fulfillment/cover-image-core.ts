@@ -1,17 +1,23 @@
 /**
  * What a generated article cover is allowed to be.
  *
- * `post-cover.ts` states the rule this file inherits: a cover may not depict a service the clinic
- * has not declared, because an implant photo on a practice that does not place implants is a false
- * claim made in pictures. A *generated* image cannot be checked against a declaration at all — the
- * model decides what appears — so the only safe subject is no subject: colour, light and geometry
- * built from the practice's own brand tokens.
+ * DORMANT. The tenant blog carries no images by product decision — no hero, no card covers, no
+ * `BlogPosting.image` — and an article's one figure is now the chart it draws from its own sourced
+ * numbers. This module still runs behind `CONTENT_COVER_IMAGES_ENABLED` (default off) and a
+ * generated cover is still stored on the version, but no public surface reads it. Kept, rather
+ * than deleted, because the flag and the storage path are the expensive half and the decision it
+ * serves is a product one that can be revisited.
+ *
+ * The rule it was built to satisfy, which is why it looks the way it does: a cover may not depict
+ * a service the clinic has not declared, because an implant photo on a practice that does not
+ * place implants is a false claim made in pictures. A *generated* image cannot be checked against
+ * a declaration at all — the model decides what appears — so the only safe subject is no subject:
+ * colour, light and geometry built from the practice's own brand tokens.
  *
  * Hence the prompt below refuses, explicitly and in the prompt text itself, people, faces, hands,
- * teeth, instruments, clinical rooms, logos and lettering. What is left is a brand plate, which is
- * what the slot is for: it identifies the article as this practice's without asserting anything.
- * Nothing here reads the article's title, summary, tags or body — same reason as `post-cover.ts`,
- * and it also keeps one site's covers from converging on whatever the month's topics were.
+ * teeth, instruments, clinical rooms, logos and lettering. What is left is a brand plate. Nothing
+ * here reads the article's title, summary, tags or body, which also keeps one site's covers from
+ * converging on whatever the month's topics were.
  */
 
 /** 21:9 is the hero ratio the template reserves; the adapter takes this string verbatim. */

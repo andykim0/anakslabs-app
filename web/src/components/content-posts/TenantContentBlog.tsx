@@ -12,7 +12,13 @@ import { resolveBlogBookingTarget } from '@/lib/content-fulfillment/booking-targ
 import { projectAuthoritativePublicContact, resolvePublicContact } from '@/lib/seo/public-contact';
 import { TenantHeader, tenantBrandName } from '@/components/site-renderer/TenantHeader';
 import { contentPostEducationalNotice } from '@/lib/legal/notices';
-import { postCoverImage } from '@/lib/content-fulfillment/post-cover';
+import {
+  chartAxisMax,
+  chartFigureDescription,
+  chartSourceLine,
+  formatChartValue,
+} from '@/lib/content-fulfillment/chart-figure';
+import type { ContentPostChartBlock } from '@/lib/content-fulfillment/contracts';
 import { MOTION_CSS, MOTION_RUNTIME } from '@/lib/motion/runtime';
 import { LegalFooter } from '@/components/site-renderer/LegalFooter';
 import { PublicContactBar } from '@/components/site-renderer/PublicContactBar';
@@ -45,13 +51,6 @@ const BLOG_CSS = `
 /* One real link per card, stretched so the whole card is the target. */
 .anaks-content-blog__card-link::after{content:"";position:absolute;inset:0}
 .anaks-content-blog__card-link:focus-visible{outline:2px solid var(--anaks-blog-accent);outline-offset:3px}
-/* With a cover the slot takes an editorial ratio; without one it is a short colour field, not a
-   hole where a photo should be. Both are finished states — covers simply expand the slot. */
-.anaks-content-blog__media{position:relative;width:100%;height:104px;overflow:hidden}
-.anaks-content-blog__media--feature{height:132px}
-.anaks-content-blog__media--cover{height:auto;aspect-ratio:3/2}
-.anaks-content-blog__media--cover.anaks-content-blog__media--feature{aspect-ratio:21/9}
-.anaks-content-blog__media img{width:100%;height:100%;object-fit:cover;display:block}
 .anaks-content-blog__body{display:flex;flex-direction:column;flex:1;padding:clamp(20px,2.6vw,30px)}
 .anaks-content-blog__feature{display:grid;grid-template-columns:1fr;overflow:hidden}
 .anaks-content-blog__article{width:min(100% - 48px,68ch);margin:0 auto;padding:clamp(48px,6vw,80px) 0 clamp(24px,3vw,40px)}
@@ -74,12 +73,6 @@ const BLOG_CSS = `
    anything when the user asks for reduced motion, and with no JS at all the variable never leaves
    its 0 default. Both cases leave a bar of zero width, which is the honest state. */
 .anaks-content-blog__progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:40;pointer-events:none;transform-origin:0 50%;transform:scaleX(var(--scroll-progress,0));will-change:transform}
-/* The cover is the largest element on the page, so the box is reserved by ratio and by explicit
-   width/height on the image itself — the layout never moves when the file arrives. */
-.anaks-content-blog__cover{position:relative;width:min(100% - 48px,1180px);margin:0 auto;aspect-ratio:21/9;overflow:hidden}
-.anaks-content-blog__cover img{display:block;width:100%;height:100%;object-fit:cover}
-.anaks-content-blog__plate{position:absolute;inset:0;overflow:hidden}
-.anaks-content-blog__plate svg{position:absolute;inset:0;width:100%;height:100%}
 .anaks-content-blog__kicker{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:20px}
 .anaks-content-blog__chip{display:inline-block;padding:5px 12px;line-height:1.2}
 .anaks-content-blog__h2wrap{margin-top:60px}
@@ -98,6 +91,41 @@ const BLOG_CSS = `
 /* The Q/A pairs are sibling wrappers, so the rhythm belongs between the wrappers — targeting the
    heading itself never matched, and the pairs ran together. */
 .anaks-content-blog__facts-body > * + *{margin-top:26px}
+/* ---- the chart figure ---------------------------------------------------------------------
+   The article's only picture, and it is made of the article's own numbers.
+
+   THE TYPE SIZES BELOW ARE SVG USER UNITS, NOT SCREEN PIXELS, AND THAT IS THE WHOLE TRICK. The
+   figure is one <svg viewBox="0 0 560 H"> at width:100%, so the browser scales the entire drawing
+   by containerWidth/560 — about 1.06 in the 68ch reading column and about 0.64 on a 390px phone.
+   Left alone, an 11px label would render at 7px on that phone, which is what a chart drawn once
+   and scaled everywhere always does. Restating the sizes larger under the mobile query cancels
+   the shrink: 21 user units × 0.64 lands at ~13px on screen, close to the ~15px the same label
+   occupies on a desktop. One SVG, one geometry, legible type at both ends.
+
+   No colour appears here. Every fill is an attribute on the element, resolved from the practice's
+   own palette, because this stylesheet ships to every generated theme. */
+.anaks-content-blog__chart{position:relative;margin:clamp(30px,3.6vw,42px) 0}
+.anaks-content-blog__chart-head{display:block;margin-bottom:14px}
+.anaks-content-blog__chart svg{display:block;width:100%;max-width:100%;height:auto}
+.anaks-content-blog__chart svg text{font-family:inherit}
+.anaks-content-blog__chart .c-lab{font-size:14px;letter-spacing:.005em}
+.anaks-content-blog__chart .c-val{font-size:18px;font-weight:700;letter-spacing:-0.02em}
+.anaks-content-blog__chart .c-big{font-size:38px;font-weight:700;letter-spacing:-0.03em}
+.anaks-content-blog__chart .c-idx{font-size:14px;font-weight:700}
+.anaks-content-blog__chart .c-tick{font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.anaks-content-blog__chart .c-note{font-size:12px}
+.anaks-content-blog__chart-src{margin-top:14px}
+/* Redundant in text, and reachable by anything that reads rather than looks. Not display:none —
+   that would take the numbers away from a screen reader, which is the one audience the table
+   exists for.
+
+   THE CLIP IS ON A WRAPPER, AND THE TABLE IS INSIDE IT. A table element treats width as a
+   minimum and grows to its own min-content, so putting this class on the table itself left a
+   512px element sticking out of the document — which on a phone made Chrome widen the layout
+   viewport to 527px and render the whole article at 74%. Nothing looked broken; every
+   measurement was simply wrong. overflow:hidden on an out-of-flow wrapper clips the table
+   instead, so it contributes nothing to scrollable overflow. */
+.anaks-content-blog__sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);border:0}
 .anaks-content-blog__quote{margin:44px 0;padding-left:clamp(18px,2.2vw,26px)}
 .anaks-content-blog__cta{margin:clamp(48px,6vw,72px) auto 0;width:min(100% - 48px,68ch);padding:clamp(26px,3.2vw,38px);text-align:left}
 .anaks-content-blog__cta a{display:inline-block;margin-top:20px;padding:14px 26px;text-decoration:none}
@@ -108,11 +136,15 @@ const BLOG_CSS = `
   .anaks-content-blog__article{width:min(100% - 32px,68ch);padding:40px 0 24px}
   .anaks-content-blog__notice{width:min(100% - 32px,68ch)}
   .anaks-content-blog__grid{grid-template-columns:1fr;gap:16px}
-  .anaks-content-blog__media--feature{aspect-ratio:16/9}
-  .anaks-content-blog__cover{width:100%;aspect-ratio:16/10}
   .anaks-content-blog__cta{width:min(100% - 32px,68ch)}
   .anaks-content-blog__related{width:min(100% - 32px,680px)}
   .anaks-content-blog__related-grid{grid-template-columns:1fr}
+  .anaks-content-blog__chart .c-lab{font-size:21px}
+  .anaks-content-blog__chart .c-val{font-size:26px}
+  .anaks-content-blog__chart .c-big{font-size:52px}
+  .anaks-content-blog__chart .c-idx{font-size:20px}
+  .anaks-content-blog__chart .c-tick{font-size:18px}
+  .anaks-content-blog__chart .c-note{font-size:18px}
 }
 @media(prefers-reduced-motion:reduce){
   .anaks-content-blog__card,.anaks-content-blog__card-title{transition:none}
@@ -177,167 +209,20 @@ function publishedDateLabel(post: PublishedContentPost, config: SiteConfig): str
 }
 
 /**
- * Deterministic per-post variation for the coverless field. Derived from the slug so the same
- * post always paints the same way — a static export and the live page must not disagree, and a
- * page of identical fields reads as a rendering bug rather than a set of distinct articles.
+ * The blog carries no images, by product decision.
+ *
+ * There is no `siteId` and no `coverSrc` on this contract any more, and their absence is the
+ * feature: both existed only to choose a picture for an article, and an article's only figure is
+ * now the chart it draws from its own sourced numbers. The generated-cover pipeline behind
+ * `CONTENT_COVER_IMAGES_ENABLED` still stores what it stores — it simply has no reader here.
  */
-function slugAngle(slug: string): number {
-  let hash = 0;
-  for (const character of slug) hash = (hash * 31 + character.charCodeAt(0)) % 360;
-  return 95 + (hash % 5) * 25;
-}
-
-/**
- * The cover slot. Content posts do not carry an image yet, so today every card renders the
- * fallback — which is why the fallback is designed rather than left as an empty box: it is the
- * state the product actually ships in. An `imageUrl` drops straight in when covers arrive.
- */
-function PostMedia({
-  config,
-  slug,
-  imageUrl,
-  width,
-  height,
-  feature = false,
-}: {
-  config: SiteConfig;
-  slug: string;
-  imageUrl?: string;
-  /** Present only for registry-backed covers, which know their own raster size. */
-  width?: number;
-  height?: number;
-  feature?: boolean;
-}) {
-  const accent = blogAccent(config.theme);
-  const primary = blogPrimary(config.theme);
-  const className = [
-    'anaks-content-blog__media',
-    feature ? 'anaks-content-blog__media--feature' : '',
-    imageUrl ? 'anaks-content-blog__media--cover' : '',
-  ].filter(Boolean).join(' ');
-  return (
-    <div
-      className={className}
-      style={imageUrl ? undefined : {
-        // Two brand stops at real strength: the field should look chosen, not unloaded.
-        background: `linear-gradient(${slugAngle(slug)}deg, ${accent}D9 0%, ${primary}A6 55%, ${accent}59 100%)`,
-        borderBottom: `1px solid ${themeColor(config.theme, 'border')}33`,
-      }}
-    >
-      {imageUrl ? (
-        // This tree is also rendered to static HTML for export, where the Next image runtime
-        // does not exist, so the plain element is the only one that works on both surfaces.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={imageUrl}
-          alt=""
-          loading="lazy"
-          {...(width ? { width } : {})}
-          {...(height ? { height } : {})}
-        />
-      ) : null}
-    </div>
-  );
-}
-
 export interface TenantContentBlogProps {
   config: SiteConfig;
-  /** Needed only to pin cover selection to the site; never used to fetch anything. */
-  siteId?: string;
-  /**
-   * Maps a cover URL to where it actually lives for this render target. The live site serves
-   * `/stock/...` from public/; a static export bundles the file and needs its own relative path.
-   */
-  coverSrc?: (src: string) => string;
   posts: readonly PublishedContentPost[];
   post?: PublishedContentPost;
   hrefForSlug?: (slug: string) => string;
   hrefForPost?: (slug: string) => string;
   listHref?: string;
-}
-
-/**
- * The coverless state, painted from the practice's own tokens.
- *
- * Deliberately non-representational and text-free. A stock photograph of a stranger implies the
- * practice's own room and staff; a headline burned into an image cannot be read by a screen reader
- * or corrected by an editor. Colour and geometry assert nothing, so this is a finished state
- * rather than a placeholder — which matters, because with cover generation off by default it is
- * the state nearly every article ships in.
- *
- * Deterministic per slug: a static export and the live page render the same article and must not
- * disagree, and a page of identical plates reads as a rendering fault rather than distinct pieces.
- */
-function CoverPlate({ config, slug }: { config: SiteConfig; slug: string }) {
-  const accent = blogAccent(config.theme);
-  const primary = blogPrimary(config.theme);
-  const angle = slugAngle(slug);
-  // A second value from the same hash, so the focal point moves with the plate's angle.
-  const focus = 58 + (angle % 7) * 5;
-  return (
-    <div
-      className="anaks-content-blog__plate"
-      aria-hidden="true"
-      style={{
-        // `currentColor` carries the accent into the strokes below, so the motif needs no colour
-        // literals of its own and inherits any future token change for free.
-        color: accent,
-        background:
-          `radial-gradient(120% 120% at ${focus}% 22%, ${accent}59 0%, transparent 62%),`
-          + ` linear-gradient(${angle}deg, ${primary}E6 0%, ${accent}BF 58%, ${primary}D9 100%)`,
-      }}
-    >
-      <svg viewBox="0 0 1200 514" preserveAspectRatio="xMidYMid slice" role="presentation">
-        <g fill="none" stroke="currentColor" strokeOpacity="0.22" strokeWidth="1.25">
-          <circle cx="880" cy="180" r="96" />
-          <circle cx="880" cy="180" r="168" />
-          <circle cx="880" cy="180" r="252" />
-          <path d="M0 392 C 220 344, 340 452, 560 404 S 940 296, 1200 356" strokeOpacity="0.16" />
-          <path d="M0 452 C 260 410, 380 500, 620 452 S 980 356, 1200 414" strokeOpacity="0.1" />
-        </g>
-        <g fill="currentColor" fillOpacity="0.4">
-          <circle cx="880" cy="180" r="7" />
-          <circle cx="712" cy="180" r="3.5" />
-          <circle cx="1048" cy="180" r="3.5" />
-          <circle cx="880" cy="12" r="3.5" />
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-/**
- * The article's hero.
- *
- * With a stored cover this is the page's largest paint, so it carries the image's real pixel
- * dimensions and `fetchPriority="high"`: the ratio box plus explicit width/height reserves the
- * space before the bytes land, which is what keeps the layout still. It is the one image on the
- * surface that is *not* lazy — deferring the element that defines the largest contentful paint
- * would delay the very thing it measures. Everything below the fold stays lazy.
- */
-function CoverHero({ config, post }: { config: SiteConfig; post: PublishedContentPost }) {
-  const cover = post.cover;
-  return (
-    <div
-      className="anaks-content-blog__cover"
-      style={{ borderRadius: themeRadius(config.theme, 'soft', 16) }}
-    >
-      {cover ? (
-        // Same reason as the card image: the export renders this tree to static HTML.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={cover.url}
-          alt=""
-          decoding="async"
-          fetchPriority="high"
-          {...(cover.width ? { width: cover.width } : {})}
-          {...(cover.height ? { height: cover.height } : {})}
-        />
-      ) : (
-        <CoverPlate config={config} slug={post.slug} />
-      )}
-    </div>
-  );
 }
 
 /**
@@ -696,6 +581,518 @@ function RelatedPosts({
   );
 }
 
+/* ============================================================================================
+   THE CHART FIGURE
+
+   The article's one picture, drawn from the article's own sourced numbers. It replaces the cover
+   photograph, and the replacement is the point: a stock photograph of a stranger's mouth says
+   nothing about this practice and cannot be checked, whereas a bar carrying a number the honesty
+   gate made cite a source is a claim the practice can stand behind.
+
+   Everything is one inline SVG per figure — no chart library, no runtime, no animation, so
+   nothing here has a reduced-motion branch to get wrong. The drawing is redundant in text three
+   times over: every value is printed on the mark, the whole figure is repeated as a
+   visually-hidden data table, and a source line sits underneath naming where the numbers came
+   from. A reader who cannot see the bars loses the shape and not one number.
+   ============================================================================================ */
+
+/** The SVG coordinate space every figure is drawn in. Scaled to the reading column by CSS. */
+const CHART_VIEW_W = 560;
+/** Vertical pitch of one wrapped label line, sized for the larger mobile type. */
+const CHART_LINE_H = 26;
+
+/**
+ * Greedy wrap for a label, measured in characters rather than glyphs.
+ *
+ * SVG text does not wrap, and a label long enough to run past the viewBox is silently clipped —
+ * text lost from the page with no error anywhere. Character budgets are computed from the *mobile*
+ * type size, which is the larger of the two in user units, so a line that fits on a phone also
+ * fits on a desktop with room to spare. `maxLines` budgets are set above the schema's 80-character
+ * ceiling for every kind, so a valid label always fits; the overflow branch exists for the one
+ * shape a budget cannot absorb, a single unbroken word.
+ */
+function wrapChartLabel(text: string, maxChars: number, maxLines: number): string[] {
+  const words = text.trim().split(/\s+/u).filter(Boolean);
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (!current || candidate.length <= maxChars) {
+      current = candidate;
+      continue;
+    }
+    if (lines.length === maxLines - 1) {
+      current = candidate;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+  }
+  if (current) lines.push(current);
+  return lines.length > 0 ? lines : [text];
+}
+
+/** Advance estimate for the mobile type size, used only to decide which side of a bar a value sits on. */
+function estimateChartTextWidth(text: string, fontSize: number): number {
+  return text.length * fontSize * 0.58;
+}
+
+interface ChartInk {
+  /** Bar and node fill. */
+  mark: string;
+  /** Unfilled remainder of the scale. */
+  track: string;
+  /** Ink for a value printed on top of a filled bar. */
+  onMark: string;
+  label: string;
+  value: string;
+  accentText: string;
+}
+
+/**
+ * The accessible name and description of one drawing.
+ *
+ * `<title>` and `<desc>` have to be children of the `<svg>` that carries `role="img"` — the ids
+ * exist so `aria-labelledby` can name both in order, which is the pattern that works across
+ * engines that ignore a bare `<title>`. The three kind components each build their own viewBox, so
+ * the frame travels into them rather than wrapping them.
+ */
+interface ChartFrame {
+  titleId: string;
+  descriptionId: string;
+  title: string;
+  description: string;
+}
+
+function chartSvgAria(frame: ChartFrame) {
+  return {
+    role: 'img',
+    'aria-labelledby': `${frame.titleId} ${frame.descriptionId}`,
+  } as const;
+}
+
+function ChartSvgLabels({ frame }: { frame: ChartFrame }) {
+  return (
+    <>
+      <title id={frame.titleId}>{frame.title}</title>
+      <desc id={frame.descriptionId}>{frame.description}</desc>
+    </>
+  );
+}
+
+/**
+ * The figure's own data table, hidden from sight and not from anything that reads.
+ *
+ * This is what makes the chart safe to publish at all: a stored chart is a set of numbers, and a
+ * number that exists only as a rectangle is a number a screen reader, a text-only browser, an
+ * assistant and a copy-paste all lose. It carries exactly the stored values, in stored order.
+ */
+function ChartDataTable({
+  block,
+  config,
+}: {
+  block: ContentPostChartBlock;
+  config: SiteConfig;
+}) {
+  const hasNotes = block.items.some((item) => item.note);
+  const isSteps = block.kind === 'steps';
+  return (
+    <div className="anaks-content-blog__sr">
+      <table>
+      <caption>
+        {block.unit ? `${block.title} (${block.unit})` : block.title}
+      </caption>
+      <thead>
+        <tr>
+          {isSteps ? <th scope="col">Step</th> : null}
+          <th scope="col">{isSteps ? 'What happens' : 'Label'}</th>
+          <th scope="col">{block.unit ? `Value in ${block.unit}` : 'Value'}</th>
+          {hasNotes ? <th scope="col">Note</th> : null}
+        </tr>
+      </thead>
+      <tbody>
+        {block.items.map((item, index) => (
+          <tr key={`${item.label}-${index}`}>
+            {isSteps ? <th scope="row">{index + 1}</th> : null}
+            {isSteps ? <td>{item.label}</td> : <th scope="row">{item.label}</th>}
+            <td>{formatChartValue(item.value, block.unit)}</td>
+            {hasNotes ? <td>{item.note ?? ''}</td> : null}
+          </tr>
+        ))}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colSpan={(isSteps ? 3 : 2) + (hasNotes ? 1 : 0)}>
+            {block.caption ?? `Figure published by ${tenantBrandName(config)}.`}
+          </td>
+        </tr>
+      </tfoot>
+      </table>
+    </div>
+  );
+}
+
+/** Horizontal bars on one zero-based scale — the reference shape, and the default. */
+function ChartBars({
+  block,
+  ink,
+  axisMax,
+  frame,
+}: {
+  block: ContentPostChartBlock;
+  ink: ChartInk;
+  axisMax: number;
+  frame: ChartFrame;
+}) {
+  const hasNotes = block.items.some((item) => item.note);
+  const wrapped = block.items.map((item) => wrapChartLabel(item.label, 50, 2));
+  const labelLines = Math.max(...wrapped.map((lines) => lines.length));
+  const labelBlock = labelLines * CHART_LINE_H;
+  const barOffset = labelBlock + 8;
+  // The trailing gap is what separates one bar from the *next* row's label, and it is sized for
+  // the mobile type: those labels are 21 user units rather than 14, so a gap tuned on a desktop
+  // render closes up to nothing on a phone and the chart reads as one striped block.
+  const pitch = barOffset + 18 + (hasNotes ? 52 : 34);
+  const rowTop = (index: number) => 4 + pitch * index;
+  const lastBarY = rowTop(block.items.length - 1) + barOffset;
+  const axisY = lastBarY + 38;
+  const tickY = axisY + 20;
+  const axisLabel = formatChartValue(axisMax, block.unit);
+  return (
+    <svg
+      viewBox={`0 0 ${CHART_VIEW_W} ${tickY + 8}`}
+      xmlns="http://www.w3.org/2000/svg"
+      {...chartSvgAria(frame)}
+    >
+      <ChartSvgLabels frame={frame} />
+      {block.items.map((item, index) => {
+        const top = rowTop(index);
+        const barY = top + barOffset;
+        const fillWidth = Math.max(2, (item.value / axisMax) * CHART_VIEW_W);
+        const printed = formatChartValue(item.value, block.unit);
+        const estimated = estimateChartTextWidth(printed, 26);
+        const inside = fillWidth >= estimated + 28;
+        return (
+          <g key={`${item.label}-${index}`}>
+            {/* Bottom-aligned inside the shared label block. Every row reserves the height of
+                the tallest label in the figure, so a top-aligned single-line label would float
+                a full line above its own bar while a wrapped one sat right on top of it — the
+                same figure, two different rhythms. */}
+            {wrapped[index]!.map((line, lineIndex) => (
+              <text
+                key={lineIndex}
+                className="c-lab"
+                x={0}
+                y={top + 18 + (labelLines - wrapped[index]!.length + lineIndex) * CHART_LINE_H}
+                fill={ink.label}
+              >
+                {line}
+              </text>
+            ))}
+            <rect x={0} y={barY} width={CHART_VIEW_W} height={18} rx={9} fill={ink.track} />
+            <rect x={0} y={barY} width={fillWidth} height={18} rx={9} fill={ink.mark} />
+            <text
+              className="c-val"
+              x={inside ? fillWidth - 12 : Math.min(fillWidth + 12, CHART_VIEW_W - estimated)}
+              y={barY + 14}
+              textAnchor={inside ? 'end' : 'start'}
+              fill={inside ? ink.onMark : ink.value}
+            >
+              {printed}
+            </text>
+            {item.note ? (
+              <text className="c-note" x={0} y={barY + 40} fill={ink.label}>{item.note}</text>
+            ) : null}
+          </g>
+        );
+      })}
+      {/* The scale, printed. It starts at zero and says where it ends — a bar chart whose
+          baseline is not zero exaggerates every difference drawn on it. */}
+      <line x1={0} y1={axisY} x2={CHART_VIEW_W} y2={axisY} stroke={ink.track} strokeWidth={1.5} />
+      <text className="c-tick" x={0} y={tickY} fill={ink.label}>0</text>
+      <text className="c-tick" x={CHART_VIEW_W} y={tickY} textAnchor="end" fill={ink.label}>
+        {axisLabel}
+      </text>
+    </svg>
+  );
+}
+
+/** Exactly two values set against each other, each printed at display size above its own bar. */
+function ChartCompare({
+  block,
+  ink,
+  axisMax,
+  frame,
+}: {
+  block: ContentPostChartBlock;
+  ink: ChartInk;
+  axisMax: number;
+  frame: ChartFrame;
+}) {
+  const hasNotes = block.items.some((item) => item.note);
+  const gap = 28;
+  const columnWidth = (CHART_VIEW_W - gap) / 2;
+  const wrapped = block.items.map((item) => wrapChartLabel(item.label, 24, 4));
+  const labelLines = Math.max(...wrapped.map((lines) => lines.length));
+  const barY = 78 + (labelLines - 1) * CHART_LINE_H + 14;
+  const axisY = barY + 18 + (hasNotes ? 44 : 16);
+  const tickY = axisY + 20;
+  return (
+    <svg
+      viewBox={`0 0 ${CHART_VIEW_W} ${tickY + 8}`}
+      xmlns="http://www.w3.org/2000/svg"
+      {...chartSvgAria(frame)}
+    >
+      <ChartSvgLabels frame={frame} />
+      {block.items.map((item, index) => {
+        const x = index * (columnWidth + gap);
+        const fillWidth = Math.max(2, (item.value / axisMax) * columnWidth);
+        return (
+          <g key={`${item.label}-${index}`}>
+            <text
+              className="c-big"
+              x={x}
+              y={54}
+              fill={index === 0 ? ink.accentText : ink.value}
+            >
+              {formatChartValue(item.value, block.unit)}
+            </text>
+            {wrapped[index]!.map((line, lineIndex) => (
+              <text
+                key={lineIndex}
+                className="c-lab"
+                x={x}
+                y={78 + lineIndex * CHART_LINE_H}
+                fill={ink.label}
+              >
+                {line}
+              </text>
+            ))}
+            <rect x={x} y={barY} width={columnWidth} height={18} rx={9} fill={ink.track} />
+            {/* Both bars are the practice's accent; the second is drawn back so the pair reads as
+                one comparison rather than two unrelated colours. */}
+            <rect
+              x={x}
+              y={barY}
+              width={fillWidth}
+              height={18}
+              rx={9}
+              fill={ink.mark}
+              fillOpacity={index === 0 ? 1 : 0.45}
+            />
+            {item.note ? (
+              <text className="c-note" x={x} y={barY + 40} fill={ink.label}>{item.note}</text>
+            ) : null}
+          </g>
+        );
+      })}
+      <line x1={0} y1={axisY} x2={CHART_VIEW_W} y2={axisY} stroke={ink.track} strokeWidth={1.5} />
+      <text className="c-tick" x={0} y={tickY} fill={ink.label}>0</text>
+      <text className="c-tick" x={CHART_VIEW_W} y={tickY} textAnchor="end" fill={ink.label}>
+        {`${formatChartValue(axisMax, block.unit)} · same scale`}
+      </text>
+    </svg>
+  );
+}
+
+/** An ordered sequence, each step carrying its own duration or count. */
+function ChartSteps({
+  block,
+  ink,
+  frame,
+}: {
+  block: ContentPostChartBlock;
+  ink: ChartInk;
+  frame: ChartFrame;
+}) {
+  const hasNotes = block.items.some((item) => item.note);
+  const wrapped = block.items.map((item) => wrapChartLabel(item.label, 33, 3));
+  const labelLines = Math.max(...wrapped.map((lines) => lines.length));
+  const labelBlock = labelLines * CHART_LINE_H;
+  const pitch = 22 + labelBlock + (hasNotes ? 46 : 18);
+  const rowTop = (index: number) => 2 + pitch * index;
+  const lastTop = rowTop(block.items.length - 1);
+  const height = lastTop + 22 + labelBlock + (hasNotes ? 34 : 12);
+  return (
+    <svg
+      viewBox={`0 0 ${CHART_VIEW_W} ${height}`}
+      xmlns="http://www.w3.org/2000/svg"
+      {...chartSvgAria(frame)}
+    >
+      <ChartSvgLabels frame={frame} />
+      {/* The rail is drawn first so every node sits on top of it. */}
+      <line
+        x1={16}
+        y1={rowTop(0) + 16}
+        x2={16}
+        y2={lastTop + 16}
+        stroke={ink.track}
+        strokeWidth={2}
+      />
+      {block.items.map((item, index) => {
+        const top = rowTop(index);
+        return (
+          <g key={`${item.label}-${index}`}>
+            <circle cx={16} cy={top + 16} r={15} fill={ink.mark} />
+            <text className="c-idx" x={16} y={top + 21} textAnchor="middle" fill={ink.onMark}>
+              {index + 1}
+            </text>
+            {wrapped[index]!.map((line, lineIndex) => (
+              <text
+                key={lineIndex}
+                className="c-lab"
+                x={44}
+                y={top + 20 + lineIndex * CHART_LINE_H}
+                fill={ink.label}
+              >
+                {line}
+              </text>
+            ))}
+            <text
+              className="c-val"
+              x={CHART_VIEW_W}
+              y={top + 20}
+              textAnchor="end"
+              fill={ink.value}
+            >
+              {formatChartValue(item.value, block.unit)}
+            </text>
+            {item.note ? (
+              <text
+                className="c-note"
+                x={44}
+                y={top + 24 + labelBlock}
+                fill={ink.label}
+              >
+                {item.note}
+              </text>
+            ) : null}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/**
+ * One stored `chart` block, rendered.
+ *
+ * `role="img"` with `<title>` and `<desc>` names the drawing without pretending to narrate it: the
+ * description says what shape the marks are in and where the scale runs, and then points at the
+ * table, which is where the numbers actually live for anything that reads.
+ */
+function ChartFigure({
+  block,
+  config,
+  post,
+  index,
+}: {
+  block: ContentPostChartBlock;
+  config: SiteConfig;
+  post: PublishedContentPost;
+  index: number;
+}) {
+  const accent = blogAccent(config.theme);
+  const surface = themeColor(config.theme, 'surfaceSubtle');
+  const ink: ChartInk = {
+    mark: accent,
+    track: `${themeColor(config.theme, 'border')}3D`,
+    onMark: pickButtonTextColor(accent, config.theme.palette),
+    label: config.theme.palette.muted,
+    value: config.theme.palette.text,
+    accentText: pickOutlineColor(surface, accent, config.theme.palette),
+  };
+  const axisMax = chartAxisMax(block.items.map((item) => item.value), block.unit);
+  const titleId = `anaks-chart-${index}-title`;
+  const descriptionId = `anaks-chart-${index}-desc`;
+  const frame: ChartFrame = {
+    titleId,
+    descriptionId,
+    title: block.unit ? `${block.title} (${block.unit})` : block.title,
+    description: chartFigureDescription(block),
+  };
+  const source = chartSourceLine({
+    sourceRefs: block.sourceRefs,
+    snapshot: post.integrity?.sourceSnapshot ?? null,
+    brandName: tenantBrandName(config),
+  });
+  return (
+    <figure
+      className="anaks-content-blog__chart"
+      style={{ fontFamily: config.theme.fonts.body }}
+    >
+      <figcaption className="anaks-content-blog__chart-head">
+        <span
+          style={{
+            color: config.theme.palette.text,
+            display: 'block',
+            fontFamily: config.theme.fonts.heading,
+            fontSize: 'clamp(16px, 1.9vw, 18px)',
+            fontWeight: 600,
+            letterSpacing: '-0.012em',
+            lineHeight: 1.35,
+          }}
+        >
+          {block.title}
+        </span>
+        {block.unit ? (
+          <span
+            style={{
+              color: config.theme.palette.muted,
+              display: 'block',
+              fontSize: 11.5,
+              fontWeight: 600,
+              letterSpacing: '0.1em',
+              marginTop: 6,
+              textTransform: 'uppercase',
+            }}
+          >
+            {/* The unit, and for the two kinds that share one axis, where that axis ends. A
+                reader who knows the ceiling can read a bar; one who does not is looking at a
+                shape. `steps` prints no ceiling because it has no shared scale to state. */}
+            {block.kind === 'steps'
+              ? block.unit
+              : `${block.unit} · scale 0 to ${formatChartValue(axisMax)}`}
+          </span>
+        ) : null}
+      </figcaption>
+      {block.kind === 'compare' ? (
+        <ChartCompare block={block} ink={ink} axisMax={axisMax} frame={frame} />
+      ) : block.kind === 'steps' ? (
+        <ChartSteps block={block} ink={ink} frame={frame} />
+      ) : (
+        <ChartBars block={block} ink={ink} axisMax={axisMax} frame={frame} />
+      )}
+      <ChartDataTable block={block} config={config} />
+      <p
+        className="anaks-content-blog__chart-src"
+        style={{
+          color: config.theme.palette.muted,
+          fontSize: 13,
+          lineHeight: 1.6,
+        }}
+      >
+        {source.lead}
+        {source.citations.map((citation, citationIndex) => (
+          <span key={citation.label}>
+            {citationIndex === 0 ? ' ' : ' · '}
+            {citation.href ? (
+              <a
+                href={citation.href}
+                rel="noopener noreferrer nofollow"
+                style={{ color: 'inherit' }}
+              >
+                {citation.label}
+              </a>
+            ) : citation.label}
+          </span>
+        ))}
+        {block.caption ? ` ${block.caption}` : ''}
+      </p>
+    </figure>
+  );
+}
+
 function PostDocument({
   post,
   posts,
@@ -734,32 +1131,32 @@ function PostDocument({
           paddingBottom: 0,
         }}
       >
+        {/*
+          One block, not two. The back-link and the kicker used to sit either side of a 21:9 cover
+          slot and each carried half the gap that surrounded it; with the cover gone those two
+          paddings met and left ~100px of nothing between a link and a date line.
+        */}
         <div
           className="anaks-content-blog__inner"
-          style={{ maxWidth: '68ch', paddingBottom: 'clamp(32px, 4vw, 52px)' }}
+          style={{ maxWidth: '68ch' }}
           {...revealProps(motion)}
         >
           <a
             href={listHref}
             style={{
               color: backLink,
+              display: 'inline-block',
               fontFamily: config.theme.fonts.body,
               fontSize: 13,
               fontWeight: 600,
               letterSpacing: '0.06em',
+              marginBottom: 'clamp(28px, 3.4vw, 44px)',
               textDecoration: 'none',
               textTransform: 'uppercase',
             }}
           >
             ← Back to the blog
           </a>
-        </div>
-        <CoverHero config={config} post={post} />
-        <div
-          className="anaks-content-blog__inner"
-          style={{ maxWidth: '68ch', paddingTop: 'clamp(32px, 4vw, 52px)' }}
-          {...revealProps(motion)}
-        >
           <ArticleKicker config={config} post={post} brandName={brandName} minutes={minutes} />
           <h1
             className="anaks-content-blog__title"
@@ -867,6 +1264,17 @@ function PostDocument({
                   </li>
                 ))}
               </ol>
+            );
+          }
+          if (block.type === 'chart') {
+            return (
+              <ChartFigure
+                key={index}
+                block={block}
+                config={config}
+                post={post}
+                index={index}
+              />
             );
           }
           if (block.type === 'table') {
@@ -1001,31 +1409,29 @@ function MetaLine({ children, color, config }: {
   );
 }
 
+/**
+ * One card in the index: a date, a title, a rule and the stored summary. Nothing else.
+ *
+ * It used to open with a picture slot — a rotating stock photograph of a declared service, or a
+ * gradient field when there was none. Both are gone. A field of colour above every card was only
+ * ever a way of not leaving a hole where a photograph should be, and a page that has decided it
+ * carries no photographs has no hole to fill.
+ */
 function PostCard({
   post,
   config,
-  siteId,
-  coverSrc,
   hrefForPost,
   feature = false,
   motion,
 }: {
   post: PublishedContentPost;
   config: SiteConfig;
-  siteId?: string;
-  coverSrc: (src: string) => string;
   hrefForPost: (slug: string) => string;
   feature?: boolean;
   motion: boolean;
 }) {
   const { text, muted } = config.theme.palette;
   const accent = blogAccent(config.theme);
-  // A cover generated for this exact version outranks the service photo rotation: it was made
-  // for this article, and the rotation is a stand-in for not having one.
-  const storedCover = post.cover?.url;
-  const cover = storedCover
-    ? null
-    : siteId ? postCoverImage({ config, siteId, slug: post.slug }) : null;
   return (
     <article
       className={`anaks-content-blog__card${feature ? ' anaks-content-blog__feature' : ''}`}
@@ -1036,14 +1442,6 @@ function PostCard({
       }}
       {...revealProps(motion)}
     >
-      <PostMedia
-        config={config}
-        slug={post.slug}
-        feature={feature}
-        {...(storedCover
-          ? { imageUrl: storedCover, width: post.cover?.width, height: post.cover?.height }
-          : cover ? { imageUrl: coverSrc(cover.url) } : {})}
-      />
       <div className="anaks-content-blog__body">
         <MetaLine color={muted} config={config}>{publishedDateLabel(post, config)}</MetaLine>
         <h2
@@ -1086,15 +1484,11 @@ function PostCard({
 function PostList({
   posts,
   config,
-  siteId,
-  coverSrc,
   hrefForPost,
   motion,
 }: {
   posts: readonly PublishedContentPost[];
   config: SiteConfig;
-  siteId?: string;
-  coverSrc: (src: string) => string;
   hrefForPost: (slug: string) => string;
   motion: boolean;
 }) {
@@ -1153,8 +1547,6 @@ function PostList({
           <PostCard
             post={lead}
             config={config}
-            siteId={siteId}
-            coverSrc={coverSrc}
             hrefForPost={hrefForPost}
             motion={motion}
             feature
@@ -1167,8 +1559,6 @@ function PostList({
                 key={post.id}
                 post={post}
                 config={config}
-                siteId={siteId}
-                coverSrc={coverSrc}
                 hrefForPost={hrefForPost}
                 motion={motion}
               />
@@ -1182,8 +1572,6 @@ function PostList({
 
 export function TenantContentBlog({
   config,
-  siteId,
-  coverSrc = (src) => src,
   posts,
   post,
   hrefForSlug,
@@ -1244,8 +1632,6 @@ export function TenantContentBlog({
           <PostList
             posts={posts}
             config={renderedConfig}
-            siteId={siteId}
-            coverSrc={coverSrc}
             hrefForPost={hrefForPost}
             motion={motion}
           />

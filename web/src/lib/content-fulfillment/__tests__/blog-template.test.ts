@@ -1,12 +1,12 @@
 /**
- * BLOG-TEMPLATE — the article surface, and the cover slot 0049 shipped and never wired.
+ * BLOG-TEMPLATE — the article surface, which carries no image.
  *
  *  T1  Every block type the schema allows renders, and the stored text is printed verbatim, once.
  *  T2  The key-facts box is the article's own question set, and the FAQPage markup beside it says
  *      the same words — the machine-readable layer made visible rather than hidden.
  *  T3  Related posts are this site's other articles, never this one.
- *  T4  The cover reads end to end: a stored asset renders with its raster size, and no asset
- *      paints the tokenised plate instead of a hole.
+ *  T4  No image reaches any blog surface — hero, index card or `BlogPosting.image` — even when a
+ *      version stored a cover, and the projection boundary that resolves one still holds.
  *  T5  Reading progress is presentation-only: it costs no script of its own, and disappears with
  *      the site's own motion switch.
  *  T6  The booking CTA points somewhere the practice already publishes, or nowhere.
@@ -223,7 +223,6 @@ async function renderArticle(
   );
   return renderToStaticMarkup(createElement(TenantContentBlog, {
     config,
-    siteId: SITE_ID,
     posts,
     post,
   }));
@@ -287,6 +286,13 @@ describe('BLOG-TEMPLATE T1 — every block type renders, and the document is unt
         for (const item of block.items) {
           const text = typeof item === 'string' ? item : item.text;
           assert.ok(rendered.includes(text), `missing list item: ${text}`);
+        }
+      } else if (block.type === 'chart') {
+        // A figure prints its own strings twice — once on the drawing, once in the hidden data
+        // table — so `includes` is the right check and the count is not.
+        assert.ok(rendered.includes(block.title), `missing chart title: ${block.title}`);
+        for (const item of block.items) {
+          assert.ok(rendered.includes(item.label), `missing chart label: ${item.label}`);
         }
       } else {
         for (const column of block.columns) assert.ok(rendered.includes(column.header));
@@ -465,68 +471,50 @@ describe('BLOG-TEMPLATE T3 — related posts', () => {
   });
 });
 
-describe('BLOG-TEMPLATE T4 — the cover slot, end to end', () => {
-  test('no stored cover paints the tokenised plate, not a hole', async () => {
+describe('BLOG-TEMPLATE T4 — the blog carries no image, and the pipeline stays dormant', () => {
+  test('the article renders no image and reserves no hero box for one', async () => {
     const posts = await publishedPosts({ count: 1 });
     assert.equal(posts[0]!.cover, undefined, 'covers are off by default');
     const root = parse(await renderArticle(posts, posts[0]!));
-    const hero = root.querySelector('.anaks-content-blog__cover')!;
-    assert.ok(hero, 'the hero box is reserved either way');
-    assert.equal(hero.querySelectorAll('img').length, 0, 'no image element to fail loading');
-    const plate = hero.querySelector('.anaks-content-blog__plate')!;
-    assert.ok(plate, 'the plate renders');
-    assert.match(plate.getAttribute('style') ?? '', /linear-gradient\(\d+deg/u, 'painted from tokens');
-    assert.ok(plate.querySelector('svg'), 'the motif renders');
-    assert.equal(plate.querySelectorAll('text').length, 0, 'nothing in the plate is text');
-    assert.equal(plate.getAttribute('aria-hidden'), 'true', 'decoration is hidden from readers');
+    assert.equal(root.querySelectorAll('img').length, 0, 'no image element anywhere');
+    assert.equal(root.querySelectorAll('.anaks-content-blog__cover').length, 0, 'no hero box');
+    assert.equal(root.querySelectorAll('.anaks-content-blog__plate').length, 0, 'no brand plate');
+    // The article still opens on its own furniture, so removing the picture removed a picture and
+    // not the top of the page.
+    assert.ok(root.querySelector('.anaks-content-blog__kicker'), 'the kicker still leads');
+    assert.ok(root.querySelector('h1'), 'the display title still renders');
   });
 
-  test('a stored cover reaches the article with its own raster size', async () => {
-    const posts = await publishedPosts({
-      count: 1,
-      cover: { assetId: COVER_ASSET_ID, url: COVER_URL, width: 1680, height: 720 },
-    });
-    const post = posts[0]!;
-    assert.deepEqual(post.cover, {
-      assetId: COVER_ASSET_ID,
-      url: COVER_URL,
-      width: 1680,
-      height: 720,
-    }, 'the pointer resolved through the repository, not the renderer');
-
-    const image = parse(await renderArticle(posts, post))
-      .querySelector('.anaks-content-blog__cover img')!;
-    assert.ok(image, 'the cover renders');
-    assert.equal(image.getAttribute('src'), COVER_URL);
-    assert.equal(image.getAttribute('width'), '1680');
-    assert.equal(image.getAttribute('height'), '720');
-    assert.equal(image.getAttribute('alt'), '', 'a decorative hero is not described twice');
-    // The hero defines the largest contentful paint, so it is the one image that is not deferred.
-    assert.equal(image.getAttribute('loading'), undefined);
-    assert.equal(image.getAttribute('fetchpriority'), 'high');
-  });
-
-  test('the index card prefers the version cover and defers it', async () => {
+  test('a stored cover changes nothing on either surface', async () => {
     const posts = await publishedPosts({
       count: 2,
       cover: { assetId: COVER_ASSET_ID, url: COVER_URL, width: 1680, height: 720 },
     });
+    // The projection still resolves it — the pipeline behind CONTENT_COVER_IMAGES_ENABLED is
+    // dormant, not deleted, and a version that stored a cover still carries one.
+    assert.deepEqual(posts[0]!.cover, {
+      assetId: COVER_ASSET_ID,
+      url: COVER_URL,
+      width: 1680,
+      height: 720,
+    });
+
     const { TenantContentBlog } = await withServerOnlyNeutralized(
       () => import('@/components/content-posts/TenantContentBlog'),
     );
-    const html = renderToStaticMarkup(createElement(TenantContentBlog, {
+    const index = renderToStaticMarkup(createElement(TenantContentBlog, {
       config: CONFIG,
-      siteId: SITE_ID,
       posts,
     }));
-    const image = parse(html).querySelector('.anaks-content-blog__media img')!;
-    assert.ok(image, 'the card shows the cover');
-    assert.equal(image.getAttribute('src'), COVER_URL);
-    assert.equal(image.getAttribute('loading'), 'lazy', 'feed images stay deferred');
-    assert.equal(image.getAttribute('width'), '1680');
+    assert.equal(parse(index).querySelectorAll('img').length, 0, 'the index shows no cover');
+    assert.ok(!index.includes(COVER_URL), 'the stored url reaches no attribute');
+
+    const article = await renderArticle(posts, posts[0]!);
+    assert.equal(parse(article).querySelectorAll('img').length, 0, 'the article shows no cover');
+    assert.ok(!article.includes(COVER_URL), 'the stored url reaches no attribute');
   });
 
-  test('the JSON-LD image slot follows the stored cover', async () => {
+  test('the JSON-LD advertises no image, with or without a stored cover', async () => {
     const { contentPostJsonLd } = await withServerOnlyNeutralized(
       () => import('@/lib/content-fulfillment/public-projection'),
     );
@@ -534,11 +522,14 @@ describe('BLOG-TEMPLATE T4 — the cover slot, end to end', () => {
     const without = await publishedPosts({ count: 1 });
     assert.equal(JSON.parse(contentPostJsonLd(site, without[0]!)).image, undefined);
 
+    // A stored cover no longer reaches structured data either. Advertising an image that appears
+    // nowhere on the page is the hidden-structured-data failure the FAQPage block avoids by
+    // construction, and it would be the same failure here.
     const withCover = await publishedPosts({
       count: 1,
       cover: { assetId: COVER_ASSET_ID, url: COVER_URL },
     });
-    assert.equal(JSON.parse(contentPostJsonLd(site, withCover[0]!)).image, COVER_URL);
+    assert.equal(JSON.parse(contentPostJsonLd(site, withCover[0]!)).image, undefined);
   });
 
   test('a cover the version does not point at is never shown', async () => {
@@ -645,7 +636,7 @@ describe('BLOG-TEMPLATE T5 — reading progress costs no script of its own', () 
     );
     // The article itself is unaffected: this is presentation, not content.
     assert.ok(root.querySelector('.anaks-content-blog__facts'), 'the key facts still render');
-    assert.ok(root.querySelector('.anaks-content-blog__cover'), 'the hero still renders');
+    assert.ok(root.querySelector('.anaks-content-blog__kicker'), 'the kicker still renders');
   });
 });
 

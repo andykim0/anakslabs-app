@@ -7,20 +7,24 @@ import {
 } from './contracts';
 
 /**
- * Bumped from `content-honesty-2026-07-v1` when the English lexicon landed.
+ * Bumped from `content-honesty-2026-09-v1` when the chart block landed; that one was bumped from
+ * `content-honesty-2026-07-v1` when the English lexicon did.
  *
- * The stamp is what a stored version was validated against, and this release changed what
- * "validated" means: until now the whole claim lexicon was Korean while the US generator emitted
- * English, so an English superlative or guarantee was published without ever being asked for a
- * source. Rows carrying the old stamp are therefore refused by `content-approval-core`'s
- * `z.literal` and dropped by `public-integrity`, which is the direction that fails safe — copy
- * cleared by a gate that could not read it is re-generated, not grandfathered.
+ * The stamp is what a stored version was validated against, and each of those releases changed
+ * what "validated" means. The English bump closed a lexicon that could not read the language the
+ * US generator writes in. This one adds a block type whose entire payload is numbers: a chart's
+ * values are claims with the hedging removed, and a gate that walked headings, paragraphs, lists
+ * and tables but stepped over a figure would let a bar chart publish a number no sentence on the
+ * page was ever allowed to state. Rows carrying an older stamp are refused by
+ * `content-approval-core`'s `z.literal` and dropped by `public-integrity`, which is the direction
+ * that fails safe — copy cleared by a gate that could not see all of it is re-generated, not
+ * grandfathered.
  *
  * Unlike `MEDICAL_AD_POLICY_VERSION`, this string is not duplicated into `lib/pricing.ts` and is
  * not stamped on stored SiteConfigs, so bumping it cannot fail zod on an issued preview or gate
  * clinic availability. See `docs/ops/content-fulfillment-batch.md`.
  */
-export const CONTENT_HONESTY_POLICY_VERSION = 'content-honesty-2026-09-v1' as const;
+export const CONTENT_HONESTY_POLICY_VERSION = 'content-honesty-2026-09-v2' as const;
 
 const sourceRefIds = z.array(z.string().trim().min(1).max(240)).max(30).default([]);
 
@@ -166,6 +170,56 @@ export function collectContentPostPublicText(post: GeneratedContentPost): Public
       }
       continue;
     }
+    /**
+     * A figure, walked as the set of claims it is.
+     *
+     * The reason this needs its own branch rather than falling through to the table one is that a
+     * chart's payload is numeric. `MEASURABLE_NUMBER` and its English twin match a number *and a
+     * unit* — "40 minutes", "$1,450" — because that is how a number appears inside a sentence. A
+     * bar labelled `42` with the unit printed once in the figure's own header matches neither
+     * lexicon, so a chart walked as prose would ask for no source at all, which is the opposite of
+     * what a chart is. Every value therefore carries `alwaysRequiresSource`, the same way a table
+     * cell does, and the source it must name is the item's own `sourceRef` when it has one and the
+     * figure's `sourceRefs` otherwise.
+     */
+    if (block.type === 'chart') {
+      entries.push({
+        path: `${base}.title`,
+        text: block.title,
+        sourceRefs: block.sourceRefs,
+        alwaysRequiresSource: true,
+      });
+      if (block.unit) {
+        entries.push({ path: `${base}.unit`, text: block.unit, sourceRefs: block.sourceRefs });
+      }
+      if (block.caption) {
+        entries.push({ path: `${base}.caption`, text: block.caption, sourceRefs: block.sourceRefs });
+      }
+      for (const [itemIndex, item] of block.items.entries()) {
+        const itemRefs = item.sourceRef ? [item.sourceRef] : block.sourceRefs;
+        entries.push({
+          path: `${base}.items.${itemIndex}.label`,
+          text: item.label,
+          sourceRefs: itemRefs,
+        });
+        entries.push({
+          path: `${base}.items.${itemIndex}.value`,
+          // Rendered with the unit because that is the string the reader sees printed on the bar,
+          // so the lexicon screens the same claim the page makes rather than a bare numeral.
+          text: block.unit ? `${item.value} ${block.unit}` : String(item.value),
+          sourceRefs: itemRefs,
+          alwaysRequiresSource: true,
+        });
+        if (item.note) {
+          entries.push({
+            path: `${base}.items.${itemIndex}.note`,
+            text: item.note,
+            sourceRefs: itemRefs,
+          });
+        }
+      }
+      continue;
+    }
     if (block.caption) {
       entries.push({
         path: `${base}.caption`,
@@ -249,7 +303,7 @@ export function validateGeneratedContentPost(
       violations.push({
         code: 'missing-source-ref',
         path: entry.path,
-        message: 'Verifiable claims, numbers, and table cells require a sourceRef.',
+        message: 'Verifiable claims, numbers, table cells, and chart values require a sourceRef.',
       });
     }
     for (const id of unique) {

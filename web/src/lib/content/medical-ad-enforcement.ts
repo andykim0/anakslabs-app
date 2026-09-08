@@ -300,6 +300,17 @@ const SAFE_COPY = {
   headline: 'Clear information for your visit',
   body: 'Review the available services and how to prepare for your visit.',
   cta: 'View care information',
+  /**
+   * Unreachable, and required to be here anyway.
+   *
+   * The `chart` scope exists for figures on generated blog articles, which are *blocked* rather
+   * than sanitized — `screenMedicalContentPost` refuses the whole post and the generator writes
+   * another one. Nothing in a SiteConfig is ever screened at this scope, so no string in a
+   * customer's site can be replaced by this one. The `satisfies Record<MedicalCopyScope, string>`
+   * above is what demanded it, and that totality check is worth keeping: it is why adding a scope
+   * cannot silently leave a sanitizer path returning `undefined`.
+   */
+  chart: 'Practice information',
   form: 'Send message',
   alt: 'Practice information',
   social: 'View official channel',

@@ -53,7 +53,7 @@ export default async function TenantBlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: faqJsonLd }}
         />
       ) : null}
-      <TenantContentBlog config={site.siteConfig} siteId={site.id} posts={posts} post={post} />
+      <TenantContentBlog config={site.siteConfig} posts={posts} post={post} />
     </>
   );
 }

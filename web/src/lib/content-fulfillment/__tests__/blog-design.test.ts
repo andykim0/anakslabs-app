@@ -135,19 +135,22 @@ describe('BLOG-DESIGN D1/D2 — the surface is built from tenant tokens', () => 
       .listPublishedBySite(SITE_ID);
   }
 
-  test('the index carries a hero band, a lead post, and a designed coverless slot', async () => {
+  test('the index carries a hero band and a lead post, and no picture anywhere', async () => {
     const posts = await publicPosts(3);
     const html = await render(posts);
 
     assert.match(html, /anaks-content-blog__band/u, 'hero band');
     assert.equal(html.split('anaks-content-blog__card').length - 1 > 0, true);
     assert.match(html, /anaks-content-blog__feature/u, 'the newest post leads');
-    // The no-cover state is a painted field, not an empty box awaiting an image.
-    assert.match(html, /anaks-content-blog__media/u);
-    assert.match(html, /linear-gradient\(\d+deg/u, 'coverless slot paints an accent field');
-    // The cover variant is declared in the stylesheet for when images arrive, but no element
-    // wears it yet — so match on the class attribute, not the sheet.
-    assert.doesNotMatch(html, /class="[^"]*media--cover/u, 'no cover exists yet');
+    // The blog carries no images by product decision. The card's picture slot — a rotating
+    // stock photograph, or a gradient field standing in for one — is gone entirely, and its
+    // class with it, so a reintroduced cover cannot pass this unnoticed.
+    //
+    // Parsed rather than matched on the string: the shared motion stylesheet this page also
+    // emits contains the characters `<img>` inside a Korean comment about video posters, and a
+    // regex over the raw HTML fails on it while the page has no image at all.
+    assert.equal(parse(html).querySelectorAll('img').length, 0, 'the index renders no image');
+    assert.doesNotMatch(html, /anaks-content-blog__media/u, 'the picture slot is gone');
   });
 
   test('no literal colour is hard-coded — every value comes from the theme', async () => {
@@ -284,7 +287,6 @@ describe('BLOG-DESIGN D3 — reveal motion is scoped, and injected exactly once'
       posts,
       html: renderToStaticMarkup(createElement(TenantContentBlog, {
         config: CONFIG,
-        siteId: SITE_ID,
         posts,
         post: post ?? (undefined as never),
       })),
@@ -360,113 +362,8 @@ describe('BLOG-DESIGN D3 — reveal motion is scoped, and injected exactly once'
   });
 });
 
-describe('BLOG-DESIGN D4 — covers depict declared services only', () => {
-  test('a chosen category is always one the clinic pinned', async () => {
-    const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
-      () => import('@/lib/operator-model/site-generation'),
-    );
-    const serviceIds = ['dental-implants', 'clear-aligners', 'preventive-care'];
-    const built = await buildOperatorClinicNewbuildSiteConfig(
-      {
-        businessName: 'Declared Dental',
-        specialty: 'general',
-        accentPreset: 'clinical-blue',
-        phone: '(303) 555-0142',
-        serviceIds,
-      } as never,
-      'basic',
-      {} as never,
-    );
-    const { pinnedServiceStockCategories, postCoverImage } = await import(
-      '@/lib/content-fulfillment/post-cover'
-    );
-    const declared = pinnedServiceStockCategories(built.config);
-    assert.ok(declared.length > 0, 'the pinned services are recoverable from the config');
-
-    const { CLINIC_DENTAL_SERVICE_TAXONOMY } = await import('@/lib/clinic-master/service-taxonomy');
-    const allowed = new Set<string>(
-      CLINIC_DENTAL_SERVICE_TAXONOMY
-        .filter((entry) => serviceIds.includes(entry.id))
-        .map((entry) => entry.stockCategory),
-    );
-    for (const category of declared) {
-      assert.ok(allowed.has(category), `${category} is not a declared service category`);
-    }
-    for (let ordinal = 1; ordinal <= 8; ordinal += 1) {
-      const cover = postCoverImage({
-        config: built.config,
-        siteId: SITE_ID,
-        slug: `2026-08-post-${ordinal}`,
-      });
-      assert.ok(cover, `slot ${ordinal} resolves a cover`);
-      assert.ok(allowed.has(cover.category), `slot ${ordinal} chose an undeclared category`);
-    }
-  });
-
-  test('the same site, pin and slot always resolve to the same image', async () => {
-    const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
-      () => import('@/lib/operator-model/site-generation'),
-    );
-    const build = () => buildOperatorClinicNewbuildSiteConfig(
-      {
-        businessName: 'Declared Dental',
-        specialty: 'general',
-        accentPreset: 'clinical-blue',
-        phone: '(303) 555-0142',
-        serviceIds: ['dental-implants', 'clear-aligners', 'preventive-care'],
-      } as never,
-      'basic',
-      {} as never,
-    );
-    const { postCoverImage } = await import('@/lib/content-fulfillment/post-cover');
-    const first = await build();
-    const second = await build();
-    for (let ordinal = 1; ordinal <= 8; ordinal += 1) {
-      const slug = `2026-08-post-${ordinal}`;
-      assert.deepEqual(
-        postCoverImage({ config: first.config, siteId: SITE_ID, slug }),
-        postCoverImage({ config: second.config, siteId: SITE_ID, slug }),
-        `slot ${ordinal} must be stable across renders`,
-      );
-    }
-  });
-
-  test('a site with no clinic pin falls back to the accent field', async () => {
-    const { pinnedServiceStockCategories, postCoverImage } = await import(
-      '@/lib/content-fulfillment/post-cover'
-    );
-    // The seeded demo clinic is a hand-authored config with no clinic master pin.
-    assert.equal(CONFIG.clinicMaster, undefined);
-    assert.deepEqual(pinnedServiceStockCategories(CONFIG), []);
-    assert.equal(
-      postCoverImage({ config: CONFIG, siteId: SITE_ID, slug: '2026-08-post-1' }),
-      null,
-      'no pin means no cover, and the card paints its accent field',
-    );
-  });
-
-  test('the selection module never reads a model-written field', async () => {
-    const { readFileSync } = await import('node:fs');
-    const source = readFileSync(
-      `${process.cwd()}/src/lib/content-fulfillment/post-cover.ts`,
-      'utf8',
-    );
-    // Strip comments: the rule is about what the code reads, and the comments explain the rule.
-    const code = source
-      .replace(/\/\*[\s\S]*?\*\//gu, '')
-      .replace(/\/\/[^\n]*/gu, '');
-    for (const field of ['title', 'summary', 'tags', 'document']) {
-      assert.doesNotMatch(
-        code,
-        new RegExp(`\\b${field}\\b`, 'u'),
-        `cover selection must not consult the generated ${field}`,
-      );
-    }
-  });
-});
-
 describe('BLOG-DESIGN — the surface survives a four-colour clinic palette', () => {
-  test('a newbuild config renders covers without an undefined colour anywhere', async () => {
+  test('a newbuild config renders without an undefined colour anywhere', async () => {
     const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
       () => import('@/lib/operator-model/site-generation'),
     );
@@ -493,7 +390,6 @@ describe('BLOG-DESIGN — the surface survives a four-colour clinic palette', ()
     );
     const html = renderToStaticMarkup(createElement(TenantContentBlog, {
       config: built.config,
-      siteId: SITE_ID,
       posts,
     }));
 
@@ -504,16 +400,20 @@ describe('BLOG-DESIGN — the surface survives a four-colour clinic palette', ()
     for (const style of inlineStyles) {
       assert.ok(!style.includes('undefined'), `undefined colour reached a style: ${style}`);
     }
-    assert.match(html, /class="[^"]*media--cover/u, 'declared services produce real covers');
-    assert.match(html, /\/stock\/pexels\/dental-atmosphere\//u);
   });
 });
 
-describe('BLOG-DESIGN — exported covers point inside the bundle', () => {
-  async function newbuildConfig() {
+describe('BLOG-DESIGN — the exported bundle carries no picture', () => {
+  test('no exported blog page references an image, so none has to be bundled', async () => {
     const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
       () => import('@/lib/operator-model/site-generation'),
     );
+    const { renderStaticContentPostFiles } = await withServerOnlyNeutralized(
+      () => import('@/lib/content-fulfillment/render-static'),
+    );
+    // A newbuild clinic with three declared services is the config that used to produce covers:
+    // the stock rotation read the declared service set, so this is the case that regresses first
+    // if an image path is ever restored.
     const built = await buildOperatorClinicNewbuildSiteConfig(
       {
         businessName: 'Ridgeline Dental',
@@ -525,79 +425,32 @@ describe('BLOG-DESIGN — exported covers point inside the bundle', () => {
       'basic',
       {} as never,
     );
-    return built.config;
-  }
-
-  async function postsFor() {
     const repository = await provisionedSite(3);
     const rows = publishedRowsFromQueueItems(await publishedFor(repository));
-    return new MockPublishedContentPostsRepository(rows.posts, rows.versions)
+    const posts = await new MockPublishedContentPostsRepository(rows.posts, rows.versions)
       .listPublishedBySite(SITE_ID);
-  }
-
-  test('the live cover url is a real file under public/', async () => {
-    const { readFile } = await import('node:fs/promises');
-    const { postCoverSources } = await import('@/lib/content-fulfillment/post-cover');
-    const config = await newbuildConfig();
-    const sources = postCoverSources({
-      config,
-      siteId: SITE_ID,
-      slugs: ['2026-08-post-1', '2026-08-post-2', '2026-08-post-3'],
-    });
-    assert.ok(sources.length > 0);
-    for (const src of sources) {
-      assert.match(src, /^\/stock\//u, 'live covers are served from the site root');
-      // If this read fails the live page renders a broken image, not a design problem.
-      await readFile(`${process.cwd()}/public${src}`);
-    }
-  });
-
-  test('an exported page never points at a path that lives only on the origin', async () => {
-    const { collectRenderTimeAssets } = await withServerOnlyNeutralized(
-      () => import('@/lib/export/collect-assets'),
-    );
-    const { renderStaticContentPostFiles } = await withServerOnlyNeutralized(
-      () => import('@/lib/content-fulfillment/render-static'),
-    );
-    const { postCoverSources } = await import('@/lib/content-fulfillment/post-cover');
-    const config = await newbuildConfig();
-    const posts = await postsFor();
-    const covers = await collectRenderTimeAssets(postCoverSources({
-      config,
-      siteId: SITE_ID,
-      slugs: posts.map((post) => post.slug),
-    }));
-    assert.ok(covers.assets.size > 0, 'the cover files were read and bundled');
 
     const files = renderStaticContentPostFiles({
       site: {
         id: SITE_ID,
         domain: 'ridgeline-dental.anakslabs.com',
-        siteConfig: config,
+        siteConfig: built.config,
       } as unknown as Site,
       posts,
-      coverRewrites: covers.rewrites,
     });
-
-    const index = files.find((file) => file.name === 'blog.html')!;
-    assert.ok(
-      /<img[^>]*src="/u.test(index.html),
-      'the index renders covers; the article is typeset without one by design',
-    );
+    assert.ok(files.length >= 4, 'an index plus one file per post');
 
     for (const file of files) {
-      const srcs = [...file.html.matchAll(/<img[^>]*src="([^"]*)"/gu)].map((match) => match[1]);
-      for (const src of srcs) {
-        assert.doesNotMatch(src, /^\/stock\//u, `${file.name}: ${src} is not in the bundle`);
-        // A detail page sits one level deeper, so its reference has to climb out.
-        const expectedPrefix = file.name.startsWith('blog/') ? '../assets/' : 'assets/';
-        assert.ok(
-          src.startsWith(expectedPrefix),
-          `${file.name}: ${src} should start with ${expectedPrefix}`,
-        );
-        const bundled = src.replace(/^\.\.\//u, '');
-        assert.ok(covers.assets.has(bundled), `${bundled} is missing from the zip`);
-      }
+      assert.equal(
+        parse(file.html).querySelectorAll('img').length,
+        0,
+        `${file.name} renders an image element`,
+      );
+      assert.doesNotMatch(
+        file.html,
+        /\/stock\//u,
+        `${file.name} points at an origin-only stock path`,
+      );
     }
   });
 });
@@ -615,7 +468,6 @@ describe('BLOG-DESIGN G1 — motion off means no markers on either surface', () 
     );
     return renderToStaticMarkup(createElement(TenantContentBlog, {
       config,
-      siteId: SITE_ID,
       posts,
       post: withPost ? posts[0] : (undefined as never),
     }));
@@ -648,7 +500,6 @@ describe('BLOG-DESIGN G1 — motion off means no markers on either surface', () 
     for (const post of [undefined, posts[0]]) {
       const html = renderToStaticMarkup(createElement(TenantContentBlog, {
         config: CONFIG,
-        siteId: SITE_ID,
         posts,
         post: post as never,
       }));
@@ -689,60 +540,5 @@ describe('BLOG-DESIGN G1 — motion off means no markers on either surface', () 
         'data-m-progress must sit on an element that already spreads revealProps',
       );
     }
-  });
-});
-
-describe('BLOG-DESIGN G2 — a new month brings new covers', () => {
-  async function newbuild() {
-    const { buildOperatorClinicNewbuildSiteConfig } = await withServerOnlyNeutralized(
-      () => import('@/lib/operator-model/site-generation'),
-    );
-    const built = await buildOperatorClinicNewbuildSiteConfig(
-      {
-        businessName: 'Ridgeline Dental',
-        specialty: 'general',
-        accentPreset: 'clinical-blue',
-        phone: '(303) 555-0142',
-        serviceIds: ['dental-implants', 'clear-aligners', 'preventive-care'],
-      } as never,
-      'basic',
-      {} as never,
-    );
-    return built.config;
-  }
-
-  test('the same site, month and slot always resolve to the same image', async () => {
-    const { postCoverImage } = await import('@/lib/content-fulfillment/post-cover');
-    const first = await newbuild();
-    const second = await newbuild();
-    for (let ordinal = 1; ordinal <= 8; ordinal += 1) {
-      const slug = `2026-08-post-${ordinal}`;
-      assert.deepEqual(
-        postCoverImage({ config: first, siteId: SITE_ID, slug }),
-        postCoverImage({ config: second, siteId: SITE_ID, slug }),
-      );
-    }
-  });
-
-  test('a different month draws different images from the same categories', async () => {
-    const { postCoverImage } = await import('@/lib/content-fulfillment/post-cover');
-    const config = await newbuild();
-    let differing = 0;
-    for (let ordinal = 1; ordinal <= 8; ordinal += 1) {
-      const august = postCoverImage({ config, siteId: SITE_ID, slug: `2026-08-post-${ordinal}` })!;
-      const september = postCoverImage({ config, siteId: SITE_ID, slug: `2026-09-post-${ordinal}` })!;
-      assert.ok(august && september);
-      // The service a slot depicts is fixed by its ordinal; only the photo rotates.
-      assert.equal(
-        august.category,
-        september.category,
-        `slot ${ordinal} must keep depicting the same declared service`,
-      );
-      if (august.url !== september.url) differing += 1;
-    }
-    assert.ok(
-      differing >= 6,
-      `a new month must not reuse the same eight photos (only ${differing}/8 changed)`,
-    );
   });
 });

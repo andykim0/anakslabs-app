@@ -46,6 +46,16 @@ export type MedicalCopyScope =
   | 'meta'
   | 'page'
   | 'section'
+  /**
+   * Text that belongs to a data figure — its title, unit, bar labels, notes and caption.
+   *
+   * A separate scope because a figure asserts differently from a sentence. Prose can hedge a word
+   * ("recovery times vary widely") and stay honest; a bar labelled "recovery" with a number on it
+   * has had the hedge removed by the act of drawing it. Rules scoped here are therefore allowed to
+   * be stricter than anything that could run over body copy without suppressing true statements.
+   * Unscoped rules still apply to this text, exactly as they do to every other scope.
+   */
+  | 'chart'
   | 'headline'
   | 'body'
   | 'cta'
@@ -343,6 +353,93 @@ export const MEDICAL_AD_RULES = [
     matchers: [],
     safeReplacementHint: 'US review required.',
     rationale: 'Native-advertising analysis is context dependent; the former Korea-specific format ban is not reused.',
+  },
+  /**
+   * The two chart rules. Both are new rule *ids* inside an unchanged `MEDICAL_AD_POLICY_VERSION`,
+   * which is what the header comment on that constant permits and requires: the stamp is pinned by
+   * `z.literal` against every stored SiteConfig, so bumping it would fail zod on published sites
+   * and issued previews over a rule that only ever fires on a block type none of them contain.
+   *
+   * Why a chart needs rules of its own at all. Everything the honesty gate does is make a number
+   * name a source. That is orthogonal to whether the number may be published: "94% of our implant
+   * patients report full recovery" can cite the practice's own records and still be an efficacy
+   * claim the FTC requires competent and reliable scientific evidence for. A chart is the strongest
+   * possible form of that claim — it removes the qualifiers, prints the figure at display size, and
+   * hands a reader a shape to remember. So an outcome charted is blocked even when it is sourced.
+   */
+  {
+    id: 'medical-chart-outcome-measure',
+    category: 'unassessed-technology',
+    severity: 'block',
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
+    scopes: ['chart'],
+    matchers: [
+      /**
+       * The axis names a clinical outcome. Any of these words in a figure's title, unit, labels or
+       * note means the quantity being drawn is how well treatment worked.
+       */
+      {
+        kind: 'regex',
+        source: '\\b(?:success\\s+rates?|cure\\s+rates?|survival\\s+rates?|efficacy|effectiveness'
+          + '|outcomes?|complication\\s+rates?|failure\\s+rates?|satisfaction\\s+rates?'
+          + '|healing\\s+(?:rate|rates|time|times)|recovery\\s+(?:rate|rates|time|times)'
+          + '|pain\\s+(?:score|scores|level|levels|reduction)|improvement|improved'
+          + '|before\\s+and\\s+after)\\b',
+      },
+      /**
+       * The bars are patients sorted by how they ended up. Separate from the list above because
+       * the outcome word here is a verb and carries no measure noun to match on.
+       */
+      {
+        kind: 'regex',
+        source: '\\bpatients?\\b(?:\\s+\\w+){0,4}\\s+(?:cured|healed|recovered|resolved|reversed'
+          + '|corrected|eliminated)\\b',
+      },
+    ],
+    safeReplacementHint:
+      'Chart an operating fact — cost, duration, appointment availability, what a visit includes — '
+      + 'and describe outcomes in prose that keeps its qualifications.',
+    rationale:
+      'Charting a treatment outcome states an objective efficacy claim at its strongest and least '
+      + 'qualified, which requires competent and reliable scientific evidence.',
+  },
+  {
+    id: 'medical-chart-treatment-efficacy',
+    category: 'unassessed-technology',
+    severity: 'block',
+    enabled: true,
+    usDisposition: 'modified',
+    statuteRefs: ['FTC Act Sections 5 and 12', 'FTC Health Products Compliance Guidance'],
+    scopes: ['chart'],
+    matchers: [
+      /**
+       * A treatment noun measured by an effect noun, in either order. The bounded word gap is the
+       * same device the superlative rule uses: the two tokens are separated by the practice's own
+       * qualifiers ("implant placement results", "results of laser gum therapy").
+       */
+      {
+        kind: 'regex',
+        source: '\\b(?:treatments?|procedures?|surgery|surgeries|therapy|therapies|implants?'
+          + '|injections?|laser|whitening|braces|aligners?|veneers?|root\\s+canals?|extractions?'
+          + '|sedation|grafts?)\\b(?:\\s+\\w+){0,4}\\s+(?:results?|relief|effect|effective'
+          + '|success|works?|worked)\\b',
+      },
+      {
+        kind: 'regex',
+        source: '\\b(?:results?|relief|effect|effectiveness|success)\\b(?:\\s+\\w+){0,4}\\s+'
+          + '(?:treatments?|procedures?|surgery|surgeries|therapy|therapies|implants?|injections?'
+          + '|laser|whitening|braces|aligners?|veneers?|root\\s+canals?|extractions?|sedation'
+          + '|grafts?)\\b',
+      },
+    ],
+    safeReplacementHint:
+      'Name what the figure counts without asserting that a treatment produced it, or move the '
+      + 'claim into prose where its limitations can travel with it.',
+    rationale:
+      'A figure pairing a named treatment with an effect measure is a comparative efficacy claim '
+      + 'that must be substantiated before publication.',
   },
   {
     id: 'medical-side-effect-disclosure',
