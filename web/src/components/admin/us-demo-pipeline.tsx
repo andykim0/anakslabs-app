@@ -6,7 +6,9 @@ import {
   AlertTriangle,
   ArrowDown,
   ArrowUp,
+  Check,
   CheckCircle2,
+  Copy,
   ExternalLink,
   Globe2,
   Info,
@@ -14,7 +16,7 @@ import {
   LockKeyhole,
   ShieldCheck,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   createUsMedicalDemoConsent,
   createUsMedicalDemoPreview,
@@ -27,6 +29,15 @@ import {
   type AdminUsDemoSourceBlock,
 } from './api';
 import { normalizeUrlInput } from '@/lib/url-input';
+import {
+  collectDisabledReason,
+  crawlElapsedLabel,
+  crawlExpectationLine,
+  errorBelongsToSlot,
+  previewDisabledReason,
+  type UsDemoErrorSlot,
+  type UsDemoPipelineError,
+} from './us-demo-feedback';
 
 const BLOCKER_NATURE_LABELS = {
   claim: 'a claim in the copy',
@@ -77,6 +88,70 @@ function dispositionClasses(block: AdminUsDemoSourceBlock): string {
   return 'border-emerald-200 bg-emerald-50/40';
 }
 
+/**
+ * One alert per action, rendered where the action is. A single error slot at the top of the form
+ * put a failed preview roughly 150,000 px above the button that failed on a real practice page,
+ * which is indistinguishable from the button doing nothing.
+ */
+function SlotAlert({
+  error,
+  slot,
+}: {
+  error: UsDemoPipelineError | null;
+  slot: UsDemoErrorSlot;
+}) {
+  const ref = useRef<HTMLParagraphElement | null>(null);
+  const visible = errorBelongsToSlot(error, slot);
+  const message = visible ? error?.message : undefined;
+  useEffect(() => {
+    if (!message) return;
+    // 'nearest' so an alert already on screen does not yank the page out from under the operator.
+    ref.current?.scrollIntoView?.({ block: 'nearest' });
+  }, [message]);
+  if (!visible || !error) return null;
+  return (
+    <p
+      ref={ref}
+      role="alert"
+      data-error-slot={slot}
+      className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+    >
+      {error.message}
+    </p>
+  );
+}
+
+/** The sentence a disabled button owes the operator. Never rendered when `reason` is null. */
+function DisabledReason({ reason, slot }: { reason: string | null; slot: string }) {
+  if (!reason) return null;
+  return (
+    <p data-disabled-reason={slot} className="mt-1.5 max-w-xs text-right text-xs leading-4 text-[#6a7286]">
+      {reason}
+    </p>
+  );
+}
+
+function CopyPreviewLink({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), 2_000);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void navigator.clipboard?.writeText(url).then(() => setCopied(true)).catch(() => undefined);
+      }}
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-900"
+    >
+      {copied ? <Check size={14} aria-hidden /> : <Copy size={14} aria-hidden />}
+      {copied ? 'Copied' : 'Copy link'}
+    </button>
+  );
+}
+
 export function UsDemoPipeline() {
   const [url, setUrl] = useState('');
   const [allowTlsHttpFallback, setAllowTlsHttpFallback] = useState(false);
@@ -93,10 +168,34 @@ export function UsDemoPipeline() {
   const [consenterTitle, setConsenterTitle] = useState('');
   const [consentedAt, setConsentedAt] = useState('');
   const [consentNotes, setConsentNotes] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<UsDemoPipelineError | null>(null);
+  const [crawlElapsedSeconds, setCrawlElapsedSeconds] = useState(0);
+  const previewPanelRef = useRef<HTMLElement | null>(null);
 
   // Only ever false for US medical previews, which are the ones that get sent to a prospect.
   const previewUndeliverable = preview?.deliverable === false;
+
+  /**
+   * A collection is one POST that returns after every page, so elapsed time is the only honest
+   * signal the browser has. A spinner alone cannot tell a two-minute crawl from a hung request.
+   */
+  useEffect(() => {
+    if (status !== 'crawling') return;
+    // The counter is zeroed by runCrawl, not here: a synchronous setState in an effect body
+    // cascades a render, and the reset belongs to the event that starts the collection anyway.
+    const startedAt = Date.now();
+    const timer = window.setInterval(
+      () => setCrawlElapsedSeconds(Math.floor((Date.now() - startedAt) / 1_000)),
+      1_000,
+    );
+    return () => window.clearInterval(timer);
+  }, [status]);
+
+  /** The link is the product of the whole page; it must not appear below the fold it was made at. */
+  useEffect(() => {
+    if (!preview?.id) return;
+    previewPanelRef.current?.scrollIntoView?.({ block: 'start' });
+  }, [preview?.id]);
 
   const blocksById = new Map(
     detail?.artifact.usDemo.blocks.map((block) => [block.id, block]) ?? [],
@@ -105,14 +204,36 @@ export function UsDemoPipeline() {
     .map((id) => blocksById.get(id))
     .filter((block): block is AdminUsDemoSourceBlock => Boolean(block));
 
+  /**
+   * One source for both `disabled` and the sentence under the button: a reason that could appear
+   * beside a working button would be worse than the silent fade it replaces.
+   */
+  const collectReason = collectDisabledReason({
+    url,
+    status,
+    consentedTransfer,
+    prospectId,
+    consenterName,
+    consenterTitle,
+    consentedAt,
+  });
+  const previewReason = detail
+    ? previewDisabledReason({
+        status,
+        includedBlockCount: includedIds.size,
+        englishSourceReady: detail.artifact.usDemo.englishSourceReady,
+      })
+    : null;
+
   async function runCrawl() {
     const target = normalizeUrlInput(url);
     if (!target.ok) {
-      setError(target.reason);
+      setError({ slot: 'collect', message: target.reason });
       return;
     }
     setUrl(target.url);
     setStatus('crawling');
+    setCrawlElapsedSeconds(0);
     setError(null);
     setPreview(null);
     try {
@@ -146,7 +267,10 @@ export function UsDemoPipeline() {
       setStatus('ready');
     } catch (reason) {
       setStatus('idle');
-      setError(reason instanceof Error ? reason.message : "Collection failed.");
+      setError({
+        slot: 'collect',
+        message: reason instanceof Error ? reason.message : "Collection failed.",
+      });
     }
   }
 
@@ -190,7 +314,10 @@ export function UsDemoPipeline() {
       setStatus('ready');
     } catch (reason) {
       setStatus('ready');
-      setError(reason instanceof Error ? reason.message : "Preview creation failed.");
+      setError({
+        slot: 'preview',
+        message: reason instanceof Error ? reason.message : "Preview creation failed.",
+      });
     }
   }
 
@@ -201,7 +328,12 @@ export function UsDemoPipeline() {
       await enableUsDemoQaExclusion();
       window.open(preview.url, '_blank', 'noopener,noreferrer');
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Setting up internal QA exclusions failed.");
+      setError({
+        slot: 'qa',
+        message: reason instanceof Error
+          ? reason.message
+          : "Setting up internal QA exclusions failed.",
+      });
     }
   }
 
@@ -240,22 +372,18 @@ export function UsDemoPipeline() {
               className="mt-2 w-full rounded-lg border border-[#C9D5E7] bg-white px-3 py-2.5 text-sm outline-none ring-[#2D63F0] focus:ring-2"
             />
           </label>
-          <button
-            type="button"
-            disabled={
-              !url
-              || status === 'crawling'
-              || status === 'publishing'
-              || (consentedTransfer && (
-                !prospectId || !consenterName || !consenterTitle || !consentedAt
-              ))
-            }
-            onClick={runCrawl}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#2D63F0] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
-          >
-            {status === 'crawling' && <LoaderCircle size={16} className="animate-spin" aria-hidden />}
-            Collect and Diagnose
-          </button>
+          <div className="flex flex-col items-stretch lg:items-end">
+            <button
+              type="button"
+              disabled={collectReason !== null}
+              onClick={runCrawl}
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#2D63F0] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              {status === 'crawling' && <LoaderCircle size={16} className="animate-spin" aria-hidden />}
+              Collect and Diagnose
+            </button>
+            <DisabledReason reason={collectReason} slot="collect" />
+          </div>
         </div>
         <label className="mt-3 inline-flex items-center gap-2 text-xs text-[#6a7286]">
           <input
@@ -327,10 +455,30 @@ export function UsDemoPipeline() {
             </p>
           </div>
         ) : null}
-        {error && (
-          <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
-            {error}
-          </p>
+        <SlotAlert error={error} slot="collect" />
+        {status === 'crawling' && (
+          <div
+            data-crawl-progress
+            aria-live="polite"
+            className="mt-4 rounded-xl border border-[#C9D5E7] bg-[#F7F9FC] p-4"
+          >
+            <p className="flex items-center gap-2 text-sm font-semibold text-[#22304A]">
+              <LoaderCircle size={16} className="animate-spin" aria-hidden />
+              Collecting public pages · {crawlElapsedLabel(crawlElapsedSeconds)}
+            </p>
+            <p className="mt-1.5 text-xs leading-5 text-[#6a7286]">
+              {/*
+                * null, deliberately: the effective cap is `consentedCrawlMaxPages()` from the
+                * server-side US_CONSENTED_CRAWL_MAX_PAGES, which the browser cannot read. A
+                * number guessed from the compiled default would be a number the server may not
+                * be using.
+                */}
+              {crawlExpectationLine(null)}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-[#6a7286]">
+              This is a single request, so nothing updates until it returns. Leave the tab open.
+            </p>
+          </div>
         )}
       </section>
 
@@ -502,19 +650,23 @@ export function UsDemoPipeline() {
                   </select>
                 </label>
               </div>
-              <button
-                type="button"
-                disabled={
-                  status === 'publishing'
-                  || includedIds.size === 0
-                  || !detail.artifact.usDemo.englishSourceReady
-                }
-                onClick={publishPreview}
-                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#0B765C] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
-              >
-                {status === 'publishing' && <LoaderCircle size={16} className="animate-spin" aria-hidden />}
-                Create a private demo
-              </button>
+              <div className="flex flex-col items-stretch sm:items-end">
+                <button
+                  type="button"
+                  disabled={previewReason !== null}
+                  onClick={publishPreview}
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#0B765C] px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  {status === 'publishing' && <LoaderCircle size={16} className="animate-spin" aria-hidden />}
+                  Create a private demo
+                </button>
+                <DisabledReason reason={previewReason} slot="preview" />
+                {/*
+                  * The failure of this button belongs beside this button. The old single slot sat
+                  * at the top of the form, up to 155,000 px above here on a 63-page practice.
+                  */}
+                <SlotAlert error={error} slot="preview" />
+              </div>
             </div>
           </section>
         </>
@@ -522,12 +674,31 @@ export function UsDemoPipeline() {
 
       {preview && (
         <section
+          ref={previewPanelRef}
+          data-preview-panel
           className={
             previewUndeliverable
               ? 'rounded-2xl border border-amber-300 bg-amber-50 p-5'
               : 'rounded-2xl border border-emerald-200 bg-emerald-50 p-5'
           }
         >
+          {/*
+            * First in the panel, because it is the thing the operator came for and the panel is
+            * the bottom of a page that can run to six figures of pixels. The deliverability
+            * warning stays immediately below it — still on the panel that carries the link, still
+            * before any send — so scrolling the link into view brings the warning with it.
+            */}
+          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-emerald-300 bg-white/80 p-3">
+            <a
+              href={preview.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="min-w-0 flex-1 break-all text-sm font-semibold text-emerald-900 underline"
+            >
+              {preview.url}
+            </a>
+            <CopyPreviewLink url={preview.url} />
+          </div>
           {previewUndeliverable ? (
             /**
              * Shown here, on the panel that carries the link, because the only thing this warning
@@ -606,7 +777,8 @@ export function UsDemoPipeline() {
                 </p>
               ) : null}
               <p className="mt-1 break-all text-xs text-emerald-700">
-                {preview.url} · {new Date(preview.expiresAt).toLocaleString('ko-KR')} expiration
+                {/* The link itself now leads the panel; this keeps only what it did not carry. */}
+                Expires {new Date(preview.expiresAt).toLocaleString('ko-KR')}
               </p>
               {/*
                 * The hand-off to delivery. Once the prospect says yes, this id is what ships their
@@ -624,14 +796,18 @@ export function UsDemoPipeline() {
                 </a>
               </p>
             </div>
-            <button
-              type="button"
-              onClick={openPreview}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white"
-            >
-              Open after excluding internal QA
-              <ExternalLink size={15} aria-hidden />
-            </button>
+            <div className="flex flex-col items-stretch sm:items-end">
+              <button
+                type="button"
+                onClick={openPreview}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white"
+              >
+                Open after excluding internal QA
+                <ExternalLink size={15} aria-hidden />
+              </button>
+              {/* The QA-cookie call is this button's own failure; it belongs under this button. */}
+              <SlotAlert error={error} slot="qa" />
+            </div>
           </div>
           <p className="mt-3 text-xs text-emerald-800">{preview.warning}</p>
         </section>

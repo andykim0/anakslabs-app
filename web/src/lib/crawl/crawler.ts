@@ -63,9 +63,17 @@ export async function crawlConsentedUsMedicalSite(
           acceptInvalidTlsCertificate: input.allowInvalidTlsCertificate === true,
         });
       } catch (error) {
+        /**
+         * The operator reads this message in the admin console, so it has to name the actual
+         * cause. On Vercel there is no Chrome binary to launch and this failed every time with a
+         * sentence that read like a transient error; the fix is a remote browser, not a retry.
+         */
         throw new CrawlError(
           'RENDER_FAILED',
-          `동의 기반 수집 렌더러를 시작할 수 없습니다: ${error instanceof Error ? error.message : String(error)}`,
+          'This server has no browser to render the consented full-transfer crawl with. '
+          + 'Set ANAKS_BROWSER_WS_ENDPOINT to a remote Chrome WebSocket endpoint (a serverless '
+          + 'runtime has no Chrome binary), or run the collection where a local Chrome exists. '
+          + `Underlying error: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
     }
