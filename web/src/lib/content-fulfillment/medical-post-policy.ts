@@ -69,6 +69,37 @@ export function collectMedicalPostPublicCopy(
           });
         });
         return;
+      /**
+       * Every string a figure prints, under the `chart` scope.
+       *
+       * The values themselves are not screened here: `42` carries no vocabulary, and what makes a
+       * chart an efficacy claim is what its title and labels say the 42 is *of*. The honesty gate
+       * is what demands the number name a source; this pass decides whether the practice is
+       * allowed to draw it at all.
+       */
+      case 'chart':
+        copies.push({ path: `${base}.title`, text: block.title, scope: 'chart' });
+        if (block.unit) {
+          copies.push({ path: `${base}.unit`, text: block.unit, scope: 'chart' });
+        }
+        if (block.caption) {
+          copies.push({ path: `${base}.caption`, text: block.caption, scope: 'chart' });
+        }
+        block.items.forEach((item, itemIndex) => {
+          copies.push({
+            path: `${base}.items.${itemIndex}.label`,
+            text: item.label,
+            scope: 'chart',
+          });
+          if (item.note) {
+            copies.push({
+              path: `${base}.items.${itemIndex}.note`,
+              text: item.note,
+              scope: 'chart',
+            });
+          }
+        });
+        return;
       case 'table':
         if (block.caption) {
           copies.push({ path: `${base}.caption`, text: block.caption, scope: 'body' });

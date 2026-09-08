@@ -19,18 +19,13 @@ function staticBlogBody(input: {
   posts: readonly PublishedContentPost[];
   post?: PublishedContentPost;
   fontFaceCss?: string;
-  coverRewrites?: ReadonlyMap<string, string>;
 }): string {
   const isDetail = Boolean(input.post);
+  // No cover rewriting, and no asset list to rewrite: the blog carries no images on either
+  // surface, so an exported bundle has nothing to bundle beyond fonts. Charts travel as the
+  // inline SVG the component renders, which needs no file at all.
   let body = renderToStaticMarkup(createElement(TenantContentBlog, {
     config: input.site.siteConfig!,
-    siteId: input.site.id,
-    // Bundled covers live beside the pages; a detail file sits one directory deeper.
-    coverSrc: (src: string) => {
-      const bundled = input.coverRewrites?.get(src);
-      if (!bundled) return src;
-      return isDetail ? `../${bundled}` : bundled;
-    },
     posts: input.posts,
     post: input.post,
     hrefForSlug: (slug: string) => {
@@ -63,8 +58,6 @@ export function renderStaticContentPostFiles(input: {
   site: Site;
   posts: readonly PublishedContentPost[];
   fontFaceCss?: string;
-  /** Bundled paths for render-time cover images, keyed by the URL the live site serves. */
-  coverRewrites?: ReadonlyMap<string, string>;
 }): StaticContentPostFile[] {
   if (!input.site.siteConfig || !input.site.domain || input.posts.length === 0) return [];
   const baseUrl = `https://${input.site.domain}`;

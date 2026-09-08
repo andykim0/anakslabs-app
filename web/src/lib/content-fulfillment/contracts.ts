@@ -66,8 +66,40 @@ const tableColumn = z.object({
 }).strict();
 
 /**
+ * One measured value in a chart.
+ *
+ * `value` is a plain non-negative number and nothing else. A string here would let the model
+ * write "roughly half" or "up to 40%" into a slot the renderer draws a bar from, and a bar drawn
+ * from a hedge is a precision the sentence never claimed. The hedge belongs in `note`, which is
+ * printed as text beside the bar rather than measured.
+ *
+ * `sourceRef` is optional because the figure's own `sourceRefs` already covers every value it
+ * draws; the per-item field exists for the case the reference article actually has — two bars
+ * drawn from two different populations, which must not be allowed to cite one source between
+ * them. Either way the honesty gate demands a source for the number: see `honesty.ts`.
+ */
+const chartItem = z.object({
+  label: plainText.max(80),
+  value: z.number().finite().nonnegative(),
+  note: plainText.max(160).optional(),
+  sourceRef: sourceRefId.optional(),
+}).strict();
+
+/**
+ * A figure is limited to two per article, and the limit is a contract rather than a prompt.
+ * The generator is instructed to emit at most two, but an instruction is advice: a document that
+ * arrives with five charts is a page of decoration built out of the small number of facts the
+ * practice actually gave us, and it should be regenerated rather than published.
+ */
+const MAX_CHART_BLOCKS = 2;
+
+/**
  * P1의 공개 투영 최소 계약. P2가 표·출처 참조·정직성 검사를 이 버전 계약에
  * 추가한다. raw HTML은 현재부터 저장·렌더 경계에 존재하지 않는다.
+ *
+ * `chart` is the fifth block type. It stores numbers, not pictures: the renderer draws an inline
+ * SVG from these values in the practice's own brand tokens and prints every value as text, so the
+ * figure is a rendering of the stored document in exactly the way the table block already is.
  */
 export const contentPostDocumentSchema = z.object({
   version: z.literal(1),
@@ -97,9 +129,50 @@ export const contentPostDocumentSchema = z.object({
         cells: z.array(tableCell).min(2).max(6),
       }).strict()).min(1).max(50),
     }).strict(),
+    z.object({
+      type: z.literal('chart'),
+      /**
+       * `bars` — horizontal bars on one shared zero-based scale, values printed.
+       * `compare` — exactly two labelled values set against each other ("with a plan / without").
+       * `steps` — an ordered sequence carrying a duration or a count at each step.
+       */
+      kind: z.enum(['bars', 'compare', 'steps']),
+      title: plainText.max(160),
+      /** What the numbers are counted in — "%", "minutes", "visits". Printed under the title. */
+      unit: plainText.max(60).optional(),
+      items: z.array(chartItem).min(2).max(6),
+      caption: plainText.max(240).optional(),
+      /**
+       * Required, and at least one. A chart is a set of assertions with the hedging removed, so
+       * unlike a heading or a paragraph there is no version of it that carries no claim. The
+       * source line printed under the figure is built from these ids.
+       */
+      sourceRefs: z.array(sourceRefId).min(1).max(30),
+    }).strict(),
   ])).min(1).max(100),
 }).strict().superRefine((document, context) => {
+  let chartBlocks = 0;
   for (const [blockIndex, block] of document.blocks.entries()) {
+    if (block.type === 'chart') {
+      chartBlocks += 1;
+      if (chartBlocks > MAX_CHART_BLOCKS) {
+        context.addIssue({
+          code: 'custom',
+          path: ['blocks', blockIndex],
+          message: `An article may carry at most ${MAX_CHART_BLOCKS} chart blocks.`,
+        });
+      }
+      // Two values set against each other is what `compare` means; three is a bar chart with a
+      // layout that gives the third value nowhere to sit.
+      if (block.kind === 'compare' && block.items.length !== 2) {
+        context.addIssue({
+          code: 'custom',
+          path: ['blocks', blockIndex, 'items'],
+          message: 'A compare chart must carry exactly two items.',
+        });
+      }
+      continue;
+    }
     if (block.type !== 'table') continue;
     for (const [rowIndex, row] of block.rows.entries()) {
       if (row.cells.length !== block.columns.length) {
@@ -114,6 +187,9 @@ export const contentPostDocumentSchema = z.object({
 });
 
 export type ContentPostDocument = z.infer<typeof contentPostDocumentSchema>;
+
+export type ContentPostBlock = ContentPostDocument['blocks'][number];
+export type ContentPostChartBlock = Extract<ContentPostBlock, { type: 'chart' }>;
 
 export interface PublishedContentPost {
   id: string;

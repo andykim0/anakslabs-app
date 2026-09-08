@@ -115,6 +115,42 @@ const tableBlock = {
   required: ['type', 'columns', 'rows'],
 } as const;
 
+/**
+ * The figure block.
+ *
+ * `sourceRefs` is in `required` here, unlike every other block's optional source list, because a
+ * chart has no unclaimed form: it is a set of numbers with the hedging removed. Zod enforces the
+ * rest — 2–6 items, exactly two for `compare`, at most two charts per article, non-negative
+ * finite values — and the honesty gate then demands a catalog id behind every value.
+ */
+const chartBlock = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    type: { type: 'string', enum: ['chart'] },
+    kind: { type: 'string', enum: ['bars', 'compare', 'steps'] },
+    title: { type: 'string' },
+    unit: { type: 'string' },
+    items: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          label: { type: 'string' },
+          value: { type: 'number' },
+          note: { type: 'string' },
+          sourceRef: { type: 'string' },
+        },
+        required: ['label', 'value'],
+      },
+    },
+    caption: { type: 'string' },
+    sourceRefs: sourceRefsProperty,
+  },
+  required: ['type', 'kind', 'title', 'items', 'sourceRefs'],
+} as const;
+
 export interface ContentPostGenerationToolDefinition {
   name: 'submit_content_post';
   description: string;
@@ -151,7 +187,7 @@ export const CONTENT_POST_GENERATION_TOOL: ContentPostGenerationToolDefinition =
           blocks: {
             type: 'array',
             items: {
-              anyOf: [headingBlock, paragraphBlock, listBlock, tableBlock],
+              anyOf: [headingBlock, paragraphBlock, listBlock, tableBlock, chartBlock],
             },
           },
         },

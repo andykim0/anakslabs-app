@@ -165,8 +165,11 @@ Matching a rule never means "forbidden". It means "this sentence must name a sou
 catalog" — the same contract the Korean rules carry. The medical screen, which does block, is a
 separate pass and is unchanged.
 
-**`CONTENT_HONESTY_POLICY_VERSION` moved to `content-honesty-2026-09-v1`.** Consequences, which
-are intended:
+**`CONTENT_HONESTY_POLICY_VERSION` moved to `content-honesty-2026-09-v1`, and then to
+`content-honesty-2026-09-v2` when the `chart` block landed** — a chart's payload is numbers, and a
+gate that walked headings, paragraphs, lists and tables but stepped over a figure would publish a
+number no sentence on the page was allowed to state. Consequences of either bump, which are
+intended:
 
 - A stored version carrying the old stamp is refused by `content-approval-core`'s `z.literal` and
   dropped by `public-integrity`. Copy cleared by a gate that could not read it is re-generated,

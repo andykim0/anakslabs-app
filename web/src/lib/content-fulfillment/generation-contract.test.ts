@@ -70,7 +70,7 @@ function assertEveryObjectIsStrict(node: unknown, path = '$'): void {
   });
 }
 
-test('content generation tool hand-authors a strict four-block union without Zod conversion limits', () => {
+test('content generation tool hand-authors a strict five-block union without Zod conversion limits', () => {
   // Raised from 2,000 after real-key measurement truncated 15.4% of Opus responses.
   assert.equal(CONTENT_POST_GENERATION_MAX_TOKENS, 6_000);
   assert.equal(CONTENT_POST_GENERATION_REQUEST_TIMEOUT_MS, 130_000);
@@ -85,7 +85,7 @@ test('content generation tool hand-authors a strict four-block union without Zod
   assert.deepEqual(
     blocks.map((block) =>
       ((block.properties as { type: { enum: string[] } }).type.enum[0])),
-    ['heading', 'paragraph', 'list', 'table'],
+    ['heading', 'paragraph', 'list', 'table', 'chart'],
   );
 
   const list = blocks[2] as { required: string[] };
@@ -102,6 +102,20 @@ test('content generation tool hand-authors a strict four-block union without Zod
     table.properties.columns.items.properties.key?.pattern,
     '^[a-z][a-z0-9_-]*$',
   );
+
+  // The figure block. `sourceRefs` is required here and nowhere else in the union: every other
+  // block has an unclaimed form, and a chart does not.
+  const chart = blocks[4] as {
+    required: string[];
+    properties: {
+      kind: { enum: string[] };
+      items: { items: { required: string[]; properties: Record<string, { type: string }> } };
+    };
+  };
+  assert.deepEqual(chart.properties.kind.enum, ['bars', 'compare', 'steps']);
+  assert.ok(chart.required.includes('sourceRefs'), 'a chart must cite');
+  assert.deepEqual(chart.properties.items.items.required, ['label', 'value']);
+  assert.equal(chart.properties.items.items.properties.value?.type, 'number');
 
   const schemaText = JSON.stringify(CONTENT_POST_GENERATION_TOOL.inputSchema);
   assert.doesNotMatch(schemaText, /"(?:min|max)(?:Items|Length|Properties|imum)"/u);

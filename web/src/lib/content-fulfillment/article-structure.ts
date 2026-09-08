@@ -176,7 +176,17 @@ export function articleWordCount(document: ContentPostDocument): number {
   for (const block of document.blocks) {
     if (block.type === 'heading' || block.type === 'paragraph') add(block.text);
     else if (block.type === 'list') for (const item of block.items) add(typeof item === 'string' ? item : item.text);
-    else {
+    // A figure is read, so it is counted. Discriminated explicitly rather than left to the `else`
+    // that used to mean "table": with a fifth block type that branch reached for `block.columns`
+    // on a chart and threw inside a tenant page render.
+    else if (block.type === 'chart') {
+      add(block.title);
+      if (block.caption) add(block.caption);
+      for (const item of block.items) {
+        add(item.label);
+        if (item.note) add(item.note);
+      }
+    } else {
       if (block.caption) add(block.caption);
       for (const column of block.columns) add(column.header);
       for (const row of block.rows) for (const cell of row.cells) add(cell.text);

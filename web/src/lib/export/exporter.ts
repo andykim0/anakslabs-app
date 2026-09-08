@@ -8,12 +8,11 @@
 import 'server-only';
 import type { Site } from '@/lib/types/domain';
 import type { MotionTier } from '@/lib/types/site';
-import { collectAndRewriteAssets, collectRenderTimeAssets } from './collect-assets';
+import { collectAndRewriteAssets } from './collect-assets';
 import { renderStaticDocument } from './render-static';
 import { siteUrlOf } from '@/lib/seo/structured-data';
 import { selfHostFonts } from './self-host-fonts';
 import { zipFiles } from './zip';
-import { postCoverSources } from '@/lib/content-fulfillment/post-cover';
 import { resolveStoredBeforeAfterMotionOptions } from '@/lib/motion/before-after-activation';
 import { motionAssetsForStaticRender } from './motion-scene-assets';
 import { resolveSiteAssetPolicy } from '@/lib/assets/assignment';
@@ -126,19 +125,13 @@ export async function buildExportZip(site: Site, opts: BuildExportOptions = {}):
   const files = new Map<string, Buffer | string>();
   for (const pf of pageFiles) files.set(pf.name, pf.html);
   if (contentPosts) {
-    // Cover images are resolved while rendering, so the config walk above never saw them.
-    const covers = await collectRenderTimeAssets(postCoverSources({
-      config: collected.config,
-      siteId: site.id,
-      slugs: contentPosts.map((post) => post.slug),
-    }));
-    warnings.push(...covers.warnings);
-    for (const [rel, buf] of covers.assets) files.set(rel, buf);
+    // Nothing render-time to collect any more. The blog's cover images — a stock photograph
+    // chosen per slot, invisible to the config walk above — are gone with the images themselves,
+    // so the bundle no longer carries a picture that only the blog pages referenced.
     for (const file of renderStaticContentPostFiles({
       site: { ...site, siteConfig: collected.config },
       posts: contentPosts,
       fontFaceCss: fontFaceCss || undefined,
-      coverRewrites: covers.rewrites,
     })) {
       files.set(file.name, file.html);
     }

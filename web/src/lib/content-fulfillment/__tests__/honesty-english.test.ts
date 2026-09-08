@@ -140,8 +140,11 @@ const NEEDS_NO_SOURCE: ReadonlyArray<readonly [string, string]> = [
 ];
 
 describe('the honesty gate reads English claims the way it reads Korean ones', () => {
-  test('the policy stamp records that the lexicon changed', () => {
-    assert.equal(CONTENT_HONESTY_POLICY_VERSION, 'content-honesty-2026-09-v1');
+  test('the policy stamp records that the gate changed', () => {
+    // Moved to -v2 when the chart block landed: the gate now walks a block type whose payload is
+    // numbers, and a stored version validated before that was cleared by a gate that could not
+    // see all of it. `public-integrity` drops the older stamp rather than grandfathering it.
+    assert.equal(CONTENT_HONESTY_POLICY_VERSION, 'content-honesty-2026-09-v2');
   });
 
   for (const [label, text] of NEEDS_SOURCE) {
@@ -222,7 +225,7 @@ describe('an English claim without a sourceRef fails exactly as a Korean one doe
   test('the stamp on a passing result is the new one', () => {
     const result = validateGeneratedContentPost(post(), snapshot());
     assert.equal(result.ok, true, JSON.stringify(result.violations));
-    assert.equal(result.policyVersion, 'content-honesty-2026-09-v1');
+    assert.equal(result.policyVersion, CONTENT_HONESTY_POLICY_VERSION);
   });
 });
 
@@ -242,7 +245,7 @@ describe('the safe-catalog fallback still clears the widened gate', () => {
     });
     assert.equal(version.generationMetadata.attempt, 'safe-catalog');
     assert.equal(version.validationEvidence.honesty.ok, true);
-    assert.equal(version.policyVersions.honesty, 'content-honesty-2026-09-v1');
+    assert.equal(version.policyVersions.honesty, CONTENT_HONESTY_POLICY_VERSION);
 
     // And no sentence in it trips a rule while carrying no source, which is what would make the
     // fallback itself unpublishable.

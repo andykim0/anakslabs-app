@@ -173,10 +173,10 @@ export function contentPostJsonLd(
     dateModified: post.updatedAt,
     mainEntityOfPage: url,
     url,
-    // The cover slot 0049 shipped, finally reaching the markup. Absent when the version stored no
-    // cover; the template's tokenised plate is a CSS paint, not a file, so there is nothing
-    // honest to advertise here in that case.
-    ...(post.cover ? { image: post.cover.url } : {}),
+    // No `image`. The blog carries none by product decision, so advertising one in structured
+    // data would point a crawler at a picture that appears nowhere on the page — the same
+    // hidden-structured-data failure the FAQPage block below exists to avoid. A stored cover may
+    // still exist behind `CONTENT_COVER_IMAGES_ENABLED`; it is simply not published here.
     publisher: {
       '@type': 'Organization',
       name: publisher,
