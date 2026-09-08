@@ -246,6 +246,29 @@ test('P1: 미승인·반려·pointer 오염 포스트는 공개 repository에서
   }
 });
 
+test('P1: 공개 목록은 published_at 내림차순·동시각이면 slug로 전순서가 된다', async () => {
+  // Two posts stamped in the same instant is a real shape — approving a batch writes them
+  // together — and the list still has to come back in one fixed order whichever way the rows
+  // arrive, or the same site draws different "related posts" from one request to the next.
+  const rows: ContentPostRow[] = [
+    { id: '99999999-9999-4999-8999-999999999991', slug: 'zebra', at: '2026-07-20T00:00:00.000Z' },
+    { id: '99999999-9999-4999-8999-999999999992', slug: 'apple', at: '2026-07-20T00:00:00.000Z' },
+    { id: '99999999-9999-4999-8999-999999999993', slug: 'newest', at: '2026-07-21T00:00:00.000Z' },
+  ].map(({ id, slug, at }, index) => post('published', {
+    id,
+    slug,
+    published_at: at,
+    current_version_id: `99999999-9999-4999-8999-99999999999${index + 4}`,
+    published_version_id: `99999999-9999-4999-8999-99999999999${index + 4}`,
+  }));
+  const versions = rows.map((row) => version({ id: row.published_version_id!, post_id: row.id }));
+  const order = async (input: readonly ContentPostRow[]) =>
+    (await new MockPublishedContentPostsRepository(input, versions).listPublishedBySite(SITE_ID))
+      .map((item) => item.slug);
+  assert.deepEqual(await order(rows), ['newest', 'apple', 'zebra']);
+  assert.deepEqual(await order([...rows].reverse()), ['newest', 'apple', 'zebra']);
+});
+
 test('P1: published 포스트가 생긴 때부터만 내비·sitemap·llms·BlogPosting이 파생된다', async () => {
   const target = site();
   const emptySitemap = buildTenantSitemapXml({
