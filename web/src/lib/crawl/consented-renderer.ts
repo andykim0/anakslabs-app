@@ -23,6 +23,32 @@ export interface ConsentedRenderedPageSession {
   close: () => Promise<void>;
 }
 
+/**
+ * The two ways this process can get a browser. Injected in tests so the launch/connect decision
+ * and the close/disconnect decision are assertable without a real Chrome.
+ */
+export interface ConsentedRendererBrowserSource {
+  connect(options: { browserWSEndpoint: string; acceptInsecureCerts: boolean }): Promise<Browser>;
+  launch(options: {
+    executablePath: string;
+    headless: boolean;
+    acceptInsecureCerts: boolean;
+    args: string[];
+  }): Promise<Browser>;
+}
+
+/**
+ * A remote browser this process connects to instead of launching one. Vercel's runtime has no
+ * Chrome binary, so without this the consented full-transfer crawl is a 503 in production and
+ * works only on a laptop.
+ */
+export function sharedBrowserWsEndpoint(
+  raw: string | undefined = process.env.ANAKS_BROWSER_WS_ENDPOINT,
+): string | null {
+  const trimmed = raw?.trim();
+  return trimmed ? trimmed : null;
+}
+
 function chromeExecutablePath(): string {
   const configured = process.env.ANAKS_CHROME_EXECUTABLE_PATH?.trim()
     || process.env.CHROME_PATH?.trim();
@@ -125,13 +151,25 @@ async function measurements(page: Page): Promise<CrawlRenderedImageMeasurement[]
 
 export async function createConsentedRenderedPageSession(input: {
   acceptInvalidTlsCertificate: boolean;
+  /** Test seams. Production passes neither and reads the environment. */
+  browserSource?: ConsentedRendererBrowserSource;
+  wsEndpoint?: string | null;
 }): Promise<ConsentedRenderedPageSession> {
-  const browser: Browser = await puppeteer.launch({
-    executablePath: chromeExecutablePath(),
-    headless: true,
-    acceptInsecureCerts: input.acceptInvalidTlsCertificate,
-    args: ['--disable-dev-shm-usage'],
-  });
+  const source: ConsentedRendererBrowserSource = input.browserSource ?? puppeteer;
+  const endpoint = input.wsEndpoint === undefined
+    ? sharedBrowserWsEndpoint()
+    : input.wsEndpoint;
+  const browser: Browser = endpoint
+    ? await source.connect({
+        browserWSEndpoint: endpoint,
+        acceptInsecureCerts: input.acceptInvalidTlsCertificate,
+      })
+    : await source.launch({
+        executablePath: chromeExecutablePath(),
+        headless: true,
+        acceptInsecureCerts: input.acceptInvalidTlsCertificate,
+        args: ['--disable-dev-shm-usage'],
+      });
   return {
     renderPage: async ({ url, rawHtml }) => {
       const page = await browser.newPage();
@@ -168,6 +206,11 @@ export async function createConsentedRenderedPageSession(input: {
         await page.close().catch(() => undefined);
       }
     },
-    close: () => browser.close(),
+    /**
+     * A connected browser is shared with whatever else is using that endpoint, so ending this
+     * session must not end the browser: closing it would take out every other in-flight crawl.
+     * A browser this process launched is ours alone and gets closed.
+     */
+    close: () => (endpoint ? browser.disconnect() : browser.close()),
   };
 }
