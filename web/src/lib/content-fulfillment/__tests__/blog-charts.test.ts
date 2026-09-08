@@ -583,8 +583,7 @@ async function publishedWith(document: ContentPostDocument): Promise<PublishedCo
     .listPublishedBySite(SITE_ID);
 }
 
-async function renderArticle(document: ContentPostDocument): Promise<string> {
-  const posts = await publishedWith(document);
+async function renderPosts(posts: readonly PublishedContentPost[]): Promise<string> {
   const { TenantContentBlog } = await withServerOnlyNeutralized(
     () => import('@/components/content-posts/TenantContentBlog'),
   );
@@ -593,6 +592,10 @@ async function renderArticle(document: ContentPostDocument): Promise<string> {
     posts,
     post: posts[0]!,
   }));
+}
+
+async function renderArticle(document: ContentPostDocument): Promise<string> {
+  return renderPosts(await publishedWith(document));
 }
 
 describe('BLOG-CHARTS C4 — the figure renders, and is redundant in text', () => {
@@ -716,8 +719,15 @@ describe('BLOG-CHARTS C4 — the figure renders, and is redundant in text', () =
     // Sequential, deliberately. `withServerOnlyNeutralized` swaps `Module._load` globally and
     // restores it in a `finally`, so two concurrent renders interleave the patch and the restore
     // and the second import can miss the shim — a flake that has nothing to do with charts.
-    const first = await renderArticle(chartDocument());
-    const second = await renderArticle(chartDocument());
+    //
+    // One fixture, drawn twice. Publishing it a second time would not give the same posts: the
+    // mock stamps `published_at` off the wall clock, and the two slots land in one millisecond
+    // or in two depending on the load on the box. The order — `published_at` desc, then slug —
+    // is total either way, so the tie and the near-tie sort differently and the related-post
+    // links swap. That is the fixture's clock moving, not the renderer wobbling.
+    const posts = await publishedWith(chartDocument());
+    const first = await renderPosts(posts);
+    const second = await renderPosts(posts);
     assert.equal(first, second, 'the hosted route and a static export must not disagree');
   });
 
