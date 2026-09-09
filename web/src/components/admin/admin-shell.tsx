@@ -88,7 +88,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <div className="flex flex-col items-start gap-2 px-4 py-4">
         <Link
           href="/admin"
-          aria-label="Administrator Dashboard Home"
+          aria-label="Admin console home"
           onClick={closeMenu}
           className="inline-flex shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2D63F0]"
         >
@@ -99,7 +99,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </span>
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 pt-1" aria-label="Administrator Menu">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 pt-1" aria-label="Admin console navigation">
         <AdminNavLinks pathname={pathname} onNavigate={closeMenu} />
       </nav>
 
@@ -157,7 +157,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             {menuOpen ? <X size={16} aria-hidden /> : <Menu size={16} aria-hidden />}
           </button>
           <p className="hidden truncate text-xs font-medium text-[#6a7286] sm:block">
-            Internal operating systems — handle customer data with care
+            Internal operations console — handle client data with care
           </p>
           <span className="ml-auto shrink-0 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-widest text-white">
             ADMIN

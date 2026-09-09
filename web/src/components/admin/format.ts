@@ -61,67 +61,75 @@ export function formatDateTime(iso?: string | null): string {
     : '—';
 }
 
+/**
+ * "1 open request" / "3 open requests". The console shows a count of exactly one often enough —
+ * a single overdue edit, a single credit — that "1 credits" reads as a bug to the operator.
+ */
+export function countLabel(count: number, singular: string, plural: string): string {
+  return `${formatNumber(count)} ${count === 1 ? singular : plural}`;
+}
+
 export function shortId(id: string | null | undefined): string {
   if (!id) return '—';
   return id.length > 8 ? `${id.slice(0, 8)}…` : id;
 }
 
 export const TIER_LABELS: Record<Tier, string> = {
-  basic: "default homepage",
+  basic: "Default homepage",
   premium: "AI video homepage",
 };
 
 export const CLIENT_STATUS_LABELS: Record<ClientStatus, string> = {
-  active: "active",
-  paused: "pause",
-  cancelled: "Termination",
+  active: "Active",
+  paused: "Paused",
+  cancelled: "Cancelled",
 };
 
 export const SITE_STATUS_LABELS: Record<SiteStatus, string> = {
-  draft: "draft",
-  building: "in production",
-  live: "live",
-  pending_dns: "DNS standby",
-  suspended: "stopped",
+  draft: "Draft",
+  building: "Building",
+  live: "Live",
+  pending_dns: "Awaiting DNS",
+  suspended: "Suspended",
 };
 
 export const DOMAIN_TYPE_LABELS: Record<DomainType, string> = {
-  subdomain: "subdomain",
-  custom: "custom",
+  subdomain: "Subdomain",
+  custom: "Custom domain",
 };
 
 export const EDIT_TYPE_LABELS: Record<EditType, string> = {
-  text: "Anaks Labs copy editing service",
-  image: "Create a new AI image",
-  video: "AI video regeneration",
-  structure: "AI entire section redesign",
+  text: "Text edit",
+  image: "AI image",
+  video: "AI video",
+  structure: "Section redesign",
 };
 
 export const EDIT_STATUS_LABELS: Record<EditStatus, string> = {
-  pending: "atmosphere",
+  pending: "Pending",
   ai_processing: "AI processing",
-  qa_review: "QA inspection",
+  qa_review: "QA review",
   applied: "Applied",
   rejected: "Rejected",
 };
 
 export const CREDIT_REASON_LABELS: Record<CreditReason, string> = {
-  initial_grant: "initial payment",
-  purchase: "Buy pack",
-  subscription_grant: "Subscription monthly payment",
-  edit_text: "Anaks Labs copy editing service",
-  edit_image: "Create a new AI image",
-  edit_video: "AI video regeneration",
-  edit_structure: "AI entire section redesign",
-  refund: "refund",
-  expired: "expiration",
-  admin_clawback: "Recovery of payment",
-  admin_adjust: "Administrator Coordination",
+  initial_grant: "Initial grant",
+  purchase: "Credit pack purchase",
+  subscription_grant: "Monthly subscription grant",
+  edit_text: "Text edit",
+  edit_image: "AI image",
+  edit_video: "AI video",
+  edit_structure: "Section redesign",
+  refund: "Refund",
+  expired: "Expired",
+  admin_clawback: "Admin clawback",
+  admin_adjust: "Admin adjustment",
 };
 
 export const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
-  build_fee: "Build fee (past)",
-  maintenance_subscription: "Site operation subscription",
+  build_fee: "Build fee (legacy)",
+  maintenance_subscription: "Site maintenance subscription",
   premium_addon: "AI video add-on",
-  credit_pack: "credit pack",
+  credit_pack: "Credit pack",
 };

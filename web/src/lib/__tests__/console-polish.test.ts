@@ -50,6 +50,15 @@ const GARBLED_PHRASES = [
   'Fine background',
   'Ming Dynasty',
   'Dignity Capital',
+  // 2026-09 관리자 콘솔 카피 재작성에서 실제로 걷어낸 문구들.
+  'No hero sauce',
+  'waiting for radio waves',
+  'Dog use',
+  'excluding dogs',
+  'Suspension/suspension',
+  'Human QA fixation',
+  'Recovery of payment',
+  'Lack of original text',
 ];
 
 /** 콘솔 영문이 사는 표면. 에디터는 폰트 셀렉트(파일 단위)만 본다. */
@@ -63,6 +72,13 @@ const CONSOLE_SOURCES = [
   'src/components/admin/qa-queue.tsx',
   'src/components/admin/infra-monitor.tsx',
   'src/components/admin/manual-collection-panel.tsx',
+  'src/components/admin/us-demo-pipeline.tsx',
+  'src/components/admin/subscriptions-board.tsx',
+  'src/components/admin/qa-automation.tsx',
+  'src/components/admin/client-detail-panel.tsx',
+  'src/components/admin/credit-adjust-dialog.tsx',
+  'src/components/admin/format.ts',
+  'src/components/admin/ui.tsx',
   'src/components/dashboard/blog-posts.tsx',
   'src/components/editor/fonts.ts',
 ];

@@ -18,7 +18,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { EditType } from '@/lib/types/domain';
 import { qaAuditChecklist } from '@/lib/design/quality-standards';
 import { approveQaRequest, getQaQueue, rejectQaRequest, type AdminQaItem } from './api';
-import { EDIT_STATUS_LABELS, EDIT_TYPE_LABELS, formatDateTime, formatNumber } from './format';
+import { EDIT_STATUS_LABELS, EDIT_TYPE_LABELS, countLabel, formatDateTime, formatNumber } from './format';
 import {
   Badge,
   Card,
@@ -97,7 +97,7 @@ function QaAuditReference() {
     <details className="mb-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
       <summary className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-slate-700">
         <ClipboardCheck size={14} className="text-slate-400" aria-hidden />
-        Inspection criteria checklist ({items.length}) — What makes the difference between $200 and $10,000
+        Review checklist ({items.length}) — what separates a $200 site from a $10,000 one
       </summary>
       <ul className="mt-2.5 space-y-1.5">
         {items.map((it) => (
@@ -111,6 +111,8 @@ function QaAuditReference() {
 }
 
 type ProcessedState = 'applied' | 'rejected';
+
+const creditsLabel = (credits: number) => countLabel(credits, 'credit', 'credits');
 
 export function QaQueue() {
   const queryClient = useQueryClient();
@@ -149,7 +151,7 @@ export function QaQueue() {
     <>
       <PageHeader
         title="QA queue"
-        description={data ? `waiting for inspection${formatNumber(pendingCount)} records` : undefined}
+        description={data ? `${formatNumber(pendingCount)} awaiting review` : undefined}
         actions={
           <button
             type="button"
@@ -158,7 +160,7 @@ export function QaQueue() {
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
             <RefreshCw size={13} className={clsx(isRefetching && 'animate-spin')} aria-hidden />
-            refresh
+            Refresh
           </button>
         }
       />
@@ -173,8 +175,8 @@ export function QaQueue() {
       ) : data.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="There are no QA cases waiting"
-          description="Once a customer's edit request has completed AI processing and reached the review stage, it will appear here."
+          title="Nothing waiting for QA"
+          description="An edit request appears here once AI processing finishes and it reaches the review stage."
         />
       ) : (
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
@@ -241,12 +243,12 @@ function QaCard({
             <span className="font-medium text-slate-600">{item.siteName}</span>
           </p>
           <p className="mt-0.5 text-[11px] text-slate-400">
-            request {formatDateTime(item.createdAt)}
+            Requested {formatDateTime(item.createdAt)}
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
           <Badge tone="neutral">{EDIT_TYPE_LABELS[item.type]}</Badge>
-          <Badge tone="amber">{formatNumber(item.creditCost)} credits</Badge>
+          <Badge tone="amber">{creditsLabel(item.creditCost)}</Badge>
           <Badge tone={EDIT_STATUS_TONES[item.status]}>{EDIT_STATUS_LABELS[item.status]}</Badge>
         </div>
       </div>
@@ -262,7 +264,7 @@ function QaCard({
 
       <div className="mt-3 flex-1">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-          Preview AI results
+          AI result
         </p>
         <div className="mt-1">
           <QaPreviewBlock preview={preview} requested={item.requestedContent} />
@@ -275,17 +277,17 @@ function QaCard({
         {processedState === 'applied' ? (
           <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
             <CheckCircle2 size={14} aria-hidden />
-            Applied — Site reflection has been triggered.
+            Applied — the site update has been triggered.
           </p>
         ) : processedState === 'rejected' ? (
           <p className="flex items-center gap-1.5 text-xs font-medium text-sky-700">
             <Undo2 size={14} aria-hidden />
-            Refusal Processing — Credit Refunded (+{formatNumber(item.creditCost)})
+            Rejected — {creditsLabel(item.creditCost)} refunded
           </p>
         ) : item.status === 'ai_processing' ? (
           <p className="flex items-center gap-1.5 text-xs text-slate-400">
             <Loader2 size={13} className="animate-spin" aria-hidden />
-            AI Processing — Can be inspected upon completion.
+            AI processing — reviewable once it finishes.
           </p>
         ) : (
           <div className="flex justify-end gap-2">
@@ -295,7 +297,7 @@ function QaCard({
               disabled={!reviewable || approving}
               className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
             >
-              companion
+              Reject
             </button>
             <button
               type="button"
@@ -304,7 +306,7 @@ function QaCard({
               className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
             >
               {approving ? <Loader2 size={12} className="animate-spin" aria-hidden /> : null}
-              Approval/Apply
+              Approve and apply
             </button>
           </div>
         )}
@@ -315,7 +317,7 @@ function QaCard({
 
 function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested: string }) {
   if (preview.kind === 'none') {
-    return <p className="text-xs text-slate-400">There are no AI results yet.</p>;
+    return <p className="text-xs text-slate-400">No AI result yet.</p>;
   }
 
   if (preview.kind === 'image' && preview.imageUrl) {
@@ -323,7 +325,7 @@ function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested:
     return (
       <img
         src={preview.imageUrl}
-        alt="Preview AI-generated images"
+        alt="AI-generated image preview"
         className="max-h-60 w-auto rounded-md border border-slate-200 object-contain"
       />
     );
@@ -335,7 +337,7 @@ function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested:
         <div className="rounded-md border border-slate-200 px-3 py-2">
           <p className="text-[10px] font-semibold uppercase text-slate-400">Before</p>
           <p className="mt-1 whitespace-pre-wrap text-xs text-slate-500">
-            {preview.before ?? `(Original text not included – see request)${requested}`}
+            {preview.before ?? `(No original text supplied — request: ${requested})`}
           </p>
         </div>
         <div className="rounded-md border border-emerald-200 bg-emerald-50/50 px-3 py-2">
@@ -363,7 +365,7 @@ function QaPreviewBlock({ preview, requested }: { preview: QaPreview; requested:
           className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-700 underline underline-offset-2 hover:text-sky-500"
         >
           <ExternalLink size={13} aria-hidden />
-          Check out the video in a new tab
+          Open the video in a new tab
         </a>
       </div>
     );
@@ -411,12 +413,12 @@ function RejectDialog({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Edit request rejected"
+        aria-label="Reject edit request"
         className="w-full max-w-md rounded-lg bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
-          <h2 className="text-sm font-semibold text-slate-900">Edit request rejected</h2>
+          <h2 className="text-sm font-semibold text-slate-900">Reject edit request</h2>
           <button
             type="button"
             onClick={onClose}
@@ -431,22 +433,22 @@ function RejectDialog({
         <div className="px-5 py-4">
           <p className="text-xs text-slate-500">
             {item.clientName} · {item.siteName} — rejecting this {EDIT_TYPE_LABELS[item.type]} request.
-            The {formatNumber(item.creditCost)} credits it consumed are refunded automatically.
+            Rejecting it refunds the {creditsLabel(item.creditCost)} it consumed.
           </p>
 
           <label className="mt-3 block">
-            <span className="text-xs font-medium text-slate-600">Reason for rejection (notified to customer)</span>
+            <span className="text-xs font-medium text-slate-600">Reason for rejection (sent to the client)</span>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               onBlur={() => setTouched(true)}
               rows={3}
-              placeholder="Example: Poor generated image quality — scheduled for re-inspection after regeneration"
+              placeholder="e.g. generated image quality is poor — regenerate and resubmit for review"
               className="mt-1 w-full resize-none rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
             />
           </label>
           {touched && !valid ? (
-            <p className="mt-1 text-xs text-red-600">Please enter the reason for rejection.</p>
+            <p className="mt-1 text-xs text-red-600">Enter a reason for rejection.</p>
           ) : null}
           {errorMessage ? <p className="mt-2 text-xs text-red-600">{errorMessage}</p> : null}
 
@@ -469,7 +471,7 @@ function RejectDialog({
               className="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3.5 py-2 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
             >
               {pending ? <Loader2 size={12} className="animate-spin" aria-hidden /> : null}
-              Confirmation of return (credit refund)
+              Reject and refund credits
             </button>
           </div>
         </div>

@@ -42,9 +42,9 @@ import {
 } from './ui';
 
 const STATUS_LABELS: Record<AdminContentQueueStatus, string> = {
-  draft: "wait for creation",
-  generating: "Creating",
-  pending_approval: "Waiting for approval",
+  draft: "Not generated",
+  generating: "Generating",
+  pending_approval: "Awaiting approval",
   rejected: "Rejected",
   published: "Live on the site",
 };
@@ -57,7 +57,7 @@ const STATUS_TONES: Record<AdminContentQueueStatus, BadgeTone> = {
   published: 'green',
 };
 
-const DEFAULT_TOPIC = "Criteria for customers to check before making a decision";
+const DEFAULT_TOPIC = "What to check before making a decision";
 
 /**
  * Fulfillment is counted against the month a slot was promised for, so the same sentence the
@@ -290,7 +290,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
             {isSafeCatalog ? <Badge tone="amber">Safe-catalog fallback</Badge> : null}
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            site {item.siteId} · Price list {item.pricingModelVersion}
+            Site {item.siteId} · Pricing model {item.pricingModelVersion}
           </p>
         </div>
         <div className="text-right text-xs text-slate-500">
@@ -308,7 +308,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
           </div>
           <p className="mt-2 text-[11px] text-slate-500">
             Verified source items: {formatNumber(version.sourceRefs.length)} · External image cost{' '}
-            {version.generationMetadata.externalImageCostKrw === 0 ? "0 won" : "Confirmation required"}
+            {version.generationMetadata.externalImageCostKrw === 0 ? "₩0" : "Needs checking"}
           </p>
           {isSafeCatalog ? (
             <p role="alert" className="mt-2 text-xs font-medium text-amber-700">
@@ -352,7 +352,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
                 onChange={(event) => setTopic(event.target.value)}
                 maxLength={240}
                 className="h-9 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-slate-500"
-                placeholder="This post topic"
+                placeholder="Topic for this post"
               />
             </label>
             <button
@@ -403,7 +403,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
               onChange={(event) => setTopic(event.target.value)}
               maxLength={240}
               className="h-9 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-slate-500"
-              placeholder="This post topic"
+              placeholder="Topic for this post"
             />
           </label>
           <button
@@ -419,7 +419,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
             ) : (
               <Sparkles size={13} aria-hidden />
             )}
-            {item.status === 'rejected' ? "Regenerate new version" : "Create a draft"}
+            {item.status === 'rejected' ? "Generate a new version" : "Create a draft"}
           </button>
         </div>
       ) : null}
@@ -427,7 +427,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
       {item.status === 'generating' ? (
         <p className="mt-3 inline-flex items-center gap-2 text-xs text-sky-700">
           <Loader2 size={13} className="animate-spin" aria-hidden />
-          Structured documents and sources are being examined.
+          Writing the draft and checking its sources.
         </p>
       ) : null}
 
@@ -444,7 +444,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
                 onChange={(event) => setReason(event.target.value)}
                 maxLength={2_000}
                 className="h-9 min-w-0 flex-1 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-slate-500"
-                placeholder="Specific reasons for preservation when recreating"
+                placeholder="What to fix when this is regenerated"
               />
               <button
                 type="button"
@@ -455,7 +455,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
                 {rejection.isPending
                   ? <Loader2 size={13} className="animate-spin" aria-hidden />
                   : <XCircle size={13} aria-hidden />}
-                companion
+                Reject
               </button>
             </div>
           </div>
@@ -489,7 +489,7 @@ function ContentQueueCard({ item }: { item: AdminContentQueueItem }) {
               {approval.isPending
                 ? <Loader2 size={13} className="animate-spin" aria-hidden />
                 : <CheckCircle2 size={13} aria-hidden />}
-              Approval/Issuance
+              Approve and publish
             </button>
           </div>
         </div>
@@ -532,7 +532,7 @@ export function ContentQueue() {
               className={clsx(query.isRefetching && 'animate-spin')}
               aria-hidden
             />
-            refresh
+            Refresh
           </button>
         }
       />
@@ -543,7 +543,7 @@ export function ContentQueue() {
         </p>
       ) : null}
       {query.isPending ? (
-        <LoadingBlock label="Loading content approval queue..." />
+        <LoadingBlock label="Loading the content queue…" />
       ) : query.isError ? (
         <ErrorBlock message={query.error.message} onRetry={() => query.refetch()} />
       ) : query.data.items.length === 0 ? (
@@ -564,7 +564,7 @@ export function ContentQueue() {
       )}
       <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-500">
         <FileCheck2 size={13} aria-hidden />
-        Upon approval, the current raw materials, honesty, and medical policies are reexamined, and only the exact versions that pass are atomically released.
+        Approving re-runs the source, honesty and medical-policy checks against the current rules; only the exact version that passes is published, in one atomic write.
       </div>
     </>
   );

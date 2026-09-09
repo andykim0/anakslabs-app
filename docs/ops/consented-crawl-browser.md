@@ -1,6 +1,6 @@
 # A browser for the consented full-transfer crawl
 
-The consented crawl (`/admin/us-demos` → "Full transfer demo based on verbal consent") renders each
+The consented crawl (`/admin/us-demos` → "Full-transfer demo under recorded verbal consent") renders each
 page in a real browser before extracting from it: `web/src/lib/crawl/consented-renderer.ts` needs
 Chrome for the scroll pass, the image settle, and the rendered-dimension measurements the artifact
 is not allowed to be created without.

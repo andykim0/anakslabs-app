@@ -46,29 +46,29 @@ const BLOCKER_NATURE_LABELS = {
 } as const;
 
 const GROUP_LABELS = {
-  entity: "Hospital information link",
-  structuredSchema: "Structured Hospital Information",
-  evidence: "Evidence and Sources",
-  answerExtraction: "Question/answer structure",
-  access: "Search Access",
+  entity: "Practice identity",
+  structuredSchema: "Structured practice data",
+  evidence: "Evidence and sources",
+  answerExtraction: "Question and answer structure",
+  access: "Search access",
 } as const;
 
 const BLOCK_KIND_LABELS = {
-  business_name: "Hospital name",
-  introduction: "introduction",
-  service: "Medical treatment items",
-  service_detail: "treatment text",
-  provider_name: "medical staff name",
-  provider_credential: "Medical staff qualifications",
-  provider_bio: "Medical staff biographies",
-  insurance: "insurance",
-  price_or_financing: "Price/Finance",
-  faq_question: "question",
-  faq_answer: "answer",
-  cta: "Original CTA",
-  phone: "phone call",
-  address: "address",
-  opening_hours: "clinic hours",
+  business_name: "Practice name",
+  introduction: "Introduction",
+  service: "Service",
+  service_detail: "Service detail",
+  provider_name: "Provider name",
+  provider_credential: "Provider credential",
+  provider_bio: "Provider bio",
+  insurance: "Insurance",
+  price_or_financing: "Price or financing",
+  faq_question: "FAQ question",
+  faq_answer: "FAQ answer",
+  cta: "Call to action",
+  phone: "Phone",
+  address: "Address",
+  opening_hours: "Opening hours",
 } as const;
 
 type PipelineStatus = 'idle' | 'crawling' | 'ready' | 'publishing';
@@ -332,7 +332,7 @@ export function UsDemoPipeline() {
         slot: 'qa',
         message: reason instanceof Error
           ? reason.message
-          : "Setting up internal QA exclusions failed.",
+          : "Could not set the internal-QA exclusion cookie.",
       });
     }
   }
@@ -346,11 +346,12 @@ export function UsDemoPipeline() {
               US MEDICAL OUTREACH
             </p>
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#141A3A]">
-              English Hospital Demonstration Assembly
+              Clinic demo builder
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#545C70]">
-              After collecting only the public English text, diagnosing the structure, and checking which blocks Andy will use,
-              Create a private {US_MEDICAL_PREVIEW_RETENTION_DAYS}-day preview. Patient information, reviews, translations, and new efficacy statements are not included.
+              Collect only the practice&apos;s public English text, diagnose its structure, choose which
+              blocks to use, then create a private {US_MEDICAL_PREVIEW_RETENTION_DAYS}-day preview. Patient
+              information, reviews, translated text and new claims about results are never included.
             </p>
           </div>
           <div className="rounded-xl bg-[#EEF4FF] p-3 text-[#2D63F0]">
@@ -362,7 +363,7 @@ export function UsDemoPipeline() {
       <section className="rounded-2xl border border-[#DFE1E6] bg-white p-5 shadow-sm">
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <label className="block">
-            <span className="text-sm font-semibold text-[#22304A]">Target hospital URL</span>
+            <span className="text-sm font-semibold text-[#22304A]">Practice URL</span>
             <input
               type="text"
               inputMode="url"
@@ -391,7 +392,7 @@ export function UsDemoPipeline() {
             checked={allowTlsHttpFallback}
             onChange={(event) => setAllowTlsHttpFallback(event.target.checked)}
           />
-          Only pre-approved pilot hosts continue to collect certificate errors as HTTP public pages
+          On pre-approved pilot hosts only: if the certificate fails, keep collecting from the public HTTP pages
         </label>
         <label className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#22304A]">
           <input
@@ -399,7 +400,7 @@ export function UsDemoPipeline() {
             checked={consentedTransfer}
             onChange={(event) => setConsentedTransfer(event.target.checked)}
           />
-          Full transfer demo based on verbal consent
+          Full-transfer demo under recorded verbal consent
         </label>
         {consentedTransfer ? (
           <div className="mt-3 grid gap-3 rounded-xl border border-[#C9D5E7] bg-[#F7F9FC] p-4 sm:grid-cols-2">
@@ -413,7 +414,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <label className="text-xs font-semibold text-[#22304A]">
-              call date and time
+              Call date and time
               <input
                 required
                 type="datetime-local"
@@ -423,7 +424,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <label className="text-xs font-semibold text-[#22304A]">
-              consenter name
+              Consenter name
               <input
                 required
                 value={consenterName}
@@ -432,7 +433,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <label className="text-xs font-semibold text-[#22304A]">
-              consenter title
+              Consenter title
               <input
                 required
                 value={consenterTitle}
@@ -441,7 +442,7 @@ export function UsDemoPipeline() {
               />
             </label>
             <label className="text-xs font-semibold text-[#22304A] sm:col-span-2">
-              call notes
+              Call notes
               <input
                 type="text"
                 value={consentNotes}
@@ -451,7 +452,8 @@ export function UsDemoPipeline() {
               />
             </label>
             <p className="text-xs leading-5 text-[#6a7286] sm:col-span-2">
-              The scope of consent is fixed to demo-by-email. robots·Once per second·Identifiable crawler UA remains the same.
+              Consent scope is fixed to demo-by-email. robots.txt, one request per second and the
+              identifiable crawler user agent are unchanged.
             </p>
           </div>
         ) : null}
@@ -488,36 +490,36 @@ export function UsDemoPipeline() {
             <article className="rounded-2xl border border-[#DFE1E6] bg-white p-5 shadow-sm">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={18} className="text-emerald-600" aria-hidden />
-                <h2 className="font-bold text-[#141A3A]">Collect safety records</h2>
+                <h2 className="font-bold text-[#141A3A]">Collection safety record</h2>
               </div>
               <dl className="mt-4 grid gap-3 text-sm">
                 <div>
-                  <dt className="text-xs text-[#6a7286]">public pages read</dt>
-                  <dd className="mt-1 font-semibold">{detail.artifact.visitedUrls.length} items</dd>
+                  <dt className="text-xs text-[#6a7286]">Public pages read</dt>
+                  <dd className="mt-1 font-semibold">{detail.artifact.visitedUrls.length} pages</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#6a7286]">Storage expiration</dt>
-                  <dd className="mt-1">{new Date(detail.artifact.expiresAt).toLocaleString('ko-KR')}</dd>
+                  <dt className="text-xs text-[#6a7286]">Artifact expires</dt>
+                  <dd className="mt-1">{new Date(detail.artifact.expiresAt).toLocaleString('en-US')}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#6a7286]">English text sufficiency</dt>
+                  <dt className="text-xs text-[#6a7286]">English source</dt>
                   <dd className="mt-1 font-semibold">
-                    {detail.artifact.usDemo.englishSourceReady ? "Compilable" : "Lack of original text — production halted"}
+                    {detail.artifact.usDemo.englishSourceReady ? "Ready to build" : "Not enough source text — build blocked"}
                   </dd>
                 </div>
                 {detail.artifact.crawlCoverage ? (
                   <div>
-                    <dt className="text-xs text-[#6a7286]">Consent Crawl Coverage</dt>
+                    <dt className="text-xs text-[#6a7286]">Consented crawl coverage</dt>
                     <dd className="mt-1 font-semibold">
                       {detail.artifact.crawlCoverage.crawledPages}
                       {' / '}
-                      {detail.artifact.crawlCoverage.estimatedSourcePages}page
+                      {detail.artifact.crawlCoverage.estimatedSourcePages} pages
                     </dd>
                   </div>
                 ) : null}
               </dl>
               <details className="mt-4 text-xs text-[#545C70]">
-                <summary className="cursor-pointer font-semibold">View visit URL</summary>
+                <summary className="cursor-pointer font-semibold">Show the pages visited</summary>
                 <ul className="mt-2 space-y-1 break-all">
                   {detail.artifact.visitedUrls.map((visitedUrl) => (
                     <li key={visitedUrl}>{visitedUrl}</li>
@@ -529,13 +531,13 @@ export function UsDemoPipeline() {
             <article className="rounded-2xl border border-[#DFE1E6] bg-white p-5 shadow-sm">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-[#6a7286]">American Medical Outreach Diagnosis</p>
+                  <p className="text-xs text-[#6a7286]">Source visibility diagnosis</p>
                   <h2 className="mt-1 text-xl font-bold text-[#141A3A]">
                     {detail.artifact.usDemo.sourceVisibility.score} / 100
                   </h2>
                 </div>
                 <span className="text-xs text-[#6a7286]">
-                  Server HTML structure read by search and AI
+                  Scored on the server HTML that search engines and AI crawlers read
                 </span>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-5">
@@ -559,13 +561,13 @@ export function UsDemoPipeline() {
           <section className="rounded-2xl border border-[#DFE1E6] bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h2 className="font-bold text-[#141A3A]">Public original text manual closure</h2>
+                <h2 className="font-bold text-[#141A3A]">Curate the public source text</h2>
                 <p className="mt-1 text-sm text-[#6a7286]">
-                  You can just select the original text and change the order. You cannot rewrite or translate sentences.
+                  You can select source blocks and reorder them. You cannot rewrite or translate a sentence.
                 </p>
               </div>
               <span className="rounded-full bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#2D63F0]">
-                Select {includedIds.size} / {orderedBlocks.length}
+                {includedIds.size} of {orderedBlocks.length} selected
               </span>
             </div>
 
@@ -580,7 +582,7 @@ export function UsDemoPipeline() {
                     checked={includedIds.has(block.id)}
                     disabled={block.disposition === 'blocked'}
                     onChange={() => toggleBlock(block)}
-                    aria-label={`${BLOCK_KIND_LABELS[block.kind]}Use original text`}
+                    aria-label={`Use the ${BLOCK_KIND_LABELS[block.kind]} block`}
                     className="mt-1"
                   />
                   <div className="min-w-0">
@@ -590,10 +592,10 @@ export function UsDemoPipeline() {
                       </span>
                       <span className="rounded bg-white/80 px-2 py-0.5 text-[10px] font-semibold text-[#6a7286]">
                         {block.disposition === 'allowed'
-                          ? "available"
+                          ? "Usable"
                           : block.disposition === 'review'
-                            ? "Andy needs confirmation"
-                            : "Block use"}
+                            ? "Needs your review"
+                            : "Blocked"}
                       </span>
                     </div>
                     <p className="mt-2 text-sm leading-6 text-[#22304A]">{block.text}</p>
@@ -611,7 +613,7 @@ export function UsDemoPipeline() {
                       type="button"
                       disabled={index === 0}
                       onClick={() => setOrderedIds((ids) => moveBlock(ids, block.id, -1))}
-                      aria-label="Move up text block"
+                      aria-label="Move this block up"
                       className="rounded border border-[#C9D5E7] bg-white p-1.5 disabled:opacity-35"
                     >
                       <ArrowUp size={14} aria-hidden />
@@ -620,7 +622,7 @@ export function UsDemoPipeline() {
                       type="button"
                       disabled={index === orderedBlocks.length - 1}
                       onClick={() => setOrderedIds((ids) => moveBlock(ids, block.id, 1))}
-                      aria-label="Move down text block"
+                      aria-label="Move this block down"
                       className="rounded border border-[#C9D5E7] bg-white p-1.5 disabled:opacity-35"
                     >
                       <ArrowDown size={14} aria-hidden />
@@ -634,10 +636,10 @@ export function UsDemoPipeline() {
               <div className="space-y-2">
                 <p className="flex items-center gap-2 text-xs text-[#6a7286]">
                   <LockKeyhole size={14} aria-hidden />
-                  Both modes will be index blocked and will result in a 404 after {US_MEDICAL_PREVIEW_RETENTION_DAYS} days.
+                  Both modes are index-blocked and return 404 after {US_MEDICAL_PREVIEW_RETENTION_DAYS} days.
                 </p>
                 <label className="block text-xs font-semibold text-[#22304A]">
-                  render mode
+                  Render mode
                   <select
                     value={renderMode}
                     onChange={(event) => setRenderMode(
@@ -645,8 +647,8 @@ export function UsDemoPipeline() {
                     )}
                     className="ml-2 rounded-lg border border-[#C9D5E7] bg-white px-3 py-2 text-sm"
                   >
-                    <option value="preview-full">Internal evaluation · full multi-page</option>
-                    <option value="outreach-safe">For shipping · safe single page</option>
+                    <option value="preview-full">Internal review · full multi-page</option>
+                    <option value="outreach-safe">For sending · safe single page</option>
                   </select>
                 </label>
               </div>
@@ -761,24 +763,24 @@ export function UsDemoPipeline() {
             <div>
               <p className="flex items-center gap-2 font-bold text-emerald-900">
                 <CheckCircle2 size={18} aria-hidden />
-                Share preview is ready
+                Shareable preview is ready
               </p>
               <p className="mt-2 text-sm text-emerald-800">
-                original text {preview.sourceReport.usedBlocks}Dog use · {preview.sourceReport.excludedBlocks}excluding dogs
+                {preview.sourceReport.usedBlocks} source blocks used · {preview.sourceReport.excludedBlocks} excluded
               </p>
               {preview.sourceReport.policyExcludedBlocks ? (
                 <p className="mt-1 text-xs text-amber-800">
-                  US medical advertising policy on hold {preview.sourceReport.policyExcludedBlocks} items
+                  {preview.sourceReport.policyExcludedBlocks} held back by the US medical advertising screen
                 </p>
               ) : null}
               {preview.emailEvidenceLine ? (
                 <p className="mt-2 rounded-md bg-white/70 px-3 py-2 text-xs text-emerald-900">
-                  Email supporting text: {preview.emailEvidenceLine}
+                  Email evidence line: {preview.emailEvidenceLine}
                 </p>
               ) : null}
               <p className="mt-1 break-all text-xs text-emerald-700">
                 {/* The link itself now leads the panel; this keeps only what it did not carry. */}
-                Expires {new Date(preview.expiresAt).toLocaleString('ko-KR')}
+                Expires {new Date(preview.expiresAt).toLocaleString('en-US')}
               </p>
               {/*
                 * The hand-off to delivery. Once the prospect says yes, this id is what ships their
@@ -802,7 +804,7 @@ export function UsDemoPipeline() {
                 onClick={openPreview}
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white"
               >
-                Open after excluding internal QA
+                Exclude this session from QA, then open
                 <ExternalLink size={15} aria-hidden />
               </button>
               {/* The QA-cookie call is this button's own failure; it belongs under this button. */}
