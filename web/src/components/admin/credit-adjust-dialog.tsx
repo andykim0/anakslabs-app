@@ -60,11 +60,11 @@ export function CreditAdjustDialog({
   const submit = () => {
     setValidationError(null);
     if (!qtyValid) {
-      setValidationError("Quantity must be an integer greater than or equal to 1.");
+      setValidationError("Quantity must be a whole number of 1 or more.");
       return;
     }
     if (memo.trim().length === 0) {
-      setValidationError("Enter the reason for the adjustment (memo).");
+      setValidationError("Enter a reason for this adjustment.");
       return;
     }
     if (mode === 'deduct' && step !== 'confirm') {
@@ -84,12 +84,12 @@ export function CreditAdjustDialog({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Manual adjustment of credits"
+        aria-label="Adjust credits"
         className="w-full max-w-md rounded-lg bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
-          <h2 className="text-sm font-semibold text-slate-900">Manual adjustment of credits</h2>
+          <h2 className="text-sm font-semibold text-slate-900">Adjust credits</h2>
           <button
             type="button"
             onClick={onClose}
@@ -104,9 +104,9 @@ export function CreditAdjustDialog({
         {step === 'done' && newBalance !== null ? (
           <div className="px-5 py-6 text-center">
             <CheckCircle2 size={28} className="mx-auto text-emerald-500" aria-hidden />
-            <p className="mt-3 text-sm font-medium text-slate-900">Adjustment is complete</p>
+            <p className="mt-3 text-sm font-medium text-slate-900">Adjustment applied</p>
             <p className="mt-1 text-xs text-slate-500">
-              {clientName} Your balance: {formatNumber(currentBalance)} →{' '}
+              {clientName} balance: {formatNumber(currentBalance)} →{' '}
               <span className="font-semibold text-slate-900">{formatNumber(newBalance)}</span>{' '}
               credits
             </p>
@@ -126,7 +126,7 @@ export function CreditAdjustDialog({
               credits
             </p>
 
-            <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="adjustment direction">
+            <div className="mt-3 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Adjustment direction">
               <button
                 type="button"
                 role="radio"
@@ -143,7 +143,7 @@ export function CreditAdjustDialog({
                 )}
               >
                 <Plus size={13} aria-hidden />
-                Payment (+)
+                Grant (+)
               </button>
               <button
                 type="button"
@@ -161,12 +161,12 @@ export function CreditAdjustDialog({
                 )}
               >
                 <Minus size={13} aria-hidden />
-                Deducted (−)
+                Deduct (−)
               </button>
             </div>
 
             <label className="mt-3 block">
-              <span className="text-xs font-medium text-slate-600">quantity</span>
+              <span className="text-xs font-medium text-slate-600">Quantity</span>
               <input
                 type="number"
                 min={1}
@@ -181,12 +181,12 @@ export function CreditAdjustDialog({
             </label>
 
             <label className="mt-3 block">
-              <span className="text-xs font-medium text-slate-600">Notes (Reason for Adjustment — Required)</span>
+              <span className="text-xs font-medium text-slate-600">Reason for this adjustment (required)</span>
               <textarea
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
                 rows={2}
-                placeholder="Example: CS compensation payment / recovery of duplicate payments"
+                placeholder="e.g. support goodwill grant / clawing back a duplicate grant"
                 className="mt-1 w-full resize-none rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
               />
             </label>
@@ -195,9 +195,9 @@ export function CreditAdjustDialog({
               <div className="mt-3 flex items-start gap-2 rounded-md border border-red-300 bg-red-50 px-3 py-2.5">
                 <AlertTriangle size={14} className="mt-0.5 shrink-0 text-red-600" aria-hidden />
                 <p className="text-xs text-red-700">
-                  <span className="font-semibold">Check for negative adjustments:</span> {clientName} From your balance{' '}
-                  {qtyValid ? formatNumber(parsedQty) : qty}Credit will be deducted. If the balance is insufficient
-                  Adjustment is rejected. Do you want to continue?
+                  <span className="font-semibold">Confirm this deduction:</span>{' '}
+                  {qtyValid ? formatNumber(parsedQty) : qty} credits come off {clientName}&rsquo;s balance.
+                  If the balance is short, the server rejects the adjustment. Continue?
                 </p>
               </div>
             ) : null}
@@ -233,10 +233,10 @@ export function CreditAdjustDialog({
                   <Loader2 size={13} className="animate-spin" aria-hidden />
                 ) : null}
                 {step === 'confirm'
-                  ? "Deduction confirmed"
+                  ? "Confirm deduction"
                   : mode === 'deduct'
-                    ? "Deduction progress"
-                    : "Apply payment"}
+                    ? "Deduct credits"
+                    : "Grant credits"}
               </button>
             </div>
           </div>

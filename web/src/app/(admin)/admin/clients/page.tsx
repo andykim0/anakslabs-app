@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { ClientsTable } from '@/components/admin/clients-table';
 
-export const metadata: Metadata = { title: "customer care" };
+export const metadata: Metadata = { title: "Clients" };
 
 /**
  * The table reads `?previewId=` (handed over by the US demo pipeline) with useSearchParams, which

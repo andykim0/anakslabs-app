@@ -247,11 +247,11 @@ async function main() {
     await page.type('input[type="url"]', 'https://clinic.example/');
     await page.evaluate(() => {
       const button = [...document.querySelectorAll('button')]
-        .find((item) => item.textContent?.includes('수집하고 진단하기'));
+        .find((item) => item.textContent?.includes('Collect and Diagnose'));
       if (!(button instanceof HTMLButtonElement)) throw new Error('crawl button missing');
       button.click();
     });
-    await page.waitForFunction(() => document.body.innerText.includes('공개 원문 수동 마감'));
+    await page.waitForFunction(() => document.body.innerText.includes('Curate the public source text'));
     await page.evaluate(() => {
       const review = [...document.querySelectorAll('ol input[type="checkbox"]')]
         .find((item) => !item.checked && !item.disabled);
@@ -260,11 +260,11 @@ async function main() {
     });
     await page.evaluate(() => {
       const button = [...document.querySelectorAll('button')]
-        .find((item) => item.textContent?.includes('비공개 데모 만들기'));
+        .find((item) => item.textContent?.includes('Create a private demo'));
       if (!(button instanceof HTMLButtonElement)) throw new Error('preview button missing');
       button.click();
     });
-    await page.waitForFunction(() => document.body.innerText.includes('공유 프리뷰가 준비됐습니다'));
+    await page.waitForFunction(() => document.body.innerText.includes('Shareable preview is ready'));
     await page.evaluate(async () => {
       await document.fonts.ready;
       window.scrollTo(0, 0);

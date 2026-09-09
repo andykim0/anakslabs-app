@@ -37,23 +37,23 @@ import {
 } from './ui';
 
 const SUBSCRIPTION_STATE: Record<SiteSubscriptionStatus, { label: string; tone: 'green' | 'amber' | 'red' | 'neutral' }> = {
-  active: { label: "active", tone: 'green' },
-  past_due: { label: "payment delay", tone: 'amber' },
-  suspended: { label: "Suspension/suspension", tone: 'amber' },
-  cancelled: { label: "Termination", tone: 'red' },
+  active: { label: "Active", tone: 'green' },
+  past_due: { label: "Past due", tone: 'amber' },
+  suspended: { label: "Suspended", tone: 'amber' },
+  cancelled: { label: "Cancelled", tone: 'red' },
 };
 
 const REPORT_STATE: Record<
   MonthlyReportDeliveryStatus | 'not-generated' | 'not-eligible',
   { label: string; tone: 'green' | 'amber' | 'red' | 'blue' | 'neutral' }
 > = {
-  pending: { label: "Waiting for shipment", tone: 'neutral' },
-  sending: { label: "Shipping", tone: 'blue' },
-  sent: { label: "Receive shipping request", tone: 'green' },
-  failed: { label: "Delivery failed", tone: 'red' },
-  delivery_unknown: { label: "Status check required", tone: 'amber' },
-  'not-generated': { label: "Not sent", tone: 'neutral' },
-  'not-eligible': { label: "Inactive, undelivered", tone: 'neutral' },
+  pending: { label: "Queued", tone: 'neutral' },
+  sending: { label: "Sending", tone: 'blue' },
+  sent: { label: "Accepted by Resend", tone: 'green' },
+  failed: { label: "Send failed", tone: 'red' },
+  delivery_unknown: { label: "Delivery unknown", tone: 'amber' },
+  'not-generated': { label: "Not generated", tone: 'neutral' },
+  'not-eligible': { label: "Not eligible", tone: 'neutral' },
 };
 
 /**
@@ -130,7 +130,7 @@ function ReportRow({ report }: { report: AdminSubscriptionReportItem }) {
   const queryClient = useQueryClient();
   const retry = useMutation({
     mutationFn: () => {
-      if (!report.reportId) throw new Error("There is no report ID.");
+      if (!report.reportId) throw new Error("This row has no report id.");
       return retryAdminMonthlyReport(report.reportId);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'subscriptions'] }),
@@ -146,10 +146,10 @@ function ReportRow({ report }: { report: AdminSubscriptionReportItem }) {
         </div>
         <p className="mt-0.5 text-[11px] text-slate-500">
           {report.deliveryStatus === 'sent' && report.sentAt
-            ? `Resend reception${formatDateTime(report.sentAt)}`
+            ? `Accepted by Resend ${formatDateTime(report.sentAt)}`
             : report.lastErrorCode
-              ? `error code${report.lastErrorCode}`
-              : `${report.siteStatus}· trial${formatNumber(report.deliveryAttempts)} times`}
+              ? `Error code ${report.lastErrorCode}`
+              : `${report.siteStatus} · ${formatNumber(report.deliveryAttempts)} attempts`}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
@@ -180,7 +180,7 @@ function SubscriptionCard({ item }: { item: AdminSubscriptionItem }) {
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-sm font-semibold text-slate-900">{item.clientName}</h2>
             <Badge tone={state.tone}>{state.label}</Badge>
-            {!item.active && item.status === 'active' ? <Badge tone="red">Period expires</Badge> : null}
+            {!item.active && item.status === 'active' ? <Badge tone="red">Period ended</Badge> : null}
             {item.chargedAfterCancelRequest
               ? <Badge tone="red">Charged after cancelling</Badge>
               : item.cancelRequestedAt
@@ -196,7 +196,7 @@ function SubscriptionCard({ item }: { item: AdminSubscriptionItem }) {
       </div>
       <div className="mt-3 space-y-2">
         {item.reports.length ? item.reports.map((report) => <ReportRow key={report.siteId} report={report} />) : (
-          <p className="rounded-md bg-slate-50 px-3 py-3 text-xs text-slate-500">There are no published sites, so it is not subject to reporting.</p>
+          <p className="rounded-md bg-slate-50 px-3 py-3 text-xs text-slate-500">No published site, so there is nothing to report on.</p>
         )}
       </div>
     </Card>
@@ -212,8 +212,8 @@ export function SubscriptionsBoard() {
   return (
     <>
       <PageHeader
-        title="Subscription/Performance Report"
-        description={query.data ? `${query.data.reportPeriodMonth}Performance report email status · Qualifications and tallies are based on KST.` : undefined}
+        title="Subscriptions & reports"
+        description={query.data ? `${query.data.reportPeriodMonth} report email status · eligibility and totals are counted in KST.` : undefined}
         actions={
           <button
             type="button"
@@ -222,42 +222,42 @@ export function SubscriptionsBoard() {
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
             <RefreshCw size={13} className={clsx(query.isRefetching && 'animate-spin')} aria-hidden />
-            refresh
+            Refresh
           </button>
         }
       />
 
       {query.isPending ? (
-        <LoadingBlock label="Loading subscription/report status..." />
+        <LoadingBlock label="Loading subscriptions and reports…" />
       ) : query.isError ? (
         <ErrorBlock message={query.error.message} onRetry={() => query.refetch()} />
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
-            <StatCard label="active subscription" value={`${formatNumber(query.data.summary.active)} records`} icon={UsersRound} />
-            <StatCard label="Monthly Subscription Revenue (MRR)" value={`$${formatNumber(query.data.summary.mrrUsd)}`} icon={CircleDollarSign} />
-            <StatCard label="New this month" value={`${formatNumber(query.data.summary.newThisMonth)} records`} sub="First renewal criteria" icon={CheckCircle2} />
-            <StatCard label="Simple cancellation this month" value={`${formatNumber(query.data.summary.cancelledThisMonth)} records`} sub="canceled conversion criteria" icon={AlertTriangle} tone={query.data.summary.cancelledThisMonth ? 'danger' : 'neutral'} />
+            <StatCard label="Active subscriptions" value={formatNumber(query.data.summary.active)} icon={UsersRound} />
+            <StatCard label="MRR" value={`$${formatNumber(query.data.summary.mrrUsd)}`} icon={CircleDollarSign} />
+            <StatCard label="New this month" value={formatNumber(query.data.summary.newThisMonth)} sub="Counted at first renewal" icon={CheckCircle2} />
+            <StatCard label="Cancelled this month" value={formatNumber(query.data.summary.cancelledThisMonth)} sub="Counted when the status turned cancelled" icon={AlertTriangle} tone={query.data.summary.cancelledThisMonth ? 'danger' : 'neutral'} />
             <StatCard
               label="Charged after cancelling"
-              value={`${formatNumber(query.data.summary.chargedAfterCancelRequest)} records`}
-              sub="Billing stop did not take"
+              value={formatNumber(query.data.summary.chargedAfterCancelRequest)}
+              sub="The billing stop did not take"
               icon={AlertTriangle}
               tone={query.data.summary.chargedAfterCancelRequest ? 'danger' : 'neutral'}
             />
-            <StatCard label="Report failed/not sent" value={`${formatNumber(query.data.summary.reportFailed)} / ${formatNumber(query.data.summary.reportMissing)}`} sub={`receipt${formatNumber(query.data.summary.reportAccepted)} records`} icon={Clock3} />
+            <StatCard label="Reports failed / not generated" value={`${formatNumber(query.data.summary.reportFailed)} / ${formatNumber(query.data.summary.reportMissing)}`} sub={`${formatNumber(query.data.summary.reportAccepted)} accepted`} icon={Clock3} />
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
-            <Badge tone="amber">payment delay {formatNumber(query.data.summary.pastDue)}</Badge>
-            <Badge tone="amber">Suspension/suspension {formatNumber(query.data.summary.suspended)}</Badge>
-            <Badge tone="red">Termination {formatNumber(query.data.summary.cancelled)}</Badge>
+            <Badge tone="amber">Past due {formatNumber(query.data.summary.pastDue)}</Badge>
+            <Badge tone="amber">Suspended {formatNumber(query.data.summary.suspended)}</Badge>
+            <Badge tone="red">Cancelled {formatNumber(query.data.summary.cancelled)}</Badge>
             <span className="self-center text-[11px] text-slate-400">Sent means Resend accepted the request; it does not confirm inbox delivery.</span>
           </div>
 
           {query.data.items.length === 0 ? (
             <div className="mt-5">
-              <EmptyState icon={Inbox} title="There is no record of subscription status" description="As authority subscription statuses become available, they are displayed on this screen." />
+              <EmptyState icon={Inbox} title="No subscriptions yet" description="A subscription appears here as soon as one is recorded." />
             </div>
           ) : (
             <div className="mt-5 grid grid-cols-1 gap-3 xl:grid-cols-2">

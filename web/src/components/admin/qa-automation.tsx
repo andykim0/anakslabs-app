@@ -33,12 +33,12 @@ function Row({
     <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 py-4 last:border-0">
       <div className="w-24 shrink-0">
         <p className="text-sm font-medium text-slate-800">{EDIT_TYPE_LABELS[rule.editType]}</p>
-        {!automatable ? <p className="text-[11px] text-slate-400">Excluding automation</p> : null}
+        {!automatable ? <p className="text-[11px] text-slate-400">Never automated</p> : null}
       </div>
 
       <div className="flex-1 min-w-40">
         <div className="flex items-baseline justify-between">
-          <span className="text-[11px] text-slate-500">Approval Rate (Recent {sampleSize}case)</span>
+          <span className="text-[11px] text-slate-500">Approval rate (last {sampleSize})</span>
           <span className="text-sm font-semibold tabular-nums text-slate-800">{Math.round(rate * 100)}%</span>
         </div>
         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -48,17 +48,17 @@ function Row({
           />
         </div>
         <p className="mt-1 text-[11px] text-slate-400">
-          criticality {Math.round(rule.approvalThreshold * 100)}% Minimum sample {rule.minSamples} records
+          Threshold {Math.round(rule.approvalThreshold * 100)}% · minimum {rule.minSamples} samples
         </p>
       </div>
 
       <div className="w-28 shrink-0 text-center">
         {!automatable ? (
-          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] text-slate-500">Human QA fixation</span>
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] text-slate-500">Human QA only</span>
         ) : meetsThreshold ? (
-          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">Automation possible</span>
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">Ready to automate</span>
         ) : (
-          <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] text-amber-700">Insufficient sample/approval rate</span>
+          <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] text-amber-700">Below threshold</span>
         )}
       </div>
 
@@ -102,18 +102,19 @@ export function QaAutomation() {
   return (
     <Card className="mb-6">
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-800">QA Automation Thresholds</h2>
-        <span className="text-[11px] text-slate-400">Automatically approves without modification when ON and maintains sample audits</span>
+        <h2 className="text-sm font-semibold text-slate-800">QA automation thresholds</h2>
+        <span className="text-[11px] text-slate-400">When on, matching requests are auto-approved and still sample-audited</span>
       </div>
       <p className="mb-3 text-xs leading-5 text-slate-500">
-        If the approval rate for each type exceeds a threshold, you can switch to automatic approval. The transition is toggled directly by the administrator,
-        Some automatic approval cases are also sample audited. Videos always maintain human QA.
+        Once a type&apos;s approval rate clears its threshold you can switch it to auto-approval. Nothing
+        switches itself on — you toggle it. A sample of auto-approved requests is still audited, and
+        video always stays on human QA.
       </p>
 
       {isPending ? (
-        <LoadingBlock label="Loading QA statistics..." />
+        <LoadingBlock label="Loading QA statistics…" />
       ) : isError ? (
-        <ErrorBlock message="QA statistics failed to load." onRetry={() => refetch()} />
+        <ErrorBlock message="Could not load QA statistics." onRetry={() => refetch()} />
       ) : (
         <div>
           {ORDER.map((t) => {

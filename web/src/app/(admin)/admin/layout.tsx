@@ -23,7 +23,7 @@ import { isAdmin } from '@/lib/services/auth';
 export const metadata: Metadata = {
   ...APP_ROOT_METADATA,
   title: {
-    default: "Administrator Console — Anaks Labs",
+    default: "Admin console — Anaks Labs",
     template: '%s — Anaks Labs ADMIN',
   },
   robots: { index: false, follow: false },

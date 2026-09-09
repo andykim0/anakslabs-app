@@ -10,7 +10,7 @@ import {
   getVideoQueue,
   type AdminVideoQueueItem,
 } from './api';
-import { formatDateTime, formatNumber } from './format';
+import { countLabel, formatDateTime, formatNumber } from './format';
 import {
   Badge,
   Card,
@@ -29,16 +29,16 @@ const BLOCKED_REASON_COPY: Record<
   { badge: string; message: string }
 > = {
   'hero-source-missing': {
-    badge: "Need to check source",
-    message: "There is no original hero image, so posters and videos cannot be safely applied.",
+    badge: "No hero source",
+    message: "This site has no original hero image, so a poster and a video cannot be applied safely.",
   },
   'asset-policy-v2-required': {
-    badge: "Need to check source policy",
-    message: "This site does not have an asset provenance policy v2 verified. Please implement it after completing the policy transition.",
+    badge: "Provenance policy v2 required",
+    message: "This site has not been verified against asset provenance policy v2. Finish the policy migration before fulfilling it.",
   },
   'hero-source-mismatch': {
-    badge: "Discrepancies between draft and published version",
-    message: "Because the original hero of the draft and published version are different, one poster cannot be applied to both. Please match the original first.",
+    badge: "Draft and live heroes differ",
+    message: "The draft and the published version use different hero originals, so one poster cannot apply to both. Match the originals first.",
   },
 };
 
@@ -71,11 +71,11 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
             // eslint-disable-next-line @next/next/no-img-element -- tenant/user media has no fixed loader domain.
             <img
               src={item.heroImageUrl}
-              alt={`${item.siteName}select hero`}
+              alt={`${item.siteName} hero image`}
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-xs text-slate-400">No hero sauce</div>
+            <div className="flex h-full items-center justify-center text-xs text-slate-400">No hero image</div>
           )}
         </div>
 
@@ -85,7 +85,7 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-semibold text-slate-900">{item.siteName}</h2>
                 <Badge tone={SITE_STATUS_TONES[item.siteStatus]}>{item.siteStatus}</Badge>
-                {blockedCopy ? <Badge tone="red">{blockedCopy.badge}</Badge> : <Badge tone="amber">waiting for fulfillment</Badge>}
+                {blockedCopy ? <Badge tone="red">{blockedCopy.badge}</Badge> : <Badge tone="amber">Awaiting fulfillment</Badge>}
                 {item.overdue ? <Badge tone="red">over {FULFILLMENT_SLA_BUSINESS_DAYS} business days</Badge> : null}
               </div>
               <p className="mt-1 text-xs text-slate-500">
@@ -93,26 +93,26 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
               </p>
             </div>
             <div className="text-right text-xs text-slate-500">
-              <p className="font-semibold tabular-nums text-slate-700">{formatNumber(item.waitingDays)} days elapsed</p>
+              <p className="font-semibold tabular-nums text-slate-700">{countLabel(item.waitingDays, 'day', 'days')} elapsed</p>
               <p>{formatDateTime(item.requestedAt)}</p>
             </div>
           </div>
 
           <dl className="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
             <div className="rounded-md bg-slate-50 px-3 py-2">
-              <dt className="text-slate-400">Select Direction</dt>
+              <dt className="text-slate-400">Motion direction</dt>
               <dd className="mt-0.5 font-medium text-slate-700">{item.motionLabel}</dd>
             </div>
             <div className="rounded-md bg-slate-50 px-3 py-2">
-              <dt className="text-slate-400">video concept</dt>
-              <dd className="mt-0.5 font-medium text-slate-700">{item.videoConceptLabel ?? "Not selected"}</dd>
+              <dt className="text-slate-400">Video concept</dt>
+              <dd className="mt-0.5 font-medium text-slate-700">{item.videoConceptLabel ?? "None selected"}</dd>
             </div>
           </dl>
 
           {item.timingSource === 'site-created-fallback' ? (
             <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-amber-700">
               <Clock3 size={12} className="mt-1 shrink-0" aria-hidden />
-              For existing requests, the promotion time cannot be restored, so it is displayed based on the site creation date.
+              This request predates request-time tracking, so the wait is measured from the site&apos;s creation date.
             </p>
           ) : null}
 
@@ -130,14 +130,14 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
               className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-sky-300 bg-sky-50 px-3 text-xs font-semibold text-sky-800 hover:bg-sky-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {generation.isPending ? <Loader2 size={13} className="animate-spin" aria-hidden /> : <Clapperboard size={13} aria-hidden />}
-              Final design approval · 1-time video creation
+              Approve final design · generate one video
             </button>
             <label className="min-w-0 flex-1">
               <span className="sr-only">Video Asset ID</span>
               <input
                 value={videoAssetId}
                 onChange={(event) => setVideoAssetId(event.target.value)}
-                placeholder="Video asset UUID confirmed after registering with registry"
+                placeholder="Video asset UUID, once it is registered in the registry"
                 disabled={blocked || completion.isPending}
                 className="h-9 w-full rounded-md border border-slate-300 px-3 text-xs text-slate-800 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 disabled:bg-slate-100"
               />
@@ -149,12 +149,12 @@ function VideoQueueCard({ item }: { item: AdminVideoQueueItem }) {
               className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-slate-900 px-3 text-xs font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {completion.isPending ? <Loader2 size={13} className="animate-spin" aria-hidden /> : <CheckCircle2 size={13} aria-hidden />}
-              fulfillment completed
+              Mark fulfilled
             </button>
           </div>
           <p className="mt-1.5 text-[11px] leading-5 text-slate-500">
-            Design Candidate does not create videos. The approve button passes the cost guard and creation log and generates it once.
-            Only assets whose ownership, site attribution, and AI video source have been confirmed in the server registry are applied.
+            Design candidates never generate video. This button generates exactly one clip, through the cost guard and the generation log.
+            Only assets whose ownership, site attribution and AI-video origin the server registry has confirmed can be applied.
           </p>
           {generation.isError ? <p className="mt-2 text-xs text-red-600">{generation.error.message}</p> : null}
           {completion.isError ? <p className="mt-2 text-xs text-red-600">{completion.error.message}</p> : null}
@@ -173,8 +173,10 @@ export function VideoQueue() {
   return (
     <>
       <PageHeader
-        title="AI video transition queue"
-        description={query.data ? `${formatNumber(query.data.items.length)} requests waiting. Check each manually produced clip before applying it.` : undefined}
+        title="Video fulfillment"
+        description={query.data
+          ? `${countLabel(query.data.items.length, 'request', 'requests')} waiting. Check each manually produced clip before applying it.`
+          : undefined}
         actions={
           <button
             type="button"
@@ -183,7 +185,7 @@ export function VideoQueue() {
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
             <RefreshCw size={13} className={clsx(query.isRefetching && 'animate-spin')} aria-hidden />
-            refresh
+            Refresh
           </button>
         }
       />
@@ -196,14 +198,14 @@ export function VideoQueue() {
       ) : null}
 
       {query.isPending ? (
-        <LoadingBlock label="Loading video transition cue..." />
+        <LoadingBlock label="Loading the video queue…" />
       ) : query.isError ? (
         <ErrorBlock message={query.error.message} onRetry={() => query.refetch()} />
       ) : query.data.items.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="There is no fulfillment waiting video"
-          description="Only videos that have both video add-on permission and explicit site-specific requests and do not yet have videos or posters are displayed."
+          title="Nothing waiting for video fulfillment"
+          description="A site appears here only when it has the video add-on, an explicit request, and no video or poster yet."
         />
       ) : (
         <div className="space-y-3">
@@ -215,16 +217,16 @@ export function VideoQueue() {
         <section className="mt-8" aria-labelledby="video-completion-history">
           <div className="mb-3 flex items-center gap-2">
             <Clapperboard size={15} className="text-slate-400" aria-hidden />
-            <h2 id="video-completion-history" className="text-sm font-semibold text-slate-800">Recent Fulfillment History</h2>
+            <h2 id="video-completion-history" className="text-sm font-semibold text-slate-800">Recently fulfilled</h2>
           </div>
           <Card className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-xs">
               <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
                 <tr>
-                  <th className="px-4 py-2.5 font-medium">site</th>
-                  <th className="px-4 py-2.5 font-medium">customer</th>
+                  <th className="px-4 py-2.5 font-medium">Site</th>
+                  <th className="px-4 py-2.5 font-medium">Client</th>
                   <th className="px-4 py-2.5 font-medium">Asset ID</th>
-                  <th className="px-4 py-2.5 font-medium">Complete</th>
+                  <th className="px-4 py-2.5 font-medium">Completed</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

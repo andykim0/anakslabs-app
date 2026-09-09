@@ -66,11 +66,11 @@ export function ClientDetailPanel({
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="Customer details"
+        aria-label="Client details"
         className="fixed inset-y-0 right-0 z-50 flex w-[540px] max-w-full flex-col overflow-y-auto border-l border-slate-200 bg-white shadow-2xl"
       >
         {isPending ? (
-          <LoadingBlock label="Loading customer information..." />
+          <LoadingBlock label="Loading client…" />
         ) : isError ? (
           <div className="p-5">
             <ErrorBlock message={error.message} onRetry={() => refetch()} />
@@ -96,7 +96,7 @@ export function ClientDetailPanel({
                     <Badge tone={CLIENT_STATUS_TONES[data.client.status]}>
                       {CLIENT_STATUS_LABELS[data.client.status]}
                     </Badge>
-                    <Badge tone="neutral">accession {formatDate(data.client.createdAt)}</Badge>
+                    <Badge tone="neutral">Joined {formatDate(data.client.createdAt)}</Badge>
                   </div>
                 </div>
                 <button
@@ -112,7 +112,7 @@ export function ClientDetailPanel({
               <div className="mt-3 flex items-center justify-between rounded-md bg-slate-50 px-3 py-2.5 ring-1 ring-slate-200">
                 <p className="flex items-center gap-1.5 text-xs text-slate-600">
                   <Coins size={14} className="text-amber-500" aria-hidden />
-                  credit balance{' '}
+                  Credit balance{' '}
                   <span className="text-sm font-semibold tabular-nums text-slate-900">
                     {formatNumber(data.balance)}
                   </span>
@@ -123,7 +123,7 @@ export function ClientDetailPanel({
                     onClick={() => setAdjustOpen(true)}
                     className="rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-slate-700"
                   >
-                    Manual adjustment of credits
+                    Adjust credits
                   </button>
                 ) : null}
               </div>
@@ -137,9 +137,9 @@ export function ClientDetailPanel({
               approvedPreviewId={approvedPreviewId}
             />
 
-            <PanelSection title={`site (${data.sites.length})`}>
+            <PanelSection title={`Sites (${data.sites.length})`}>
               {data.sites.length === 0 ? (
-                <p className="text-xs text-slate-400">There is no site.</p>
+                <p className="text-xs text-slate-400">No sites yet.</p>
               ) : (
                 <ul className="space-y-1.5">
                   {data.sites.map((site) => (
@@ -150,7 +150,7 @@ export function ClientDetailPanel({
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium text-slate-800">{site.name}</p>
                         <p className="truncate text-[11px] text-slate-500">
-                          {site.domain ?? "Domain not assigned"} ·{' '}
+                          {site.domain ?? "No domain assigned"} ·{' '}
                           {DOMAIN_TYPE_LABELS[site.domainType]}
                         </p>
                       </div>
@@ -163,7 +163,7 @@ export function ClientDetailPanel({
                             href={`https://${site.domain}`}
                             target="_blank"
                             rel="noreferrer"
-                            aria-label={`${site.name}Open site`}
+                            aria-label={`Open ${site.name}`}
                             className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
                           >
                             <ExternalLink size={13} aria-hidden />
@@ -179,17 +179,17 @@ export function ClientDetailPanel({
               )}
             </PanelSection>
 
-            <PanelSection title="Credit Ledger (Last 20)">
+            <PanelSection title="Credit ledger (last 20)">
               {data.ledger.length === 0 ? (
-                <p className="text-xs text-slate-400">There are no ledger records.</p>
+                <p className="text-xs text-slate-400">No ledger entries.</p>
               ) : (
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-slate-200 text-[11px] text-slate-400">
-                      <th className="py-1.5 pr-2 font-medium">date</th>
-                      <th className="py-1.5 pr-2 font-medium">reason</th>
-                      <th className="py-1.5 pr-2 text-right font-medium">increase/decrease</th>
-                      <th className="py-1.5 font-medium">expiration</th>
+                      <th className="py-1.5 pr-2 font-medium">Date</th>
+                      <th className="py-1.5 pr-2 font-medium">Reason</th>
+                      <th className="py-1.5 pr-2 text-right font-medium">Change</th>
+                      <th className="py-1.5 font-medium">Expires</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -218,17 +218,17 @@ export function ClientDetailPanel({
               )}
             </PanelSection>
 
-            <PanelSection title={`Payment history (${data.payments.length})`}>
+            <PanelSection title={`Payments (${data.payments.length})`}>
               {data.payments.length === 0 ? (
-                <p className="text-xs text-slate-400">There is no payment history.</p>
+                <p className="text-xs text-slate-400">No payments recorded.</p>
               ) : (
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-slate-200 text-[11px] text-slate-400">
-                      <th className="py-1.5 pr-2 font-medium">date</th>
-                      <th className="py-1.5 pr-2 font-medium">category</th>
-                      <th className="py-1.5 pr-2 text-right font-medium">amount</th>
-                      <th className="py-1.5 text-right font-medium">credit paid</th>
+                      <th className="py-1.5 pr-2 font-medium">Date</th>
+                      <th className="py-1.5 pr-2 font-medium">Type</th>
+                      <th className="py-1.5 pr-2 text-right font-medium">Amount</th>
+                      <th className="py-1.5 text-right font-medium">Credits granted</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -288,29 +288,29 @@ function ClientEditControls({ client }: { client: Client }) {
   });
 
   return (
-    <PanelSection title="Tier/Status Change">
+    <PanelSection title="Change tier or status">
       <div className="flex items-end gap-2">
         <label className="flex-1">
-          <span className="text-[11px] font-medium text-slate-500">tier</span>
+          <span className="text-[11px] font-medium text-slate-500">Tier</span>
           <select
             value={tier}
             onChange={(e) => setTier(e.target.value as Tier)}
             className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs focus:border-slate-500 focus:outline-none"
           >
-            <option value="basic">default homepage</option>
+            <option value="basic">Default homepage</option>
             <option value="premium">AI video homepage</option>
           </select>
         </label>
         <label className="flex-1">
-          <span className="text-[11px] font-medium text-slate-500">situation</span>
+          <span className="text-[11px] font-medium text-slate-500">Status</span>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as ClientStatus)}
             className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs focus:border-slate-500 focus:outline-none"
           >
-            <option value="active">active</option>
-            <option value="paused">pause</option>
-            <option value="cancelled">Termination</option>
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+            <option value="cancelled">Cancelled</option>
           </select>
         </label>
         <button
@@ -328,7 +328,7 @@ function ClientEditControls({ client }: { client: Client }) {
       ) : null}
       {tier === 'basic' ? (
         <p className="mt-2 text-[11px] text-slate-400">
-          The Basic tier does not support video editing — upsell instructions are displayed on the customer screen.
+          This tier cannot request video edits — the client sees an upgrade prompt instead.
         </p>
       ) : null}
     </PanelSection>

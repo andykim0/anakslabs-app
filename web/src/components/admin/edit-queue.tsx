@@ -9,7 +9,7 @@ import {
   getAdminEditQueue,
   type AdminEditQueueItem,
 } from './api';
-import { EDIT_STATUS_LABELS, EDIT_TYPE_LABELS, formatDateTime, formatNumber } from './format';
+import { EDIT_STATUS_LABELS, EDIT_TYPE_LABELS, countLabel, formatDateTime, formatNumber } from './format';
 import {
   Badge,
   Card,
@@ -74,13 +74,13 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
           <span className="inline-flex items-center gap-1.5 text-slate-600">
             <WalletCards size={13} aria-hidden />
             {item.creditCharged
-              ? `${formatNumber(item.netCreditCharge)} credits charged to the ledger`
+              ? `${countLabel(item.netCreditCharge, 'credit', 'credits')} charged to the ledger`
               : "Nothing charged to the ledger"}
           </span>
           <span className="text-[11px] text-slate-400">
-            {formatNumber(item.ledgerEntryCount)} related ledger entries
+            {countLabel(item.ledgerEntryCount, 'related ledger entry', 'related ledger entries')}
           </span>
-          {item.isInitialRevision ? <Badge tone="green">Initial free fix</Badge> : null}
+          {item.isInitialRevision ? <Badge tone="green">First edit, free</Badge> : null}
         </div>
 
         <div className="flex flex-col items-end gap-2">
@@ -92,10 +92,10 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
                 onChange={(event) => setSiteAppliedConfirmed(event.target.checked)}
                 className="h-4 w-4 rounded border-slate-300 text-slate-900"
               />
-              Confirmed AI results and application targets
+              I checked the AI result and where it will be applied
             </label>
           ) : (
-            <p className="text-[11px] text-amber-700">Only requests that are ready for processing and QA can be completed.</p>
+            <p className="text-[11px] text-amber-700">Only a request sitting in QA review can be completed.</p>
           )}
           <button
             type="button"
@@ -108,12 +108,12 @@ function EditQueueCard({ item }: { item: AdminEditQueueItem }) {
             ) : (
               <CheckCircle2 size={13} aria-hidden />
             )}
-            Issue reflected/completed
+            Apply and complete
           </button>
         </div>
       </div>
       <p className="mt-1.5 text-right text-[11px] text-slate-400">
-        At the push of a button, the verified results are atomically reflected in the draft and current issue before being recorded as complete.
+        This writes the reviewed result into the draft and the live version in one atomic step, then records the request as complete.
       </p>
       {completion.isError ? (
         <p role="alert" className="mt-2 text-right text-xs text-red-600">
@@ -133,8 +133,10 @@ export function EditQueue() {
   return (
     <>
       <PageHeader
-        title="Modification Agency Queue"
-        description={query.data ? `${formatNumber(query.data.items.length)} open requests, oldest first.` : undefined}
+        title="Edit requests"
+        description={query.data
+          ? `${countLabel(query.data.items.length, 'open request', 'open requests')}, oldest first.`
+          : undefined}
         actions={
           <button
             type="button"
@@ -143,7 +145,7 @@ export function EditQueue() {
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
             <RefreshCw size={13} className={clsx(query.isRefetching && 'animate-spin')} aria-hidden />
-            refresh
+            Refresh
           </button>
         }
       />
@@ -156,14 +158,14 @@ export function EditQueue() {
       ) : null}
 
       {query.isPending ? (
-        <LoadingBlock label="Loading editing queue..." />
+        <LoadingBlock label="Loading edit requests…" />
       ) : query.isError ? (
         <ErrorBlock message={query.error.message} onRetry={() => query.refetch()} />
       ) : query.data.items.length === 0 ? (
         <EmptyState
           icon={Inbox}
           title="There are no pending edit requests"
-          description="Only requests with pending·AI processing·QA review status will appear in this operational queue."
+          description="Only requests in pending, AI processing or QA review appear in this queue."
         />
       ) : (
         <div className="space-y-3">

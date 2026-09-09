@@ -23,11 +23,11 @@ import { formatCurrency, formatKrw, formatNumber } from './format';
 import { Card, ErrorBlock, Gauge, LoadingBlock, PageHeader, StatCard } from './ui';
 
 const GUARANTEE_DECISION_COPY = {
-  'not-due': { label: "Before decision", tone: 'text-slate-600 bg-slate-100' },
-  'needs-index-evidence': { label: "Need to check index", tone: 'text-amber-800 bg-amber-100' },
-  eligible: { label: "Refund Eligibility", tone: 'text-red-700 bg-red-100' },
-  'not-eligible': { label: "Meets the criteria", tone: 'text-emerald-700 bg-emerald-100' },
-  excluded: { label: "Exceptions apply", tone: 'text-violet-700 bg-violet-100' },
+  'not-due': { label: "Not due yet", tone: 'text-slate-600 bg-slate-100' },
+  'needs-index-evidence': { label: "Needs index evidence", tone: 'text-amber-800 bg-amber-100' },
+  eligible: { label: "Refund due", tone: 'text-red-700 bg-red-100' },
+  'not-eligible': { label: "Criteria met", tone: 'text-emerald-700 bg-emerald-100' },
+  excluded: { label: "Excluded", tone: 'text-violet-700 bg-violet-100' },
 } as const;
 
 export function OverviewDashboard() {
@@ -39,8 +39,8 @@ export function OverviewDashboard() {
   if (isPending) {
     return (
       <>
-        <PageHeader title="dashboard" description="Summary of overall service status" />
-        <LoadingBlock label="Loading status..." />
+        <PageHeader title="Dashboard" description="Service status at a glance" />
+        <LoadingBlock label="Loading status…" />
       </>
     );
   }
@@ -48,7 +48,7 @@ export function OverviewDashboard() {
   if (isError) {
     return (
       <>
-        <PageHeader title="dashboard" description="Summary of overall service status" />
+        <PageHeader title="Dashboard" description="Service status at a glance" />
         <ErrorBlock message={error.message} onRetry={() => refetch()} />
       </>
     );
@@ -59,7 +59,7 @@ export function OverviewDashboard() {
 
   return (
     <>
-      <PageHeader title="dashboard" description="Summary of overall service status" />
+      <PageHeader title="Dashboard" description="Service status at a glance" />
 
       {hostnameDanger ? (
         <div
@@ -68,7 +68,7 @@ export function OverviewDashboard() {
         >
           <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-600" aria-hidden />
           <div className="text-sm text-red-800">
-            <p className="font-semibold">Cloudflare free limits coming soon</p>
+            <p className="font-semibold">Approaching the Cloudflare free limit</p>
             <p className="mt-0.5 text-xs text-red-700">
               {formatNumber(data.customHostnameCount)} of {formatNumber(CF_FREE_HOSTNAME_LIMIT)} free
               custom hostnames are in use. Past the limit, each hostname costs $0.10 per month.
@@ -86,8 +86,11 @@ export function OverviewDashboard() {
           <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" aria-hidden />
           <div className="text-sm text-amber-900">
             <p className="font-semibold">
-              {formatNumber(data.fulfillmentAlerts.total)} fulfillment requests are past the{' '}
-              {FULFILLMENT_SLA_BUSINESS_DAYS} business-day SLA
+              {formatNumber(data.fulfillmentAlerts.total)}{' '}
+              {data.fulfillmentAlerts.total === 1
+                ? 'fulfillment request is'
+                : 'fulfillment requests are'}{' '}
+              past the {FULFILLMENT_SLA_BUSINESS_DAYS} business-day SLA
             </p>
             <p className="mt-0.5 text-xs text-amber-800">
               <Link href="/admin/edit-queue" className="underline underline-offset-2">
@@ -105,24 +108,24 @@ export function OverviewDashboard() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
-          label="number of customers"
+          label="Clients"
           icon={Users}
           value={formatNumber(data.clients.total)}
           sub={
             <span>
-              default homepage {formatNumber(data.clients.basic)} · AI video homepage{' '}
+              Default homepage {formatNumber(data.clients.basic)} · AI video homepage{' '}
               {formatNumber(data.clients.premium)}
             </span>
           }
         />
         <StatCard
-          label="live site"
+          label="Live sites"
           icon={MonitorCheck}
           value={formatNumber(data.liveSites)}
           sub="status = live"
         />
         <StatCard
-          label="credit circulation"
+          label="Credits outstanding"
           icon={Coins}
           value={formatNumber(data.credits.circulating)}
           sub={
@@ -133,13 +136,13 @@ export function OverviewDashboard() {
           }
         />
         <StatCard
-          label="Waiting for QA"
+          label="Awaiting QA"
           icon={ClipboardCheck}
           value={formatNumber(data.qaPending)}
-          sub="Review required Edit request"
+          sub="Edit requests needing review"
         />
         <StatCard
-          label="custom hostname"
+          label="Custom hostnames"
           icon={Globe}
           tone={hostnameDanger ? 'danger' : 'neutral'}
           value={
@@ -166,14 +169,14 @@ export function OverviewDashboard() {
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 id="admin-revenue-heading" className="text-sm font-semibold text-slate-900">
-              Sales at a glance
+              Revenue at a glance
             </h2>
             <p className="mt-0.5 text-[11px] text-slate-500">
               {data.revenue.month.month} KST · USD and KRW ledgers shown separately · Cash basis
             </p>
           </div>
           <p className="text-xs text-slate-500">
-            Goal achievement rate {Math.round(data.revenue.targetProgress * 100)}%
+            {Math.round(data.revenue.targetProgress * 100)}% of target
           </p>
         </div>
 
@@ -187,10 +190,10 @@ export function OverviewDashboard() {
                 {formatCurrency(usdRevenue.operatingRevenueNet, 'USD')}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                Enterprise setup and monthly service − refunds; no conversion to KRW
+                Setup and monthly service, less refunds. Never converted to KRW.
               </p>
               <p className="mt-1 text-[11px] text-slate-400">
-                Provider {formatCurrency(usdRevenue.operatingRevenueBySource.provider, 'USD')} · Manual collection{' '}
+                Payment provider {formatCurrency(usdRevenue.operatingRevenueBySource.provider, 'USD')} · Manual collection{' '}
                 {formatCurrency(usdRevenue.operatingRevenueBySource.manual, 'USD')}
               </p>
             </div>
@@ -221,15 +224,15 @@ export function OverviewDashboard() {
                 {formatKrw(data.revenue.operatingRevenueNetKrw)}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                Legacy production/site operation collection − refunds and credit packs; no conversion from USD
+                Legacy build and site-operation receipts − refunds and credit packs. Never converted from USD.
               </p>
               <p className="mt-1 text-[11px] text-slate-400">
-                PG {formatKrw(data.revenue.operatingRevenueBySourceKrw.provider)} · Manual collection{' '}
+                Payment provider {formatKrw(data.revenue.operatingRevenueBySourceKrw.provider)} · Manual collection{' '}
                 {formatKrw(data.revenue.operatingRevenueBySourceKrw.manual)}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] text-slate-400">KRW monthly operating goal</p>
+              <p className="text-[11px] text-slate-400">KRW monthly operating target</p>
               <p className="mt-0.5 text-sm font-semibold tabular-nums text-slate-700">
                 {formatKrw(data.revenue.targetKrw)}
               </p>
@@ -244,12 +247,12 @@ export function OverviewDashboard() {
 
         <div className="mt-3 grid grid-cols-2 gap-3 xl:grid-cols-6">
           <StatCard
-            label="Launch price production"
+            label="Launch-price builds"
             value={formatKrw(data.revenue.segments.launchBuild.netKrw)}
             icon={Rocket}
           />
           <StatCard
-            label="fixed price production"
+            label="List-price builds"
             value={formatKrw(data.revenue.segments.listBuild.netKrw)}
             icon={Target}
           />
@@ -259,21 +262,21 @@ export function OverviewDashboard() {
             icon={Video}
           />
           <StatCard
-            label="Operational Subscription Collection"
+            label="Subscription receipts"
             value={formatKrw(data.revenue.segments.subscription.netKrw)}
             icon={ReceiptText}
           />
           <StatCard
-            label="Uncategorized Production"
+            label="Unclassified builds"
             value={formatKrw(data.revenue.segments.unclassifiedBuild.netKrw)}
-            sub="Past, negotiated price, unclear combination, partial refund distribution"
+            sub="Legacy, negotiated or unclear pricing · partial-refund allocation"
             icon={CircleDollarSign}
             tone={data.revenue.segments.unclassifiedBuild.netKrw !== 0 ? 'danger' : 'neutral'}
           />
           <StatCard
-            label="full refund"
+            label="Refunds"
             value={formatKrw(data.revenue.receipts.refundsKrw)}
-            sub="Credit pack included · Actual processing time"
+            sub="Includes credit packs · dated when the refund was processed"
             icon={ReceiptText}
             tone={data.revenue.receipts.refundsKrw > 0 ? 'danger' : 'neutral'}
           />
@@ -285,7 +288,7 @@ export function OverviewDashboard() {
             <div>
               <h3 className="text-sm font-semibold text-slate-900">90-day performance guarantee decision</h3>
               <p className="mt-0.5 text-[11px] text-slate-500">
-                Index signal uses only Search Advisor/URL confirmation records · Inflow is the sum of Naver pageviews without PII
+                Index signal comes only from Search Advisor / URL check records · Referrals are Naver pageview totals with no personal data
               </p>
               <p className="mt-1 text-[11px] text-slate-500" data-guarantee-population>
                 KR/legacy eligible: {formatNumber(data.guaranteePopulation.eligibleSiteCount)} · Evaluated now: {formatNumber(data.guaranteePopulation.evaluatedSiteCount)} · US sites not covered: {formatNumber(data.guaranteePopulation.excludedEnUsSiteCount)}
@@ -300,11 +303,11 @@ export function OverviewDashboard() {
             <table data-guarantee-admin className="w-full min-w-[880px] text-left text-xs">
               <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
                 <tr>
-                  <th className="px-4 py-2.5 font-medium">site</th>
-                  <th className="px-4 py-2.5 font-medium">90 days decision date</th>
-                  <th className="px-4 py-2.5 font-medium">Naver Index</th>
-                  <th className="px-4 py-2.5 font-medium">Naver influx</th>
-                  <th className="px-4 py-2.5 font-medium">verdict</th>
+                  <th className="px-4 py-2.5 font-medium">Site</th>
+                  <th className="px-4 py-2.5 font-medium">90-day decision date</th>
+                  <th className="px-4 py-2.5 font-medium">Naver indexed</th>
+                  <th className="px-4 py-2.5 font-medium">Naver referrals</th>
+                  <th className="px-4 py-2.5 font-medium">Decision</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -314,17 +317,17 @@ export function OverviewDashboard() {
                     <tr key={row.siteId}>
                       <td className="px-4 py-3">
                         <p className="font-medium text-slate-800">{row.siteName}</p>
-                        <p className="mt-0.5 font-mono text-[10px] text-slate-400">{row.domain ?? "domain pending"}</p>
+                        <p className="mt-0.5 font-mono text-[10px] text-slate-400">{row.domain ?? "No domain yet"}</p>
                       </td>
                       <td className="px-4 py-3 text-slate-600">
-                        {new Date(row.dueAt).toLocaleDateString('ko-KR')}
+                        {new Date(row.dueAt).toLocaleDateString('en-US')}
                         {row.daysRemaining ? <span className="ml-1 text-slate-400">({row.daysRemaining} days left)</span> : null}
                       </td>
                       <td className="px-4 py-3 text-slate-600">
-                        {row.naverIndexed === null ? "Confirmation required" : row.naverIndexed ? "Yes" : "No"}
+                        {row.naverIndexed === null ? "Not checked" : row.naverIndexed ? "Yes" : "No"}
                       </td>
                       <td className="px-4 py-3 tabular-nums text-slate-700">
-                        {formatNumber(row.naverReferralCount)} / {formatNumber(row.referralThreshold)} times
+                        {formatNumber(row.naverReferralCount)} / {formatNumber(row.referralThreshold)}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`rounded px-2 py-1 text-[11px] font-semibold ${decision.tone}`}>{decision.label}</span>
@@ -343,20 +346,20 @@ export function OverviewDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                Past launch price collection site
+                Legacy launch-price sites
               </p>
               <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
                 {formatNumber(data.revenue.launchOffer.contracts)}
                 {data.revenue.launchOffer.limit === null ? null : (
                   <span className="text-sm font-normal text-slate-400">
-                    {' '}/ {formatNumber(data.revenue.launchOffer.limit)} records
+                    {' '}/ {formatNumber(data.revenue.launchOffer.limit)}
                   </span>
                 )}
               </p>
             </div>
             <p className="max-w-lg text-right text-[11px] leading-5 text-slate-500">
-              PG only counts the sites owned by the customer when identified as one, while manual collections only counts sites attributed to the ledger.
-              PG/manual duplicates on the same site are counted as one, and there is no quantity limit for new contracts.
+              Provider payments count a site only when it can be matched to its owner; manual collections count
+              only sites attributed in the ledger. A site counted on both sides counts once. New contracts have no cap.
             </p>
           </div>
           {data.revenue.launchOffer.limit !== null ? (
@@ -368,7 +371,7 @@ export function OverviewDashboard() {
               />
               <p className="mt-2 text-[11px] text-slate-500">
                 {data.revenue.launchOffer.reachedLimit
-                  ? "The limit has been reached. Have the operator review the launch offer status."
+                  ? "The limit is reached — check the launch offer before contracting another."
                   : `${formatNumber(data.revenue.launchOffer.remaining ?? 0)} remaining`}
               </p>
             </>
@@ -380,7 +383,7 @@ export function OverviewDashboard() {
         {data.revenue.anomalies.length ? (
           <div role="alert" className="mt-3 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-800">
             <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
-            {formatNumber(data.revenue.anomalies.length)} anomalies found across{' '}
+            {formatNumber(data.revenue.anomalies.length)} anomalies across{' '}
             {formatNumber(data.revenue.anomalyPaymentCount)} payment ledger entries. Their
             classification and refunds are reported as-is — nothing was estimated.
           </div>

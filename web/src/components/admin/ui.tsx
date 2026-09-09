@@ -156,7 +156,7 @@ export function ErrorBlock({ message, onRetry }: { message: string; onRetry?: ()
           className="inline-flex items-center gap-1.5 rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100"
         >
           <RefreshCw size={13} aria-hidden />
-          try again
+          Try again
         </button>
       ) : null}
     </div>
