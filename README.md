@@ -1,3 +1,17 @@
+# Anaks Labs — AI website generator + hosting SaaS
+
+> Portfolio mirror of the working repo (743 commits). The rest of this README is in Korean; this section is the English summary.
+
+**What it does.** Generates a complete multi-page website for a small business from its brand inputs — brand / colour extraction, page and section generation, live preview, one-click deploy to managed hosting — and sells it as a one-time build plus a monthly maintenance subscription.
+
+**Stack.** TypeScript / Next.js (`web/`), Supabase (auth, Postgres, storage), Vercel, AI generation APIs (image and video).
+
+**Run it without keys.** Mock mode is the default (`NEXT_PUBLIC_MOCK_MODE` unset or `1`): every external integration — database, auth, AI, payments, CDN — is replaced by in-memory fakes, so the whole generate → preview → deploy flow runs locally with no credentials. Set `NEXT_PUBLIC_MOCK_MODE=0` to hit real services.
+
+**What I'd point at first.** The multi-page site model (pages > sections) and the preview / deploy pipeline under `web/`.
+
+---
+
 # 아낙스랩스 (Anaks Labs)
 
 > AI로 고객 니치에 맞춘 웹사이트를 **자동 생성**하고, 자체 인프라에 **멀티테넌트로 호스팅**하며,
